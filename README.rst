@@ -1,7 +1,7 @@
 =================
 CloudARK
 =================
-CloudARK makes your containerized applications cloud ready.
+CloudARK makes your containerized applications *cloud ready*.
 
 Today, deploying containerized applications on public clouds involves following steps:
 
@@ -21,7 +21,7 @@ Try cloudark
 -------------
 1) Clone this repository
 
-2) Install and start cloudark:
+2) Run cloudark:
 
    - virtualenv testenv
 
@@ -38,21 +38,20 @@ Try cloudark
 
 Concepts
 --------
-Cloudark has two primary concepts - environment and application.
+Cloudark has two primary concepts - *environment* and *application*.
 
 environment
   An environment consists of any cloud resource that is required by the application.
   This includes cloud databases, load balancers, container orchestration engines, etc.
+  Environment is represented using a simple yaml format.
 
 application
   An application is something for which a Docker container can be built.
-  Application is deployed on an environment.
+  Application is deployed on an environment. For application representation, 
+ we use Dockerfile and assume its existence in your application directory.
 
 Cloudark seamlessly binds the application to the environment as part of orchestrating
 its deployment on the environment.
-
-Environment is represented using a simple yaml format. For application representation, 
-we use Dockerfile and assume its existence in your application directory.
 
 
 Deployment to Amazon (ECS)
@@ -83,7 +82,7 @@ Deployment to Amazon (ECS)
      +------------------+-----------+------------+
      |     App Name     | Deploy ID |    Cloud   |
      +------------------+-----------+------------+
-     | hello-world      |    2      |     aws    |
+     | hello-world      |    1      |     aws    |
      +------------------+-----------+------------+
 
 5) Check deployment status
@@ -93,5 +92,5 @@ Deployment to Amazon (ECS)
    +------------------+-----------+---------------------+--------------+---------------------------------------+
    |     App Name     | Deploy ID |        Status       |     Cloud    |                App URL                |
    +------------------+-----------+---------------------+--------------+---------------------------------------+
-   | hello-world      |    2      | DEPLOYMENT_COMPLETE |      aws     | <App URL on AWS>                      |
+   | hello-world      |    1      | DEPLOYMENT_COMPLETE |      aws     | <App URL on AWS>                      |
    +------------------+-----------+---------------------+--------------+---------------------------------------+
