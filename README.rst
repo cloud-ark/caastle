@@ -22,9 +22,13 @@ Try cloudark
 1) Clone this repository
 
 2) Install and start cloudark:
+
    - virtualenv testenv
+
    - source testenv/bin/activate
+
    - pip install -r requirements.txt
+
    - python server/fmserver.py
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
@@ -55,8 +59,11 @@ Deployment to Amazon (ECS)
 ---------------------------
 1) Sign up for Amazon AWS account
 2) Login to Amazon AWS web console and from the IAM panel do following:
+
    - Create a IAM User (choose any name)
+
    - Grant following permission to the user by clicking the "Add permissions" button on the user panel.
+
      - AmazonEC2ContainerRegistryFullAccess
      - AmazonEC2ContainerServiceAutoscaleRole
      - AmazonEC2ContainerServiceFullAccess
@@ -66,8 +73,11 @@ Deployment to Amazon (ECS)
 3) Note down SECRET_ACCESS_KEY and ACCESS_KEY_ID for this user. Provide these values when asked by cld.
 
 4) Deploy hello-world sample application:
+
    - Navigate to the application folder (cd $APPROPRIATE-PATH/cloudark-samples/hello-world)
+
    - Deploy application:
+
      $ cld app deploy --target aws
      
      +------------------+-----------+------------+
@@ -77,6 +87,7 @@ Deployment to Amazon (ECS)
      +------------------+-----------+------------+
 
 5) Check deployment status
+
    $ cld app show --deploy-id 2
 
    +------------------+-----------+---------------------+--------------+---------------------------------------+
