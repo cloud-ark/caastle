@@ -22,10 +22,10 @@ Try cloudark
 1) Clone this repository
 
 2) Install and start cloudark:
-   * virtualenv testenv
-   * source testenv/bin/activate
-   * pip install -r requirements.txt
-   * python server/fmserver.py
+   - virtualenv testenv
+   - source testenv/bin/activate
+   - pip install -r requirements.txt
+   - python server/fmserver.py
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
 
@@ -36,11 +36,13 @@ Concepts
 --------
 Cloudark has two primary concepts - environment and application.
 
-An environment consists of any cloud resource that is required by the application.
-This includes cloud databases, load balancers, container orchestration engines, etc.
+environment
+  An environment consists of any cloud resource that is required by the application.
+  This includes cloud databases, load balancers, container orchestration engines, etc.
 
-An application is something for which a Docker container can be built.
-Application is deployed on an environment.
+application
+  An application is something for which a Docker container can be built.
+  Application is deployed on an environment.
 
 Cloudark seamlessly binds the application to the environment as part of orchestrating
 its deployment on the environment.
@@ -53,20 +55,20 @@ Deployment to Amazon (ECS)
 ---------------------------
 1) Sign up for Amazon AWS account
 2) Login to Amazon AWS web console and from the IAM panel do following:
-   * Create a IAM User (choose any name)
-   * Grant following permission to the user by clicking the "Add permissions" button on the user panel.
-     ** AmazonEC2ContainerRegistryFullAccess
-     ** AmazonEC2ContainerServiceAutoscaleRole
-     ** AmazonEC2ContainerServiceFullAccess
-     ** AmazonEC2ContainerServiceforEC2Role
-     ** AmazonEC2ContainerServiceRole
+   - Create a IAM User (choose any name)
+   - Grant following permission to the user by clicking the "Add permissions" button on the user panel.
+     - AmazonEC2ContainerRegistryFullAccess
+     - AmazonEC2ContainerServiceAutoscaleRole
+     - AmazonEC2ContainerServiceFullAccess
+     - AmazonEC2ContainerServiceforEC2Role
+     - AmazonEC2ContainerServiceRole
 
 3) Note down SECRET_ACCESS_KEY and ACCESS_KEY_ID for this user. Provide these values when asked by cld.
 
 4) Deploy hello-world sample application:
-   * Navigate to the application folder (cd $APPROPRIATE-PATH/cloudark-samples/hello-world)
-   * Deploy application:
-     ** cld app deploy --target aws
+   - Navigate to the application folder (cd $APPROPRIATE-PATH/cloudark-samples/hello-world)
+   - Deploy application:
+     $ cld app deploy --target aws
      
      +------------------+-----------+------------+
      |     App Name     | Deploy ID |    Cloud   |
@@ -75,7 +77,7 @@ Deployment to Amazon (ECS)
      +------------------+-----------+------------+
 
 5) Check deployment status
-   * cld app show --deploy-id 2
+   $ cld app show --deploy-id 2
 
    +------------------+-----------+---------------------+--------------+---------------------------------------+
    |     App Name     | Deploy ID |        Status       |     Cloud    |                App URL                |
