@@ -23,13 +23,7 @@ Try cloudark
 
 2) Run cloudark:
 
-   - virtualenv testenv
-
-   - source testenv/bin/activate
-
-   - pip install -r requirements.txt
-
-   - python server/fmserver.py
+   - ./install.sh
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
 

@@ -1,0 +1,12 @@
+*~
+*build
+*dist
+*egg-info
+*pyc
+*virtenv
+.project
+.pydevproject
+testenv
+cld.log
+cld-server.log
+install.log
