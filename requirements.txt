@@ -1,0 +1,7 @@
+flask
+flask-restful
+docker-py
+testtools
+requests
+gevent
+boto3
