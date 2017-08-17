@@ -89,9 +89,16 @@ class AWSHandler(object):
         for resource_defs in resource_list:
             resource_details = resource_defs['resource']
             type = resource_details['type']
+            dbhandler.update_environment_status(env_id, status='creating_' + type)
             status = AWSHandler.registered_resource_handlers[type].create(env_id, resource_details)
             ret_status_list.append(status)
         return ret_status_list
+
+    def delete_resource(self, env_id, resource):
+        resource_details = ''
+        type = resource[db_handler.RESOURCE_TYPE]
+        dbhandler.update_environment_status(env_id, status='deleting_' + type)
+        status = AWSHandler.registered_resource_handlers[type].delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
         cluster_name = resource[db_handler.RESOURCE_NAME]
@@ -140,7 +147,7 @@ class AWSHandler(object):
         
         if not os.path.exists(env_store_location):
             os.makedirs(env_store_location)
-            shutil.copytree(APP_AND_ENV_STORE_PATH+"/aws-creds", env_store_location+"/aws-creds")
+            shutil.copytree(home_dir+"/.aws", env_store_location+"/aws-creds")
 
         vpc_details = AWSHandler.awshelper.get_vpc_details()
         vpc_id = vpc_details['vpc_id']

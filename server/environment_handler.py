@@ -54,6 +54,7 @@ class EnvironmentHandler(threading.Thread):
         if 'app_deployment' in env_details:
             app_deployment = env_details['app_deployment']
             if app_deployment['target'] == 'aws':
+                db_handler.DBHandler().update_environment_status(self.env_id, status='creating_ecs_cluster')
                 status = EnvironmentHandler.registered_cloud_handlers['aws'].create_cluster(self.env_id, self.environment_info)
                 status_list.append(status)
 
@@ -93,6 +94,8 @@ class EnvironmentHandler(threading.Thread):
             type = resource[db_handler.RESOURCE_TYPE]
             if type == 'ecs-cluster':
                 status = EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
+            else:
+                EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id, resource)
                 
         db_handler.DBHandler().delete_environment(self.env_id)
 

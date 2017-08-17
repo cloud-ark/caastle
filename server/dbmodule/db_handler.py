@@ -22,6 +22,7 @@ RES_INPUT_CONFIG_COL = "resource_input_config"
 RES_FILTERED_DESC_COL = "resource_filtered_description"
 RES_DETAILED_DESC_COL = "resource_detailed_description"
 
+RESOURCE_ID = 0
 RESOURCE_NAME = 2
 RESOURCE_TYPE = 3
 RESOURCE_FILTERED_DESCRIPTION = 6

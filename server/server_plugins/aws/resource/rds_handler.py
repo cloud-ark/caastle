@@ -109,14 +109,14 @@ class RDSResourceHandler(object):
         return status.lower()
 
     def delete(self, request_obj):
-        db_name = instance_id = request_obj['name']
-        
+        db_name = instance_id = request_obj[db_handler.RESOURCE_NAME]
+
         try:
             response = self.client.delete_db_instance(DBInstanceIdentifier=instance_id,
                                                       SkipFinalSnapshot=True)
         except Exception as e:
             fmlogger.error(e)
-            db_handler.DBHandler().delete_resource(request_obj['resource_id'])
+            db_handler.DBHandler().delete_resource(request_obj[db_handler.RESOURCE_ID])
             
         deleted = False
         count = 1
@@ -124,13 +124,13 @@ class RDSResourceHandler(object):
             try:
                 status_dict = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
                 status = status_dict['DBInstances'][0]['DBInstanceStatus']
-                db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
+                db_handler.DBHandler().update_resource(request_obj[db_handler.RESOURCE_ID], status)
                 count = count + 1
                 time.sleep(2)
             except Exception as e:
                 fmlogger.error(e)
                 deleted = True
-                db_handler.DBHandler().delete_resource(request_obj['resource_id'])
+                db_handler.DBHandler().delete_resource(request_obj[db_handler.RESOURCE_ID])
 
 class RDS():
     @staticmethod
