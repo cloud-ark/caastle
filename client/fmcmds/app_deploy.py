@@ -42,7 +42,7 @@ class AppDeploy(Command):
 
         target = parsed_args.target
         if not target:
-            target = raw_input("Please enter application deployment target>")
+            target = raw_input("Please enter application deployment target (local/aws)>")
         app_info['target'] = target
 
         env_id = parsed_args.env_id
@@ -56,8 +56,7 @@ class AppDeploy(Command):
         app_folder_name = self._get_app_folder_name(app_location)
         app_info['app_folder_name'] = app_folder_name
         self.dep_track_url = server.TakeAction().deploy_app(app_location, app_info)
-        print("Application deployment tracking url:%s" % self.dep_track_url)
 
         l = self.dep_track_url.rfind("/")
-        dep_id = self.dep_track_url[l+1:]
-        print("dep id:%s" % dep_id)
+        app_id = self.dep_track_url[l+1:]
+        print("app id:%s" % app_id)
