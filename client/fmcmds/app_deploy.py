@@ -19,12 +19,10 @@ class AppDeploy(Command):
     def get_parser(self, prog_name):
         parser = super(AppDeploy, self).get_parser(prog_name)
 
-        parser.add_argument('--name',
-                            dest='app_name',
+        parser.add_argument('app_name',
                             help="Application name")
         
-        parser.add_argument('--target',
-                            dest='target',
+        parser.add_argument('target',
                             help="Application deployment target (local | aws)")
 
         parser.add_argument('--env-id',
@@ -43,7 +41,7 @@ class AppDeploy(Command):
         target = parsed_args.target
         if not target:
             target = raw_input("Please enter application deployment target (local/aws)>")
-        app_info['target'] = target
+        app_info['target'] = target.lower()
 
         env_id = parsed_args.env_id
         if env_id:
