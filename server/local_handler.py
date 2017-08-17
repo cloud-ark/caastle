@@ -110,6 +110,7 @@ class LocalHandler(object):
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting application %s %s" % (app_id, app_info['app_name']))
+        cont_image_name = app_info['app_name'] + '-' + app_info['app_version']
         dbhandler.update_app(app_id, status=constants.DELETING_APP)
         cont_id = self._read_container_id(app_info)
         if cont_id:
@@ -117,5 +118,6 @@ class LocalHandler(object):
             if err:
                 fmlogger.debug("Encountered error in stopping container %s. Returning." % cont_id)
             self.docker_handler.remove_container(cont_id)
+            self.docker_handler.remove_container_image(cont_image_name)
         dbhandler.delete_app(app_id)
         fmlogger.debug("Done deleting application")

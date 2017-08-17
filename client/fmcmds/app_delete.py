@@ -26,4 +26,3 @@ class AppDelete(Command):
         if not app_id:
             app_id = raw_input("Enter app id>")
         response = server.TakeAction().delete_app(app_id)
-        print(response)

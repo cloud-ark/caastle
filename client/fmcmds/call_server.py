@@ -79,7 +79,7 @@ class TakeAction(object):
         app_url = apps_endpoint + "/" + app_id
         response = requests.delete(app_url)
         if response.status_code == 404:
-            print("App with id %s not found." % app_id)
+            print("App with app-id %s not found." % app_id)
         if response.status_code == 202:
             print("Request to delete app with id %s accepted." % app_id)
         return response
@@ -153,7 +153,7 @@ class TakeAction(object):
         env_url = environments_endpoint + "/" + env_id
         response = requests.delete(env_url)
         if response.status_code == 404:
-            print("Environment with id %s not found." % env_id)
+            print("Environment with env-id %s not found." % env_id)
         if response.status_code == 202:
             print("Request to delete env with id %s accepted." % env_id)
         if response.status_code == 412:

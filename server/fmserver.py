@@ -246,10 +246,11 @@ class AppRestResource(Resource):
             app_info['target'] = app_obj[db_handler.APP_DEP_TARGET]
             app_info['app_name'] = app_obj[db_handler.APP_NAME]
             app_info['app_location'] = app_obj[db_handler.APP_LOCATION]
+            app_info['app_version'] = app_obj[db_handler.APP_VERSION]
 
             request_handler_thread = app_handler.AppHandler(app_id, app_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
-            response.status_code = 201
+            response.status_code = 202
         else:
             response.status_code = 404
         return response
