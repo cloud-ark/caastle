@@ -13,10 +13,29 @@ RESOURCE_NAME = 2
 RESOURCE_TYPE = 3
 RESOURCE_FILTERED_DESCRIPTION = 6
 
+RES_ID_COL = "resource_id"
+RES_ENV_ID_COL = "resource_env_id"
+RES_CLOUD_ID_COL = "resource_cloud_id"
+RES_TYPE_COL = "resource_type"
+RES_STATUS_COL = "resource_status"
+RES_INPUT_CONFIG_COL = "resource_input_config"
+RES_FILTERED_DESC_COL = "resource_filtered_description"
+RES_DETAILED_DESC_COL = "resource_detailed_description"
+
+RESOURCE_NAME = 2
+RESOURCE_TYPE = 3
+RESOURCE_FILTERED_DESCRIPTION = 6
+
 ENV_NAME = 1
 ENV_STATUS = 2
 ENV_DEFINITION = 3
 ENV_OUTPUT_CONFIG = 4
+
+ENV_ID_COL = "env_id"
+ENV_NAME_COL = "env_name"
+ENV_STATUS_COL = "env_status"
+ENV_DEFINITION_COL = "env_definition"
+ENV_OUTPUT_CONFIG_COL = "env_details"
 
 APP_ID = 0
 APP_NAME = 1

@@ -14,8 +14,7 @@ class ResourceShow(Command):
     def get_parser(self, prog_name):
         parser = super(ResourceShow, self).get_parser(prog_name)
 
-        parser.add_argument('--resource-id',
-                            dest='resource_id',
+        parser.add_argument(dest='resource_id',
                             help="Resource id")
 
         parser.add_argument('--env-id',

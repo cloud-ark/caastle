@@ -38,7 +38,7 @@ def start_thread(request_handler_thread):
     except Exception as e:
         fmlogging.error(e)
 
-class ResourcesResource(Resource):
+class ResourcesRestResource(Resource):
     def post(self):
         fmlogging.debug("Received POST request to create resource")
         args = request.get_json(force=True)
@@ -76,23 +76,31 @@ class ResourcesResource(Resource):
         if env_id:
             resp_data['data'] = dbhandler.get_resources_for_environment(env_id)
         else:
-            resp_data['data'] = dbhandler.get_resources()
+            all_resources = dbhandler.get_resources()
+            resp_data['data'] = common_functions.marshall_resource_list(all_resources)
 
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
 
-class ResourceResource(Resource):
+class ResourceRestResource(Resource):
     def get(self, resource_id):
         fmlogging.debug("Received GET request for resource %s" % resource_id)
         resp_data = {}
 
         env_id = request.args.get('env_id')
 
-        resp_data['data'] = dbhandler.get_resource(resource_id)
-
         response = jsonify(**resp_data)
-        response.status_code = 200
+
+        resource = dbhandler.get_resource(resource_id)
+        if resource:
+            marshalled_resource = common_functions.marshall_resource(resource)
+            resp_data['data'] = marshalled_resource
+            response = jsonify(**resp_data)
+            response.status_code = 200
+        else:
+            response.status_code = 404
+
         return response
 
     def delete(self, resource_id):
@@ -293,7 +301,10 @@ class EnvironmentsRestResource(Resource):
         fmlogging.debug("Received GET request for all environments")
         resp_data = {}
 
-        resp_data['data'] = dbhandler.get_environments()
+        all_envs = dbhandler.get_environments()
+        marshalled_env_list = common_functions.marshall_env_list(all_envs)
+
+        resp_data['data'] = marshalled_env_list
 
         response = jsonify(**resp_data)
         response.status_code = 200
@@ -303,11 +314,18 @@ class EnvironmentRestResource(Resource):
     def get(self, env_id):
 
         resp_data = {}
-
-        resp_data['data'] = dbhandler.get_environment(env_id)
-
+        
         response = jsonify(**resp_data)
-        response.status_code = 200
+
+        env = dbhandler.get_environment(env_id)
+        if env:
+            marshalled_env = common_functions.marshall_env(env)
+            resp_data['data'] = marshalled_env
+            response = jsonify(**resp_data)
+            response.status_code = 200
+        else:
+            response.status_code = 404
+
         return response
 
     def delete(self, env_id):
@@ -403,8 +421,8 @@ api.add_resource(EnvironmentRestResource, '/environments/<env_id>')
 
 api.add_resource(StacksResource, '/resource_stacks')
 api.add_resource(StackResource, '/resource_stacks/<stack_id>')
-api.add_resource(ResourcesResource, '/resources')
-api.add_resource(ResourceResource, '/resources/<resource_id>')
+api.add_resource(ResourcesRestResource, '/resources')
+api.add_resource(ResourceRestResource, '/resources/<resource_id>')
 
 if __name__ == '__main__':
     if not os.path.exists(APP_STORE_PATH):

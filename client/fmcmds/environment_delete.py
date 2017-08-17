@@ -14,8 +14,7 @@ class EnvironmentDelete(Command):
     def get_parser(self, prog_name):
         parser = super(EnvironmentDelete, self).get_parser(prog_name)
 
-        parser.add_argument('--env-id',
-                            dest='env_id',
+        parser.add_argument(dest='env_id',
                             help="Environment id")
 
         return parser

@@ -8,19 +8,17 @@ from pydoc import locate
 
 import call_server as server
 
-env_file_request_string = "name of yaml file containing environment resource specification"
+env_file_request_string = "Name of yaml file containing environment resource specification"
 
 class EnvironmentCreate(Command):
     
     def get_parser(self, prog_name):
         parser = super(EnvironmentCreate, self).get_parser(prog_name)
 
-        parser.add_argument('--name',
-                            dest='env_name',
-                            help="Environment name")
+        parser.add_argument(dest='env_name',
+                            help="Name that you want to give to the environment")
 
-        parser.add_argument('-f',
-                            dest='file_name',
+        parser.add_argument(dest='file_name',
                             help=env_file_request_string)
 
         return parser
@@ -50,7 +48,11 @@ class EnvironmentCreate(Command):
         if not file_name:
             file_name = raw_input("Please enter " + env_file_request_string + ">")
         
-        fp = open(file_name, "r")
+        try:
+            fp = open(file_name, "r")
+        except Exception as e:
+            print(e)
+            exit()
 
         environment_def = ''
         try:

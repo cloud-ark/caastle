@@ -57,11 +57,13 @@ Deployment to Amazon (ECS)
 
    - Grant following permission to the user by clicking the "Add permissions" button on the user panel.
 
+     - AmazonRDSFullAccess
+     - AmazonEC2FullAccess
      - AmazonEC2ContainerRegistryFullAccess
-     - AmazonEC2ContainerServiceAutoscaleRole
-     - AmazonEC2ContainerServiceFullAccess
-     - AmazonEC2ContainerServiceforEC2Role
      - AmazonEC2ContainerServiceRole
+     - AmazonEC2ContainerServiceFullAccess
+     - AmazonEC2ContainerServiceAutoscaleRole
+     - AmazonEC2ContainerServiceforEC2Role
 
 3) Note down SECRET_ACCESS_KEY and ACCESS_KEY_ID for this user. Provide these values when asked by cld.
 

@@ -40,7 +40,7 @@ class AWSHandler(object):
     @staticmethod
     def get_aws_details():
         region = access_key = secret_key = ''
-        aws_creds_path = APP_AND_ENV_STORE_PATH + "/aws-creds"
+        aws_creds_path = home_dir + "/.aws"
         creds_file_path = aws_creds_path + "/credentials"
         config_file_path = aws_creds_path + "/config"
         incorrect_setup = False

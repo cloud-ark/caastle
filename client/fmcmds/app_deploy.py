@@ -27,7 +27,7 @@ class AppDeploy(Command):
 
         parser.add_argument('--env-id',
                             dest='env_id',
-                            help="Id of the environment on which to deploy the application")
+                            help="Id of the environment to which application should be bound")
 
         return parser
 

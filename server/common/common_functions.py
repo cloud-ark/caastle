@@ -118,3 +118,46 @@ def marshall_app_list(app_list):
         output_app = marshall_app(app)
         output_app_list.append(output_app)
     return output_app_list
+
+def marshall_env(env):
+    output_env = {}
+    env_attr_table = [None] * 5
+    env_attr_table[0] = db_handler.ENV_ID_COL
+    env_attr_table[1] = db_handler.ENV_NAME_COL
+    env_attr_table[2] = db_handler.ENV_STATUS_COL
+    env_attr_table[3] = db_handler.ENV_DEFINITION_COL
+    env_attr_table[4] = db_handler.ENV_OUTPUT_CONFIG_COL
+
+    for idx, val in enumerate(env):
+        output_env[env_attr_table[idx]] = env[idx]
+    return output_env
+
+def marshall_env_list(env_list):
+    output_env_list = []
+    for env in env_list:
+        output_env = marshall_env(env)
+        output_env_list.append(output_env)
+    return output_env_list
+
+def marshall_resource(resource):
+    output_resource = {}
+    resource_attr_table = [None] * 8
+    resource_attr_table[0] = db_handler.RES_ID_COL
+    resource_attr_table[1] = db_handler.RES_ENV_ID_COL
+    resource_attr_table[2] = db_handler.RES_CLOUD_ID_COL
+    resource_attr_table[3] = db_handler.RES_TYPE_COL
+    resource_attr_table[4] = db_handler.RES_STATUS_COL
+    resource_attr_table[5] = db_handler.RES_INPUT_CONFIG_COL
+    resource_attr_table[6] = db_handler.RES_FILTERED_DESC_COL
+    resource_attr_table[7] = db_handler.RES_DETAILED_DESC_COL
+
+    for idx, val in enumerate(resource):
+        output_resource[resource_attr_table[idx]] = resource[idx]
+    return output_resource
+
+def marshall_resource_list(resource_list):
+    output_resource_list = []
+    for resource in resource_list:
+        output_resource = marshall_resource(resource)
+        output_resource_list.append(output_resource)
+    return output_resource_list
