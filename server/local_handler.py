@@ -91,7 +91,7 @@ class LocalHandler(object):
 
     def deploy_application(self, app_id, app_info):
         fmlogger.debug("Deploying application %s %s" % (app_id, app_info['app_name']))
-        if app_info['env_id']:
+        if 'env_id' in app_info:
             common_functions.resolve_environment(app_id, app_info)
         dbhandler.update_app(app_id, status=constants.BUILDING_APP)
         err, output, cont_name = self._build_app_container(app_info)

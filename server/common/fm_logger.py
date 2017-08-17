@@ -1,5 +1,7 @@
 import logging
 import inspect
+import traceback
+
 from common import constants
 
 class Logging():
@@ -9,7 +11,7 @@ class Logging():
                             level=logging.DEBUG, filemode='a',
                             format='%(asctime)s %(message)s',
                             datefmt='%m/%d/%Y %I:%M:%S %p')
-        self.logger = logging.getLogger("FirstMile")
+        self.logger = logging.getLogger("CloudARK")
 
     # http://stackoverflow.com/questions/10973362/python-logging-function-name-file-name-line-number-using-a-single-file
     def info(self, message):
@@ -45,8 +47,10 @@ class Logging():
                 print("-- Disk full -- (most likely this also won't get printed.")
 
     def error(self, message):
+
         # Get the previous frame in the stack, otherwise it would
         # be this function!!!
+
         try:
             func = inspect.currentframe().f_back.f_code
             # Dump the message + the name of this function to the log.
@@ -56,6 +60,9 @@ class Logging():
                 func.co_filename,
                 func.co_firstlineno
             ))
+
+            self.logger.error(message, exc_info=1)
+
         except IOError as e:
             if e.errno == 28:
                 print("-- Disk full -- (most likely this also won't get printed.")
