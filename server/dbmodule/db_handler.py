@@ -27,6 +27,15 @@ APP_STATUS = 5
 APP_OUTPUT_CONFIG = 6
 APP_ENV_ID = 7
 
+APP_ID_COL = "app_id"
+APP_NAME_COL = "app_name"
+APP_LOCATION_COL = "app_location"
+APP_VERSION_COL = "app_version"
+APP_DEP_TARGET_COL = "deployment_target"
+APP_STATUS_COL = "status"
+APP_OUTPUT_CONFIG_COL = "app_details"
+APP_ENV_ID_COL = "env_id"
+
 class DBHandler(object):
     def __init__(self):
         self.conn = sqlite3.connect(DBFILE)

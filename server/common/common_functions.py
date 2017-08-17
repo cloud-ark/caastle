@@ -95,3 +95,26 @@ def resolve_environment(app_id, app_info):
         fp.write("\n")
     fp.close()
     fp1.close()
+
+def marshall_app(app):
+    output_app = {}
+    app_attr_table = [None] * 8
+    app_attr_table[0] = db_handler.APP_ID_COL
+    app_attr_table[1] = db_handler.APP_NAME_COL
+    app_attr_table[2] = db_handler.APP_LOCATION_COL
+    app_attr_table[3] = db_handler.APP_VERSION_COL
+    app_attr_table[4] = db_handler.APP_DEP_TARGET_COL
+    app_attr_table[5] = db_handler.APP_STATUS_COL
+    app_attr_table[6] = db_handler.APP_OUTPUT_CONFIG_COL
+    app_attr_table[7] = db_handler.APP_ENV_ID_COL
+
+    for idx, val in enumerate(app):
+        output_app[app_attr_table[idx]] = app[idx]
+    return output_app
+
+def marshall_app_list(app_list):
+    output_app_list = []
+    for app in app_list:
+        output_app = marshall_app(app)
+        output_app_list.append(output_app)
+    return output_app_list

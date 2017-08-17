@@ -170,7 +170,10 @@ class AppsRestResource(Resource):
         fmlogging.debug("Received GET request for all apps")
         resp_data = {}
 
-        resp_data['data'] = dbhandler.get_apps()
+        all_apps = dbhandler.get_apps()
+        marshalled_app_list = common_functions.marshall_app_list(all_apps)
+
+        resp_data['data'] = marshalled_app_list
 
         response = jsonify(**resp_data)
         response.status_code = 200
@@ -180,11 +183,17 @@ class AppRestResource(Resource):
     def get(self, app_id):
 
         resp_data = {}
-
-        resp_data['data'] = dbhandler.get_app(app_id)
-
         response = jsonify(**resp_data)
-        response.status_code = 200
+
+        app = dbhandler.get_app(app_id)
+        if app:
+            marshalled_app = common_functions.marshall_app(app)
+            resp_data['data'] = marshalled_app
+            response = jsonify(**resp_data)
+            response.status_code = 200
+        else:
+            response.status_code = 404
+
         return response
 
     def put(self, app_id):
