@@ -5,25 +5,25 @@ CloudARK makes your containerized applications *cloud ready*.
 
 Today, deploying containerized applications on public clouds involves following steps:
 
-1) Provision cloud services (such as Amazon RDS)
-2) Provision container orchestration engine (COE) cluster (such as Amazon ECS or GKE)
-3) Build application containers
-4) Bind containers to cloud services
-5) Deploy containers on COE cluster
+1) Provisioning cloud services (such as Amazon RDS)
+2) Provisioning container orchestration engine (COE) cluster (such as Amazon ECS or GKE)
+3) Building application containers
+4) Binding containers to cloud services
+5) Deploying containers on COE cluster
 
 Different tools are required for each of these steps currently.
 
-CloudARK is a command-line tool that unifies all these steps providing a unified experience for 
+CloudARK is a command-line tool that unifies all these steps and provides a unified experience for
 deploying your containerized applications on public clouds.
 
 
-Try cloudark
+Try CloudARK
 -------------
 1) Clone this repository
 
-2) Run cloudark:
+2) Install CloudARK:
 
-   - ./install.sh
+     ./install.sh
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
 
@@ -32,61 +32,75 @@ Try cloudark
 
 Concepts
 --------
-Cloudark has two primary concepts - *environment* and *application*.
+CloudARK has two primary concepts - *environment* and *application*.
 
 environment
-  An environment consists of any cloud resource that is required by the application.
+  An environment consists of any cloud resource that is required by your application.
   This includes cloud databases, load balancers, container orchestration engines, etc.
   Environment is represented using a simple yaml format.
 
+    Currently supported resources: AWS RDS, AWS DynamoDB, AWS ECS
+
 application
-  An application is something for which a Docker container can be built.
-  Application is deployed on an environment. For application representation, 
- we use Dockerfile and assume its existence in your application directory.
+  An application is a Docker container built from application source code.
+  CloudARK assumes existence of Dockerfile in the application folder.
+  An application is deployed on an environment.
 
-Cloudark seamlessly binds the application to the environment as part of orchestrating
-its deployment on the environment.
+CloudARK seamlessly binds the application to the environment as part of orchestrating its deployment.
 
 
-Deployment to Amazon (ECS)
----------------------------
-1) Sign up for Amazon AWS account
-2) Login to Amazon AWS web console and from the IAM panel do following:
+Deployment to Amazon ECS
+-------------------------
 
-   - Create a IAM User (choose any name)
+CloudARK assumes that you have done AWS setup and uses it (for example, using ~/.aws directory for
+credentials). The ~/.aws directory will typically be created when you setup AWS CLI. If you don't have this directory
+then follow these steps_.
 
-   - Grant following permission to the user by clicking the "Add permissions" button on the user panel.
+.. _steps: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 
-     - AmazonRDSFullAccess
-     - AmazonEC2FullAccess
-     - AmazonEC2ContainerRegistryFullAccess
-     - AmazonEC2ContainerServiceRole
-     - AmazonEC2ContainerServiceFullAccess
-     - AmazonEC2ContainerServiceAutoscaleRole
-     - AmazonEC2ContainerServiceforEC2Role
+Your AWS user will need to have following permissions in order to use CloudARK to deploy
+containerized applications on AWS.
 
-3) Note down SECRET_ACCESS_KEY and ACCESS_KEY_ID for this user. Provide these values when asked by cld.
+- AmazonRDSFullAccess
+- AmazonEC2FullAccess
+- AmazonEC2ContainerRegistryFullAccess
+- AmazonEC2ContainerServiceRole
+- AmazonEC2ContainerServiceFullAccess
+- AmazonEC2ContainerServiceAutoscaleRole
+- AmazonEC2ContainerServiceforEC2Role
 
-4) Deploy hello-world sample application:
 
-   - Navigate to the application folder (cd $APPROPRIATE-PATH/cloudark-samples/hello-world)
 
-   - Deploy application:
+Available commands
+-------------------
 
-     $ cld app deploy --target aws
-     
-     +------------------+-----------+------------+
-     |     App Name     | Deploy ID |    Cloud   |
-     +------------------+-----------+------------+
-     | hello-world      |    1      |     aws    |
-     +------------------+-----------+------------+
+$ cld --help
 
-5) Check deployment status
+usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
 
-   $ cld app show --deploy-id 2
+CloudARK command-line tool - Make your containerized applications cloud ready.
 
-   +------------------+-----------+---------------------+--------------+---------------------------------------+
-   |     App Name     | Deploy ID |        Status       |     Cloud    |                App URL                |
-   +------------------+-----------+---------------------+--------------+---------------------------------------+
-   | hello-world      |    1      | DEPLOYMENT_COMPLETE |      aws     | <App URL on AWS>                      |
-   +------------------+-----------+---------------------+--------------+---------------------------------------+
+Commands:
+
+  environment create
+
+  environment list
+
+  environment show
+
+  environment delete
+
+  app deploy
+
+  app redeploy
+
+  app list
+
+  app show
+
+  app delete
+
+  resource list
+
+  resource show
+
