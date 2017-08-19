@@ -59,10 +59,11 @@ class DockerLib(object):
         err, output = self._execute_cmd(login_cmd)
         return err, output
 
-    def build_container_image(self, cont_name, docker_file_name, df_context=''):
-        build_cmd = ("docker build -t {cont_name} -f {docker_file_name} {df_context}").format(cont_name=cont_name,
+    def build_container_image(self, cont_name, docker_file_name, df_context='', tag=''):
+        build_cmd = ("docker build -t {cont_name}:{tag} -f {docker_file_name} {df_context}").format(cont_name=cont_name,
                                                                                               docker_file_name=docker_file_name,
-                                                                                              df_context=df_context)
+                                                                                              df_context=df_context,
+                                                                                              tag=tag)
         fmlogging.debug("Docker build cmd:%s" % build_cmd)
         err, output = self._execute_cmd(build_cmd)
         return err, output

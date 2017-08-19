@@ -58,10 +58,9 @@ then follow these steps_.
 
 .. _steps: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 
-Your AWS user will need to have following permissions in order to use CloudARK to deploy
+Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on AWS.
 
-- AmazonRDSFullAccess
 - AmazonEC2FullAccess
 - AmazonEC2ContainerRegistryFullAccess
 - AmazonEC2ContainerServiceRole
@@ -69,6 +68,31 @@ containerized applications on AWS.
 - AmazonEC2ContainerServiceAutoscaleRole
 - AmazonEC2ContainerServiceforEC2Role
 
+Include AmazonRDSFullAccess policy as well if your application depends on RDS.
+
+You will also need to create a IAM policy that grants permissions to perform IAM actions
+for creating ECS instance profile role and the policy that allows ECS agent to assume that role.
+If you are aware of ECS architecture, you will recognize that these permissions are required for the ECS agent
+running on the ECS cluster instance to communicate with the ECS service.
+
+Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
+-> Create Your Own Policy
+
+In the Policy Document enter the following policy. Replace <account-id> with your account id.
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "iam:*",
+            "Resource": ["arn:aws:iam::<account-id>:role/*",
+                         "arn:aws:iam::<account-id>:instance-profile/*]"
+        }
+    ]
+}
+
+Once the policy is created attach it to your user.
 
 
 Available commands

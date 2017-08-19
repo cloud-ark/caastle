@@ -244,8 +244,9 @@ class AWSHandler(object):
         cluster_name = resource_obj[0][db_handler.RESOURCE_NAME]
         return cluster_name
     
-    def _register_task_definition(self, app_info, image):
-        cont_name = app_info['app_name'] + "-" + app_info['app_version']
+    def _register_task_definition(self, app_info, image, container_port, cont_name=''):
+        if not cont_name:
+            cont_name = app_info['app_name'] + "-" + app_info['app_version']
         family_name = app_info['app_name']
         task_def_arn = ''
         try:
@@ -254,14 +255,14 @@ class AWSHandler(object):
                                                                                    'image': image,
                                                                                    'memory': 500, # Default memory size of 500MB. This is hard limit
                                                                                    'portMappings':[{
-                                                                                      'containerPort':int(app_info['app_port']),
+                                                                                      'containerPort':container_port,
                                                                                       'hostPort':80,
                                                                                       'protocol':'tcp'}]}])
             task_def_arn = resp['taskDefinition']['taskDefinitionArn']
         except Exception as e:
             fmlogger.debug("Exception encountered in trying to register task definition.")
         fmlogger.debug("Done registering task definition.")
-        return task_def_arn,cont_name
+        return task_def_arn, cont_name
     
     def _deregister_task_definition(self, task_def_arn):
         try:
@@ -396,7 +397,7 @@ class AWSHandler(object):
         err, output = self.docker_handler.docker_login(username, password, proxy_endpoint)
         return err, output
 
-    def _build_app_container(self, app_info, repo_name, proxy_endpoint):
+    def _build_app_container(self, app_info, repo_name, proxy_endpoint, tag=''):
         app_dir = app_info['app_location']
         app_name = app_info['app_name']
         app_version = app_info['app_version']
@@ -408,7 +409,7 @@ class AWSHandler(object):
         fmlogger.debug("Container name that will be used in building:%s" % cont_name)
 
         err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile", 
-                                                                df_context=df_dir)
+                                                                df_context=df_dir, tag=tag)
         return err, output, cont_name
     
     def deploy_application_1(self, app_id, app_info):
@@ -424,7 +425,12 @@ class AWSHandler(object):
 
         df_dir = app_dir + "/" + app_folder_name
 
-        shutil.copytree(APP_AND_ENV_STORE_PATH+"/aws-creds", df_dir +"/aws-creds")
+        shutil.copytree(home_dir +"/.aws", df_dir +"/aws-creds")
+
+    def _update_ecs_app_service(self, app_info, cont_name, task_def_arn, task_desired_count=1):
+        cluster_name = self._get_cluster_name(app_info['env_id'])
+        service_available = AWSHandler.awshelper.update_service(app_info['app_name'], cluster_name, 
+                                                                task_def_arn, task_desired_count)
 
     def _create_ecs_app_service(self, app_info, cont_name, task_def_arn):
         env_obj = db_handler.DBHandler().get_environment(app_info['env_id'])
@@ -440,7 +446,64 @@ class AWSHandler(object):
         fmlogger.debug("App URL:%s" % app_url)
         return app_url, cluster_name
 
+    def _get_container_port(self, task_def_arn):
+        container_port = AWSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
+        return container_port
+
     def redeploy_application(self, app_id, app_info):
+        app_location = app_info['app_location']
+        self._copy_creds(app_info)
+
+        if app_info['env_id']:
+            common_functions.resolve_environment(app_id, app_info)
+
+        app_obj = db_handler.DBHandler().get_app(app_id)
+        app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
+        app_details_obj = ast.literal_eval(app_details)
+        status = 'redeploying'
+        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
+
+        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
+        proxy_endpoint = app_details_obj['proxy_endpoint']
+        repo_name = app_details_obj['repo_name']
+        tag = str(int(round(time.time() * 1000)))
+        err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
+        if err:
+            fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request.")
+            return
+
+        db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details_obj))
+        tagged_image = image_name + ":" + tag
+        err, output = self.docker_handler.push_container(tagged_image)
+        if err:
+            fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
+            return
+        fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
+
+        db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
+
+        db_handler.DBHandler().update_app(app_id, 'deregistering-current-task-ecs-app-service', str(app_details))
+        current_task_def_arn = app_details_obj['task_def_arn']
+        container_port = self._get_container_port(current_task_def_arn)
+        orig_cont_name = app_details_obj['cont_name']
+        self._update_ecs_app_service(app_info, orig_cont_name, current_task_def_arn, task_desired_count=0)
+
+        # Stop task
+        db_handler.DBHandler().update_app(app_id, 'stopping-task', str(app_details))
+
+
+        db_handler.DBHandler().update_app(app_id, 'registering-new-task-ecs-app-service', str(app_details))
+        new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
+                                                                     container_port, cont_name=orig_cont_name)
+        self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
+
+        app_details['task_def_arn'] = new_task_def_arn
+        app_details['image_name'] = tagged_image
+        app_details['cont_name'] = orig_cont_name
+        db_handler.DBHandler().update_app(app_id, 'available', str(app_details))
+
+
+    def redeploy_application_1(self, app_id, app_info):
         app_location = app_info['app_location']
         cloud = app_info['target']
         self._copy_creds(app_info)
@@ -529,7 +592,8 @@ class AWSHandler(object):
         fmlogger.debug("Completed pushing container %s to AWS ECR" % image_name)
 
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
-        task_def_arn, cont_name = self._register_task_definition(app_info, image_name)
+        container_port = int(app_info['app_port'])
+        task_def_arn, cont_name = self._register_task_definition(app_info, image_name, container_port)
 
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
         app_url, cluster_name = self._create_ecs_app_service(app_info, cont_name, task_def_arn)

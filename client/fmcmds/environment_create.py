@@ -57,18 +57,16 @@ class EnvironmentCreate(Command):
         environment_def = ''
         try:
             environment_def = yaml.load(fp.read())
-            print(environment_def)
-            print("** TODO ** Verify that each resource definition contains the 'type' attribute")
+            #TODO: Verify that each resource definition contains the 'type' attribute
         except Exception as exp:
             print("Error parsing %s" % file_name)
             print(exp)
             exit()
-        
+
         self.dep_track_url = server.TakeAction().create_environment(env_name, environment_def)
-        print("Environment deployment tracking url:%s" % self.dep_track_url)
 
         l = self.dep_track_url.rfind("/")
-        dep_id = self.dep_track_url[l+1:]
-        print("dep id:%s" % dep_id)
+        env_id = self.dep_track_url[l+1:]
+        print("env id:%s" % env_id)
 
 

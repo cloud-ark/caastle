@@ -20,10 +20,6 @@ class AppRedeploy(Command):
         parser = super(AppRedeploy, self).get_parser(prog_name)
 
         parser.add_argument('app_id')
-        
-        parser.add_argument('--env-id',
-                            dest='env_id',
-                            help="Environment id")
         return parser
 
     def take_action(self, parsed_args):
@@ -31,10 +27,7 @@ class AppRedeploy(Command):
 
         if not app_id:
             app_id = raw_input("Enter app id>")
-        
-        env_id = parsed_args.env_id
         app_info = {}
-        app_info['env_id'] = env_id
         app_location = os.getcwd()
         app_folder_name = self._get_app_folder_name(app_location)
         app_info['app_folder_name'] = app_folder_name

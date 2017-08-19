@@ -210,7 +210,7 @@ class AppRestResource(Resource):
         args = request.get_json(force=True)
 
         response = jsonify()
-        response.status_code = 201
+        response.status_code = 202
 
         args_dict = dict(args)
         app_obj = db_handler.DBHandler().get_app(app_id)
