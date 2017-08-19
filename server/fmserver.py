@@ -356,71 +356,12 @@ class EnvironmentRestResource(Resource):
             response.status_code = 404
         return response
 
-
-class StacksResource(Resource):
-    def post(self):
-        fmlogging.debug("Received POST request to create resource stack")
-        args = request.get_json(force=True)
-        
-        response = jsonify()
-        response.status_code = 201
-
-        args_dict = dict(args)
-        
-        try:
-            # Handle resource creation request
-            if not 'resource_info' in args_dict:
-                response.status_code = 400
-            else:
-                deploy_id = dbhandler.add_resource_stack(args_dict['resource_info'])
-                
-                response.headers['location'] = ('/resource_stack/{deploy_id}').format(deploy_id=deploy_id)
-        except OSError as oe:
-            fmlogging.error(oe)
-            # Send back service unavailable status
-            response.status_code = 503
-
-        return response
-
-    def get(self):
-        fmlogging.debug("Received GET request for all stacks.")
-        resp_data = {}
-
-        resp_data['data'] = dbhandler.get_resource_stacks()
-
-        response = jsonify(**resp_data)
-        response.status_code = 200
-        return response
-
-class StackResource(Resource):
-    def get(self, stack_id):
-
-        resp_data = {}
-
-        resp_data['data'] = dbhandler.get_resource_stack(stack_id)
-
-        response = jsonify(**resp_data)
-        response.status_code = 200
-        return response
-
-    def delete(self, stack_id):
-        fmlogging.debug("Received DELETE request for stack %s" % stack_id)
-        resp_data = {}
-
-        resp_data['data'] = dbhandler.delete_resource_stack(stack_id)
-
-        response = jsonify(**resp_data)
-        response.status_code = 201
-        return response
-
 api.add_resource(AppsRestResource, '/apps')
 api.add_resource(AppRestResource, '/apps/<app_id>')
 
 api.add_resource(EnvironmentsRestResource, '/environments')
 api.add_resource(EnvironmentRestResource, '/environments/<env_id>')
 
-api.add_resource(StacksResource, '/resource_stacks')
-api.add_resource(StackResource, '/resource_stacks/<stack_id>')
 api.add_resource(ResourcesRestResource, '/resources')
 api.add_resource(ResourceRestResource, '/resources/<resource_id>')
 

@@ -111,7 +111,6 @@ class TakeAction(object):
         self._delete_tarfile(tarfile_name, source_dir)
 
         return app_url
-        
 
     def get_app_list(self):
         req = urllib2.Request(apps_endpoint)
@@ -170,50 +169,6 @@ class TakeAction(object):
             print("Error occurred in querying endpoint %s" % environments_endpoint)
         return data
 
-    # Functions for resource_stacks
-    def get_resource_stacks(self):
-        req = urllib2.Request(resource_stacks_endpoint)
-        data = ''
-        try:
-            response = urllib2.urlopen(req)
-            data = response.fp.read()
-        except urllib2.HTTPError as e:
-            print("Error occurred in querying endpoint %s" % resource_stacks_endpoint)
-        return data
-
-    def create_resource_stack(self, resource_info):
-        req = urllib2.Request(resource_stacks_endpoint)
-        req.add_header('Content-Type', 'application/octet-stream')
-
-        data = {'resource_info': resource_info}
-
-        response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
-
-        rs_stack_url = response.headers.get('location')
-        print("Resource Stack URL:%s" % rs_stack_url)
-        return rs_stack_url
-
-    def get_resource_stack(self, stack_id):
-        stack_url = resources_stack_endpoint + "/" + stack_id
-        req = urllib2.Request(stack_url)
-        stack_data = ''
-        try:
-            response = urllib2.urlopen(req)
-            stack_data = response.fp.read()
-        except urllib2.HTTPError as e:
-            if e.getcode() == 404:
-                print("Resource stack with stack-id %s not found." % stack_id)
-        return stack_data
-
-    def delete_resource_stack(self, stack_id):
-        resource_endpoint = resource_stacks_endpoint + "/" + stack_id
-        response = requests.delete(resource_endpoint)
-        if response.status_code == 404:
-            print("Resource Stack with stack-id %s not found." % stack_id)
-        if response.status_code == 202:
-            print("Request to delete resource with stack-id %s accepted." % stack_id)
-        return response
-
     # Functions for Individual resource
     def get_resources(self):
         req = urllib2.Request(resources_endpoint)
@@ -269,4 +224,3 @@ class TakeAction(object):
         if response.status_code == 202:
             print("Request to delete resource with resource-id %s accepted." % resource_id)
         return response
-

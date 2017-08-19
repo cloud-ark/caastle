@@ -219,25 +219,6 @@ class AWSHandler(object):
                                                   output_config=str(env_output_config))
         fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
         return ret_status
-
-    def create_cluster_bak(self, env_id, app_info):
-        env_name = dbhandler.get_environment(env_id)
-        cluster_name = env_name + "-" + env_id
-        #if 'env_id' in app_info:
-        #    cluster_name = cluster_name + "-" + app_info['env_id']
-        try:
-            clusters_dict = self.ecs_client.describe_clusters(clusters=[cluster_name])
-            if len(clusters_dict['failures']) >= 1:
-                failure_reason = clusters_dict['failures'][0]['reason']
-                if failure_reason == 'MISSING':
-                    try:
-                        cluster_creation_response = self.ecs_client.create_cluster(clusterName=cluster_name)
-                    except Exception as e1:
-                        fmlogger.debug("Exception encountered in trying to create cluster:%s. Returning" % e1)
-                        return
-        except Exception as e:
-            fmlogger.debug("Exception encountered in trying to describe clusters:%s" % e)
-        
     
     def _get_cluster_name(self, env_id):
         resource_obj = db_handler.DBHandler().get_resources_for_environment(env_id)
@@ -411,11 +392,6 @@ class AWSHandler(object):
         err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile", 
                                                                 df_context=df_dir, tag=tag)
         return err, output, cont_name
-    
-    def deploy_application_1(self, app_id, app_info):
-        cont_name = '007068346857.dkr.ecr.us-west-2.amazonaws.com/hello-aws-2'
-        app_url = self._run_task(app_info)
-        fmlogger.debug('Application URL:%s' % app_url)
 
     def _copy_creds(self, app_info):
         app_dir = app_info['app_location']
@@ -586,9 +562,6 @@ class AWSHandler(object):
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
             return
-        #else:
-        #    fmlogger.debug("Done pushing container image to ECR. Removing the local image.")
-        #    self.docker_handler.remove_container_image(image_name)
         fmlogger.debug("Completed pushing container %s to AWS ECR" % image_name)
 
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
@@ -598,13 +571,10 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
         app_url, cluster_name = self._create_ecs_app_service(app_info, cont_name, task_def_arn)
 
-        #db_handler.DBHandler().update_app(app_id, 'running-task', str(app_details))
-        #app_url, task_arn, cluster_name = self._run_task(app_info)
         fmlogger.debug('Application URL:%s' % app_url)
 
         app_details['task_def_arn'] = task_def_arn
         app_details['app_url'] = app_url
-        #app_details['task_arn'] = task_arn
         app_details['cluster_name'] = cluster_name
         app_details['image_name'] = image_name
         app_details['cont_name'] = cont_name
