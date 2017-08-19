@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
 
     author='Devdatta Kulkarni',
-    author_email='devdattakulkarni@gmail.com',
+    author_email='kulkarni.devdatta@gmail.com',
 
     url='',
     download_url='',
