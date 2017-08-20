@@ -29,6 +29,11 @@ Try CloudARK
 
 4) Choose a sample application and follow the steps in the included README
 
+Note: CloudARK requires Docker to be installed. If you don't have Docker, you can install it_.
+
+.. _it: https://docs.docker.com/engine/installation/
+
+
 
 Concepts
 --------
