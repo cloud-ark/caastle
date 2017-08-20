@@ -46,7 +46,7 @@ class AppHandler(threading.Thread):
         if cloud == 'aws':
             AppHandler.registered_cloud_handlers['aws'].redeploy_application(self.app_id, self.app_info)
         elif cloud == 'local':
-            AppHandler.registered_cloud_handlers['local'].redeploy_application(self.app_id, self.app_info)
+            AppHandler.registered_cloud_handlers['local'].deploy_application(self.app_id, self.app_info)
         else:
             print("Unknown deployment target %s" % cloud)
             return

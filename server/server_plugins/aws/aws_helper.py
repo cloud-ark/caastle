@@ -179,11 +179,23 @@ class AWSHelper(object):
                                                       desiredCount=task_desired_count,
                                                       taskDefinition=task_def_arn)
         except Exception as e:
-            fmlogger.debug("Exception encountered in creating ECS service for app %s" % e)
+            fmlogger.debug("Exception encountered in updating ECS service for app %s" % e)
 
         service_available = False
         issue_encountered = False
         service_desc = ''
+
+        # Need to stop the task explicitly as just updating the service does not
+        # seem to stop the running task:
+        if task_desired_count == 0:
+            tasks = self.ecs_client.list_tasks(cluster=cluster_name)
+            if 'taskArns' in tasks and len(tasks['taskArns']) > 0:
+                task_arn = tasks['taskArns'][0] # assuming one task current
+                try:
+                    resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
+                except Exception as e:
+                    fmlogger.debug("Exception encountered in trying to stop_task")
+
         while not service_available and not issue_encountered:
             try:
                 service_desc = self.ecs_client.describe_services(cluster=cluster_name,

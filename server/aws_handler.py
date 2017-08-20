@@ -308,22 +308,27 @@ class AWSHandler(object):
                 fmlogger.debug("Exception encountered in trying to run describe_tasks.")
                 issue_encountered = True
         return task_desc
-    
+
     def _stop_task(self, app_id):
         app_obj = db_handler.DBHandler().get_app(app_id)
         app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
         app_details_obj = ast.literal_eval(app_details)
-        
-        task_arn = app_details_obj['task_arn']
+
         cluster_name = app_details_obj['cluster_name']
-        try:
-            resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
-        except Exception as e:
-            fmlogger.debug("Exception encountered in trying to stop_task")
         
-        task_desc = self._check_task(cluster_name, task_arn, 'stopped')
-        
-        fmlogger.debug("Task stopped:%s" % task_arn)
+        # TODO: When we support multiple instances of a task then
+        # we should revisit following logic.
+        tasks = self.ecs_client.list_tasks(cluster=cluster_name)
+        if 'taskArns' in tasks:
+            task_arn = tasks['taskArns'][0] # assuming one task current
+            try:
+                resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
+            except Exception as e:
+                fmlogger.debug("Exception encountered in trying to stop_task")
+
+            task_desc = self._check_task(cluster_name, task_arn, 'stopped')
+
+            fmlogger.debug("Task stopped:%s" % task_arn)
     
     def _run_task(self, app_info):
         family_name = app_info['app_name']
@@ -464,19 +469,15 @@ class AWSHandler(object):
         orig_cont_name = app_details_obj['cont_name']
         self._update_ecs_app_service(app_info, orig_cont_name, current_task_def_arn, task_desired_count=0)
 
-        # Stop task
-        db_handler.DBHandler().update_app(app_id, 'stopping-task', str(app_details))
-
-
         db_handler.DBHandler().update_app(app_id, 'registering-new-task-ecs-app-service', str(app_details))
         new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
                                                                      container_port, cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
-        app_details['task_def_arn'] = new_task_def_arn
-        app_details['image_name'] = tagged_image
-        app_details['cont_name'] = orig_cont_name
-        db_handler.DBHandler().update_app(app_id, 'available', str(app_details))
+        app_details_obj['task_def_arn'] = new_task_def_arn
+        app_details_obj['image_name'] = tagged_image
+        app_details_obj['cont_name'] = orig_cont_name
+        db_handler.DBHandler().update_app(app_id, 'available', str(app_details_obj))
 
 
     def redeploy_application_1(self, app_id, app_info):

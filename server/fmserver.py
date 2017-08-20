@@ -214,27 +214,29 @@ class AppRestResource(Resource):
 
         args_dict = dict(args)
         app_obj = db_handler.DBHandler().get_app(app_id)
-
         try:
             if not 'app_info' in args_dict:
                 response.status_code = 400
             else:
-                app_info = args_dict['app_info']
-                app_name = app_obj[db_handler.APP_NAME]
-                app_tar_name = app_info['app_tar_name']
-                content = app_info['app_content']
-                app_info['app_name'] = app_name
+                if app_obj:
+                    app_info = args_dict['app_info']
+                    app_name = app_obj[db_handler.APP_NAME]
+                    app_tar_name = app_info['app_tar_name']
+                    content = app_info['app_content']
+                    app_info['app_name'] = app_name
 
-                cloud = app_obj[db_handler.APP_DEP_TARGET]
-                app_info['target'] = cloud
-                app_info['env_id'] = app_obj[db_handler.APP_ENV_ID]
+                    cloud = app_obj[db_handler.APP_DEP_TARGET]
+                    app_info['target'] = cloud
+                    app_info['env_id'] = app_obj[db_handler.APP_ENV_ID]
 
-                app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
-                app_info['app_location'] = app_location
-                app_info['app_version'] = app_version
-                request_handler_thread = app_handler.AppHandler(app_id, app_info, action='redeploy')
-                thread.start_new_thread(start_thread, (request_handler_thread, ))
-                response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
+                    app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
+                    app_info['app_location'] = app_location
+                    app_info['app_version'] = app_version
+                    request_handler_thread = app_handler.AppHandler(app_id, app_info, action='redeploy')
+                    thread.start_new_thread(start_thread, (request_handler_thread, ))
+                    response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
+                else:
+                    response.status_code = 404
         except Exception as e:
             fmlogging.error(e)
             # Send back Internal Server Error
@@ -369,7 +371,7 @@ if __name__ == '__main__':
     if not os.path.exists(APP_STORE_PATH):
         os.makedirs(APP_STORE_PATH)
     fmlogging = fm_logger.Logging()
-    fmlogging.info("Starting LME server")
+    fmlogging.info("Starting CloudARK server")
 
     from gevent.wsgi import WSGIServer
     http_server = WSGIServer(('', 5002), app)

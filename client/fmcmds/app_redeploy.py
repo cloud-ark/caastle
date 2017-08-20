@@ -31,5 +31,4 @@ class AppRedeploy(Command):
         app_location = os.getcwd()
         app_folder_name = self._get_app_folder_name(app_location)
         app_info['app_folder_name'] = app_folder_name
-        response = server.TakeAction().redeploy_app(app_location, app_info, app_id)
-        print(response)
+        server.TakeAction().redeploy_app(app_location, app_info, app_id)

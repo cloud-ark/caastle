@@ -99,17 +99,24 @@ class TakeAction(object):
 
         data = {'app_info': app_info}
 
+        app_url = ''
         req = urllib2.Request(app_id_url)
         req.add_header('Content-Type', 'application/octet-stream')
         req.get_method = lambda: 'PUT'
-        response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+        try:
+            response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+            import pdb; pdb.set_trace()
+            if response.code == 202:
+                print("Request to redeploy app with id %s accepted." % app_id)
+            app_url = response.headers.get('location')
+        except Exception as e:
+            if e.msg == 'NOT FOUND':
+                print("App with app-id %s not found." % app_id)
+            if e.msg == 'INTERNAL SERVER ERROR':
+                print("Something caused error in the server. Please submit a bug report on cloudark github repo. Attach logs from cld.log")
+                return
 
-        if response.code == '503':
-            print("Received 503 from server.")
-            return
-        app_url = response.headers.get('location')
         self._delete_tarfile(tarfile_name, source_dir)
-
         return app_url
 
     def get_app_list(self):
@@ -133,7 +140,6 @@ class TakeAction(object):
         response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
 
         environment_url = response.headers.get('location')
-        print("Environment URL:%s" % environment_url)
         return environment_url
     
     def get_environment(self, env_id):
