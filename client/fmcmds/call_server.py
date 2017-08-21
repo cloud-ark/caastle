@@ -105,7 +105,6 @@ class TakeAction(object):
         req.get_method = lambda: 'PUT'
         try:
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
-            import pdb; pdb.set_trace()
             if response.code == 202:
                 print("Request to redeploy app with id %s accepted." % app_id)
             app_url = response.headers.get('location')

@@ -353,7 +353,7 @@ class EnvironmentRestResource(Resource):
             thread.start_new_thread(start_thread, (request_handler_thread, ))
 
             response.headers['location'] = ('/environments/{env_id}').format(env_id=env_id)
-            response.status_code = 201
+            response.status_code = 202
         else:
             response.status_code = 404
         return response

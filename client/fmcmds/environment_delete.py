@@ -23,4 +23,3 @@ class EnvironmentDelete(Command):
         env_id = parsed_args.env_id
 
         response = server.TakeAction().delete_environment(env_id)
-        print(response)
