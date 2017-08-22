@@ -17,15 +17,16 @@ class ResourceShow(Command):
         parser.add_argument(dest='resource_id',
                             help="Resource id")
 
-        parser.add_argument('--env-id',
-                            dest='env_id',
-                            help="Environment id")
+        #TODO: Add resource filtering based on environment
+        #parser.add_argument('--env-id',
+        #                    dest='env_id',
+        #                    help="Environment id")
 
         return parser
 
     def take_action(self, parsed_args):
         resource_id = parsed_args.resource_id
-        env_id = parsed_args.env_id
+        #env_id = parsed_args.env_id
         if resource_id:
             response = server.TakeAction().get_resource(resource_id)
         elif env_id:
