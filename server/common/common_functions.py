@@ -180,3 +180,29 @@ def is_app_ready(app_url, timeout=300):
         count = count + 1
         time.sleep(3)
     return ready
+
+def save_image_tag(tag, app_info, file_name='container_id.txt'):
+    tag = tag + "\n"
+    save_container_id(tag, app_info, file_name)
+
+def save_container_id(cont_id, app_info, file_name='container_id.txt'):
+    app_dir = app_info['app_location']
+    fp = open(app_dir + "/" + file_name, "a")
+    fp.write(cont_id)
+    fp.flush()
+    fp.close()
+
+def read_image_tag(app_info, file_name='container_id.txt'):
+    cont_id_list = read_container_id(app_info, file_name)
+    return cont_id_list
+
+def read_container_id(app_info, file_name='container_id.txt'):
+    cont_id = ''
+    cont_id_list = []
+    try:
+        app_dir = app_info['app_location']
+        fp = open(app_dir + "/" + file_name, "r")
+        cont_id_list = fp.readlines()
+    except Exception as e:
+        fmlogger.debug("Error encountered in reading container_id: %s" % e)
+    return cont_id_list

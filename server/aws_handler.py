@@ -466,6 +466,7 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details_obj))
         tagged_image = image_name + ":" + tag
         err, output = self.docker_handler.push_container(tagged_image)
+        common_functions.save_image_tag(tagged_image, app_info)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
             return
@@ -614,7 +615,12 @@ class AWSHandler(object):
         
         cont_name = app_details_obj['cont_name']
         self.docker_handler.remove_container_image(cont_name)
-        
+
+        tagged_image_list = common_functions.read_image_tag(app_info)
+        if tagged_image_list:
+            for tagged_image in tagged_image_list:
+                self.docker_handler.remove_container_image(tagged_image)
+
         repo_name = app_obj[db_handler.APP_NAME]
         self._delete_repository(repo_name)
         

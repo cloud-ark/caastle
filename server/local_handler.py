@@ -14,29 +14,12 @@ fmlogger = fm_logger.Logging()
 
 dbhandler = db_handler.DBHandler()
 
+tagged_images_file = 'tagged_images.txt'
+
 class LocalHandler(object):
 
     def __init__(self):
         self.docker_handler = docker_lib.DockerLib()
-        
-    def _save_container_id(self, cont_id, app_info):
-        app_dir = app_info['app_location']
-        fp = open(app_dir + "/container_id.txt", "a")
-        fp.write(cont_id)
-        fp.flush()
-        fp.close()
-
-    def _read_container_id(self, app_info):
-        cont_id = ''
-        cont_id_list = []
-        try:
-            app_dir = app_info['app_location']
-            fp = open(app_dir + "/container_id.txt", "r")
-            #cont_id = fp.readline().rstrip().lstrip()
-            cont_id_list = fp.readlines()
-        except Exception as e:
-            fmlogger.debug("Error encountered in reading container_id: %s" % e)
-        return cont_id_list
 
     def _build_app_container(self, app_info):
         app_dir = app_info['app_location']
@@ -49,9 +32,15 @@ class LocalHandler(object):
         cont_name = app_name + "-" + app_version
         fmlogger.debug("Container name that will be used in building:%s" % cont_name)
 
+        tag = str(int(round(time.time() * 1000)))
+
         err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile", 
-                                                                df_context=df_dir)
-        return err, output, cont_name
+                                                                df_context=df_dir, tag=tag)
+
+        tagged_image = cont_name + ":" + tag
+        common_functions.save_image_tag(tagged_image, app_info, file_name=tagged_images_file)
+
+        return err, output, tagged_image
 
     def _parse_app_port(self, cont_id):
         inspect_cmd = ("docker inspect {cont_id}").format(cont_id=cont_id)
@@ -80,7 +69,7 @@ class LocalHandler(object):
             fmlogger.debug("Encountered error in deploying application container:%s. Returning." % cont_name)
             return app_url
 
-        self._save_container_id(cont_id, app_info)
+        common_functions.save_container_id(cont_id, app_info)
 
         app_ip_addr = 'localhost'
         app_port = self._parse_app_port(cont_id)
@@ -119,13 +108,19 @@ class LocalHandler(object):
         fmlogger.debug("Deleting application %s %s" % (app_id, app_info['app_name']))
         cont_image_name = app_info['app_name'] + '-' + app_info['app_version']
         dbhandler.update_app(app_id, status=constants.DELETING_APP)
-        cont_id_list = self._read_container_id(app_info)
+        cont_id_list = common_functions.read_container_id(app_info)
         if cont_id_list:
             for cont_id in cont_id_list:
                 err, output = self.docker_handler.stop_container(cont_id)
                 if err:
                     fmlogger.debug("Encountered error in stopping container %s." % cont_id)
                 self.docker_handler.remove_container(cont_id)
-                self.docker_handler.remove_container_image(cont_image_name)
+
+        tagged_image_list = common_functions.read_image_tag(app_info, file_name=tagged_images_file)
+        if tagged_image_list:
+            for tagged_image in tagged_image_list:
+                self.docker_handler.remove_container_image(tagged_image)
+
+        self.docker_handler.remove_container_image(cont_image_name)
         dbhandler.delete_app(app_id)
         fmlogger.debug("Done deleting application")
