@@ -178,5 +178,5 @@ def is_app_ready(app_url, timeout=300):
             fmlogging.error(e)
             continue
         count = count + 1
-        time.sleep(1)
+        time.sleep(3)
     return ready

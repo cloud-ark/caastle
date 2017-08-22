@@ -406,7 +406,8 @@ class AWSHandler(object):
 
         df_dir = app_dir + "/" + app_folder_name
 
-        shutil.copytree(home_dir +"/.aws", df_dir +"/aws-creds")
+        if not os.path.exists(df_dir):
+            shutil.copytree(home_dir +"/.aws", df_dir +"/aws-creds")
 
     def _update_ecs_app_service(self, app_info, cont_name, task_def_arn, task_desired_count=1):
         cluster_name = self._get_cluster_name(app_info['env_id'])
@@ -487,6 +488,7 @@ class AWSHandler(object):
         app_details_obj['image_name'] = tagged_image
         app_details_obj['cont_name'] = orig_cont_name
 
+        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-become-ready', str(app_details_obj))
         app_status = ''
         if common_functions.is_app_ready(app_details_obj['app_url']):
             fmlogger.debug("Application is ready.")

@@ -1,3 +1,4 @@
+import ast
 import datetime
 import logging
 import os
@@ -158,7 +159,12 @@ class AppsRestResource(Resource):
                 app_name = app_info['app_name']
                 app_tar_name = app_info['app_tar_name']
                 content = app_info['app_content']
-                cloud = app_info['target']
+                if 'target' in app_info:
+                    cloud = app_info['target']
+                else:
+                    env_dict = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+                    cloud = env_dict['environment']['app_deployment']['target']
+                    app_info['target'] = cloud
 
                 app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
                 app_info['app_location'] = app_location
