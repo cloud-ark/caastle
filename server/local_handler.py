@@ -21,20 +21,22 @@ class LocalHandler(object):
         
     def _save_container_id(self, cont_id, app_info):
         app_dir = app_info['app_location']
-        fp = open(app_dir + "/container_id.txt", "w")
+        fp = open(app_dir + "/container_id.txt", "a")
         fp.write(cont_id)
         fp.flush()
         fp.close()
 
     def _read_container_id(self, app_info):
         cont_id = ''
+        cont_id_list = []
         try:
             app_dir = app_info['app_location']
             fp = open(app_dir + "/container_id.txt", "r")
-            cont_id = fp.readline().rstrip().lstrip()
+            #cont_id = fp.readline().rstrip().lstrip()
+            cont_id_list = fp.readlines()
         except Exception as e:
             fmlogger.debug("Error encountered in reading container_id: %s" % e)
-        return cont_id
+        return cont_id_list
 
     def _build_app_container(self, app_info):
         app_dir = app_info['app_location']
@@ -71,23 +73,28 @@ class LocalHandler(object):
 
     def _deploy_app_container(self, cont_name, app_info):
         app_url = ''
-        err, output = self.docker_handler.run_container(cont_name)
+        app_status = ''
+        err, cont_id = self.docker_handler.run_container(cont_name)
 
         if err:
             fmlogger.debug("Encountered error in deploying application container:%s. Returning." % cont_name)
             return app_url
-        
-        cont_id = output
+
         self._save_container_id(cont_id, app_info)
 
         app_ip_addr = 'localhost'
         app_port = self._parse_app_port(cont_id)
 
-        app_url = ("{app_ip_addr}:{app_port}").format(app_ip_addr=app_ip_addr,
-                                                      app_port=app_port)
-
+        app_url = ("http://{app_ip_addr}:{app_port}").format(app_ip_addr=app_ip_addr,
+                                                             app_port=app_port)
         fmlogger.debug("App URL: %s" % app_url)
-        return app_url
+        if common_functions.is_app_ready(app_url):
+            fmlogger.debug("Application is ready.")
+            app_status = constants.APP_DEPLOYMENT_COMPLETE
+        else:
+            fmlogger.debug("Application could not start properly.")
+            app_status = constants.APP_DEPLOYMENT_TIMEOUT
+        return app_url, app_status
 
     def deploy_application(self, app_id, app_info):
         fmlogger.debug("Deploying application %s %s" % (app_id, app_info['app_name']))
@@ -100,10 +107,10 @@ class LocalHandler(object):
             return
         
         dbhandler.update_app(app_id, status=constants.DEPLOYING_APP)
-        app_url = self._deploy_app_container(cont_name, app_info)
+        app_url, app_status = self._deploy_app_container(cont_name, app_info)
         
         if app_url:
-            dbhandler.update_app(app_id, status=constants.APP_DEPLOYMENT_COMPLETE, output_config=app_url)
+            dbhandler.update_app(app_id, status=app_status, output_config=app_url)
         else:
             dbhandler.update_app(app_id, status=constants.DEPLOYMENT_ERROR)
         fmlogger.debug("Done deploying application")
@@ -112,12 +119,13 @@ class LocalHandler(object):
         fmlogger.debug("Deleting application %s %s" % (app_id, app_info['app_name']))
         cont_image_name = app_info['app_name'] + '-' + app_info['app_version']
         dbhandler.update_app(app_id, status=constants.DELETING_APP)
-        cont_id = self._read_container_id(app_info)
-        if cont_id:
-            err, output = self.docker_handler.stop_container(cont_id)
-            if err:
-                fmlogger.debug("Encountered error in stopping container %s. Returning." % cont_id)
-            self.docker_handler.remove_container(cont_id)
-            self.docker_handler.remove_container_image(cont_image_name)
+        cont_id_list = self._read_container_id(app_info)
+        if cont_id_list:
+            for cont_id in cont_id_list:
+                err, output = self.docker_handler.stop_container(cont_id)
+                if err:
+                    fmlogger.debug("Encountered error in stopping container %s." % cont_id)
+                self.docker_handler.remove_container(cont_id)
+                self.docker_handler.remove_container_image(cont_image_name)
         dbhandler.delete_app(app_id)
         fmlogger.debug("Done deleting application")

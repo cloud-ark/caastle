@@ -229,7 +229,11 @@ class AppRestResource(Resource):
                     app_info['target'] = cloud
                     app_info['env_id'] = app_obj[db_handler.APP_ENV_ID]
 
-                    app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
+                    app_version = app_obj[db_handler.APP_VERSION]
+                    app_location, _ = common_functions.store_app_contents(app_name,
+                                                                                    app_tar_name,
+                                                                                    content,
+                                                                                    app_version=app_version)
                     app_info['app_location'] = app_location
                     app_info['app_version'] = app_version
                     request_handler_thread = app_handler.AppHandler(app_id, app_info, action='redeploy')

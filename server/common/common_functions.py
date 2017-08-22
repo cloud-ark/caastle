@@ -2,6 +2,7 @@ import ast
 import os
 import datetime
 import logging
+import requests
 import sys
 import tarfile
 import time
@@ -32,16 +33,18 @@ def get_version_stamp():
     version_stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
     return version_stamp
 
-def store_app_contents(app_name, app_tar_name, content):
+def store_app_contents(app_name, app_tar_name, content, app_version=''):
     # create directory
     app_path = ("{APP_STORE_PATH}/{app_name}").format(APP_STORE_PATH=APP_STORE_PATH, app_name=app_name)
     if not os.path.exists(app_path):
         os.makedirs(app_path)
 
-    app_version = get_version_stamp()
+    if not app_version:
+        app_version = get_version_stamp()
 
     versioned_app_path = ("{app_path}/{st}").format(app_path=app_path, st=app_version)
-    os.makedirs(versioned_app_path)
+    if not os.path.exists(versioned_app_path):
+        os.makedirs(versioned_app_path)
 
     # store file content
     app_tar_file = ("{versioned_app_path}/{app_tar_name}").format(versioned_app_path=versioned_app_path, 
@@ -161,3 +164,19 @@ def marshall_resource_list(resource_list):
         output_resource = marshall_resource(resource)
         output_resource_list.append(output_resource)
     return output_resource_list
+
+def is_app_ready(app_url, timeout=300):
+    ready = False
+    count = 0
+    while count < timeout and not ready:
+        try:
+            response = requests.get(app_url)
+            if response.status_code == 200:
+                ready = True
+                break
+        except Exception as e:
+            fmlogging.error(e)
+            continue
+        count = count + 1
+        time.sleep(1)
+    return ready
