@@ -414,6 +414,7 @@ class AWSHandler(object):
                                                                 task_def_arn, task_desired_count)
 
     def _create_ecs_app_service(self, app_info, cont_name, task_def_arn):
+        app_status = ''
         env_obj = db_handler.DBHandler().get_environment(app_info['env_id'])
         env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
         subnet_string = env_output_config['subnets']
@@ -424,8 +425,16 @@ class AWSHandler(object):
         app_url = AWSHandler.awshelper.create_service(app_info['app_name'], app_info['app_port'], vpc_id, 
                                                       subnet_list, sec_group_id, cluster_name,
                                                       task_def_arn, cont_name)
+        app_url = "http://" + app_url
         fmlogger.debug("App URL:%s" % app_url)
-        return app_url, cluster_name
+        if common_functions.is_app_ready(app_url):
+            fmlogger.debug("Application is ready.")
+            app_status = constants.APP_DEPLOYMENT_COMPLETE
+        else:
+            fmlogger.debug("Application could not start properly.")
+            app_status = constants.APP_DEPLOYMENT_TIMEOUT
+
+        return app_url, app_status
 
     def _get_container_port(self, task_def_arn):
         container_port = AWSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
@@ -477,7 +486,16 @@ class AWSHandler(object):
         app_details_obj['task_def_arn'] = new_task_def_arn
         app_details_obj['image_name'] = tagged_image
         app_details_obj['cont_name'] = orig_cont_name
-        db_handler.DBHandler().update_app(app_id, 'available', str(app_details_obj))
+
+        app_status = ''
+        if common_functions.is_app_ready(app_details_obj['app_url']):
+            fmlogger.debug("Application is ready.")
+            app_status = constants.APP_DEPLOYMENT_COMPLETE
+        else:
+            fmlogger.debug("Application could not start properly.")
+            app_status = constants.APP_DEPLOYMENT_TIMEOUT
+
+        db_handler.DBHandler().update_app(app_id, app_status, str(app_details_obj))
 
 
     def redeploy_application_1(self, app_id, app_info):
@@ -570,16 +588,16 @@ class AWSHandler(object):
         task_def_arn, cont_name = self._register_task_definition(app_info, image_name, container_port)
 
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
-        app_url, cluster_name = self._create_ecs_app_service(app_info, cont_name, task_def_arn)
+        app_url, app_status = self._create_ecs_app_service(app_info, cont_name, task_def_arn)
 
         fmlogger.debug('Application URL:%s' % app_url)
 
         app_details['task_def_arn'] = task_def_arn
         app_details['app_url'] = app_url
-        app_details['cluster_name'] = cluster_name
+        app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = image_name
         app_details['cont_name'] = cont_name
-        db_handler.DBHandler().update_app(app_id, 'available', str(app_details))
+        db_handler.DBHandler().update_app(app_id, app_status, str(app_details))
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
