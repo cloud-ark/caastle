@@ -10,12 +10,6 @@ import call_server as server
 
 
 class AppDeploy(Command):
-    (
-    "1) cld app deploy (deploy application locally)"
-    "2) cld app deploy --env-id <env-id> (deploy and bind app to the environment)"
-    "3) cld app deploy --deploytarget local --env-id <env-id> (deploy app locally and"
-    "bind it to resources available in the environment)"
-    )
 
     def _get_app_folder_name(self, app_location):
         last_slash_index = app_location.rfind("/")

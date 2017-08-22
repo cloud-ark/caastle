@@ -8,7 +8,7 @@ class FirstMileApp(App):
 
     def __init__(self):
         super(FirstMileApp, self).__init__(
-            description='CloudARK command-line tool - Make your containerized applications cloud ready.',
+            description='CloudARK command-line tool to create and manage cloud environments for containerized applications.',
             version='0.0.1',
             command_manager=CommandManager('cld.cmds'),
             deferred_help=True,

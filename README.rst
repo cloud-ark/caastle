@@ -44,7 +44,8 @@ environment
   This includes cloud databases, load balancers, container orchestration engines, etc.
   Environment is represented using a simple yaml format.
 
-    Currently supported resources: AWS RDS, AWS DynamoDB, AWS ECS
+    Currently supported: AWS RDS, AWS ECS, AWS DynamoDB
+    Coming soon: Google Cloud SQL, Kubernetes
 
 application
   An application is a Docker container built from application source code.
@@ -109,7 +110,8 @@ $ cld --help
 
 usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
 
-CloudARK command-line tool - Make your containerized applications cloud ready.
+CloudARK command-line tool to create and manage cloud environments for
+containerized applications.
 
 Commands:
 
