@@ -137,3 +137,11 @@ Commands:
 
   resource show
 
+
+Contact
+--------
+
+1) Slack channel: cloudark
+
+2) Mailing list on google groups: cloudark@googlegroups.com
+
