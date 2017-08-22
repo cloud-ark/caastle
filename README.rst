@@ -9,10 +9,10 @@ a) COE (Container Orchestration Engine) cluster
 b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL) and
 c) Application containers
 
-Currently these environments are not easy to share and reproduce because managed cloud services are not integral part of the application architecture definition. 
+Currently such environments are not easy to share and reproduce because managed cloud services are not integral part of the application architecture definition. 
 
 CloudARK offers ‘Environment as Code’ solution to declare and create cloud environments for containerized applications.
-CloudARK allows developers to add managed cloud services as integral part of the micro services architecture definition.
+CloudARK allows developers to add managed cloud services as integral part of their micro services architecture definition.
 
 CloudARK essentially makes your containerized applications *cloud ready*.
 
