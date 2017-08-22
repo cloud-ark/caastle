@@ -10,6 +10,12 @@ import call_server as server
 
 
 class AppDeploy(Command):
+    (
+    "1) cld app deploy (deploy application locally)"
+    "2) cld app deploy --env-id <env-id> (deploy and bind app to the environment)"
+    "3) cld app deploy --deploytarget local --env-id <env-id> (deploy app locally and"
+    "bind it to resources available in the environment)"
+    )
 
     def _get_app_folder_name(self, app_location):
         last_slash_index = app_location.rfind("/")
@@ -22,8 +28,9 @@ class AppDeploy(Command):
         parser.add_argument('app_name',
                             help="Application name")
         
-        parser.add_argument('target',
-                            help="Application deployment target (local | aws)")
+        parser.add_argument('--deploylocal',
+                            dest='true',
+                            help="Application deployment target of local set to true")
 
         parser.add_argument('--env-id',
                             dest='env_id',
@@ -38,14 +45,16 @@ class AppDeploy(Command):
             app_name = raw_input("Please enter name for the application>")
         app_info['app_name'] = app_name
 
-        target = parsed_args.target
-        if not target:
-            target = raw_input("Please enter application deployment target (local/aws)>")
-        app_info['target'] = target.lower()
+        target = parsed_args.true
+        if target:
+            app_info['target'] = 'local'
 
         env_id = parsed_args.env_id
         if env_id:
             app_info['env_id'] = env_id
+
+        if not target and not env_id:
+            app_info['target'] = 'local'
 
         app_port = raw_input("Please enter application port>")
         app_info['app_port'] = app_port

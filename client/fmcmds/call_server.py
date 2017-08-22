@@ -112,7 +112,8 @@ class TakeAction(object):
             if e.msg == 'NOT FOUND':
                 print("App with app-id %s not found." % app_id)
             if e.msg == 'INTERNAL SERVER ERROR':
-                print("Something caused error in the server. Please submit a bug report on cloudark github repo. Attach logs from cld.log")
+                print("Something caused error in the server. Please submit bug report on cloudark github repo. "
+                      "Attach logs from cld.log which is available in cloudark directory.")
                 return
 
         self._delete_tarfile(tarfile_name, source_dir)
