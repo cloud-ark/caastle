@@ -1,20 +1,20 @@
 =================
 CloudARK
 =================
-CloudARK makes your containerized applications *cloud ready*.
 
-Today, deploying containerized applications on public clouds involves following steps:
+Environment as Code for Cloud Native Containerized Applications.
 
-1) Provisioning cloud services (such as Amazon RDS)
-2) Provisioning container orchestration engine (COE) cluster (such as Amazon ECS or GKE)
-3) Building application containers
-4) Binding containers to cloud services
-5) Deploying containers on COE cluster
+An environment for a cloud native containerized application consists of
+a) COE (Container Orchestration Engine) cluster
+b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL) and
+c) Application containers
 
-Different tools are required for each of these steps currently.
+Currently these environments are not easy to share and reproduce because managed cloud services are not integral part of the application architecture definition. 
 
-CloudARK is a command-line tool that unifies all these steps and provides a unified experience for
-deploying your containerized applications on public clouds.
+CloudARK offers ‘Environment as Code’ solution to declare and create cloud environments for containerized applications.
+CloudARK allows developers to add managed cloud services as integral part of the micro services architecture definition.
+
+CloudARK essentially makes your containerized applications *cloud ready*.
 
 
 Try CloudARK
