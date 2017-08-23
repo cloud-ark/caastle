@@ -134,6 +134,7 @@ class AWSHelper(object):
 
     def delete_security_group_for_vpc(self, vpc_id, group_id, group_name):
         fmlogger.debug("Deleting security group %s for vpc %s" % (group_name, vpc_id))
+        response = self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
     
     def setup_security_group(self, vpc_id, ip_range, sec_group_id, sec_group_name, port_list):
         rules_dict = {}

@@ -293,11 +293,13 @@ class EnvironmentsRestResource(Resource):
                 environment_def = args_dict['environment_def']
                 environment_name = args_dict['environment_name']
                 env_version_stamp = common_functions.get_version_stamp()
-                env_id = dbhandler.add_environment(environment_name, environment_def, env_version_stamp)
+                env_location = (ENV_STORE_PATH + "/environments/{env_name}-{env_version_stamp}").format(env_name=environment_name,
+                                                                                                        env_version_stamp=env_version_stamp)
+                env_id = dbhandler.add_environment(environment_name, environment_def, env_version_stamp, env_location)
                 environment_info = {}
                 environment_info['name'] = environment_name
-                environment_info['location'] = (ENV_STORE_PATH + "/environments/{env_name}-{env_id}").format(env_name=environment_name,
-                                                                                                             env_id=env_id)
+
+                environment_info['location'] = env_location
                 request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='create')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
 
@@ -357,8 +359,7 @@ class EnvironmentRestResource(Resource):
             environment_name = env_obj[db_handler.ENV_NAME]
             environment_def = env_obj[db_handler.ENV_DEFINITION]
             environment_info['name'] = environment_name
-            environment_info['location'] = (ENV_STORE_PATH + "/environments/{env_name}-{env_id}").format(env_name=environment_name,
-                                                                                                         env_id=env_id)
+            environment_info['location'] = env_obj[db_handler.ENV_LOCATION]
             request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
 

@@ -31,7 +31,7 @@ class AWSHandler(object):
     registered_resource_handlers['rds'] = rds_handler.RDSResourceHandler()
     registered_resource_handlers['dynamodb'] = dynamodb_handler.DynamoDBResourceHandler()
     awshelper = aws_helper.AWSHelper()
-    
+
     def __init__(self):
         self.ecr_client = boto3.client('ecr')
         self.ecs_client = boto3.client('ecs')
@@ -130,21 +130,41 @@ class AWSHandler(object):
         self.docker_handler.remove_container(cont_name)
         self.docker_handler.remove_container_image(cont_name)
         fmlogger.debug("Done deleting ECS cluster %s" % cluster_name)
+
+        ec2 = boto3.resource('ec2')
+        key_pair = ec2.KeyPair(cluster_name)
+        try:
+            key_pair.delete()
+        except Exception as e:
+            fmlogger.error("Error encountered in deleting key pair. %s" % e)
+
+        try:
+            response = self.ecs_client.delete_cluster(cluster=cluster_name)
+        except Exception as e:
+            fmlogger.error("Error encountered in deleting cluster %s" % e)
+
+        env_obj = dbhandler.get_environment(env_id)
+        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        sec_group_name = env_output_config['http-and-ssh-group-name']
+        sec_group_id = env_output_config['http-and-ssh-group-id']
+        vpc_id = env_output_config['vpc_id']
+        AWSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+
         db_handler.DBHandler().delete_resource(res_id)
 
     def create_cluster(self, env_id, env_info):
-        ret_status = 'unavailable'
+        cluster_status = 'unavailable'
         env_obj = dbhandler.get_environment(env_id)
         env_name = env_obj[db_handler.ENV_NAME]
 
         env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
         env_version_stamp = env_output_config['env_version_stamp']
-        
+
         cluster_name = env_name + "-" + env_version_stamp
         keypair_name = cluster_name
 
         env_store_location = env_info['location']
-        
+
         if not os.path.exists(env_store_location):
             os.makedirs(env_store_location)
             shutil.copytree(home_dir+"/.aws", env_store_location+"/aws-creds")
@@ -169,6 +189,18 @@ class AWSHandler(object):
                               "{key_name} --query 'KeyMaterial' --output text > {key_file}.pem").format(key_name=keypair_name,
                                                                                                         key_file=keypair_name)
         df = self.docker_handler.get_dockerfile_snippet("aws")
+
+        env_details = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+        cluster_size = 1
+        if 'cluster_size' in env_details['environment']['app_deployment']:
+            cluster_size = env_details['environment']['app_deployment']['cluster_size']
+        entry_point_cmd = ("ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
+                           "\"--security-group\", \"{security_group}\", \"--cluster\", \"{cluster}\"] \n").format(size=cluster_size,
+                                                                                                                  cluster=cluster_name, vpc_id=vpc_id,
+                                                                                                                  keypair=keypair_name,
+                                                                                                                  security_group=sec_group_id,
+                                                                                                                  subnet_list=subnet_list)
+        fmlogger.debug("Entry point cmd:%s" % entry_point_cmd)
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
                    "RUN cp -r aws-creds $HOME/.aws \n"
@@ -176,38 +208,47 @@ class AWSHandler(object):
                    "{create_keypair_cmd} \n"
                    "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \ \n"
-                   " && ecs-cli configure --region {reg} --access-key {access_key} --secret-key {secret_key} --cluster {cluster} \ \n"
-                   " && ecs-cli up --keypair {keypair} --capability-iam --vpc {vpc_id} --subnets {subnet_list} --security-group {security_group} --cluster {cluster}"
+                   " && ecs-cli configure --region {reg} --access-key {access_key} --secret-key {secret_key} --cluster {cluster} \n"
+                   " {entry_point_cmd}"
                    ).format(create_keypair_cmd=create_keypair_cmd, reg=region, access_key=access_key, secret_key=secret_key,
-                            cluster=cluster_name, vpc_id=vpc_id, security_group=sec_group_id, subnet_list=subnet_list, keypair=keypair_name)
+                            cluster=cluster_name, entry_point_cmd=entry_point_cmd)
 
         fp = open(env_store_location + "/Dockerfile.create-cluster", "w")
         fp.write(df)
         fp.close()
 
         res_id = db_handler.DBHandler().add_resource(env_id, cluster_name, 'ecs-cluster', 'provisioning')
-        err, output = self.docker_handler.build_container_image(cluster_name,
-                                                                env_store_location + "/Dockerfile.create-cluster",
-                                                                df_context=env_store_location)
+        err, image_id = self.docker_handler.build_container_image(cluster_name,
+                                                                  env_store_location + "/Dockerfile.create-cluster",
+                                                                  df_context=env_store_location)
 
+        err, cont_id = self.docker_handler.run_container(cluster_name)
+        cont_id = cont_id.rstrip().lstrip()
         fmlogger.debug("Checking status of ECS cluster %s" % cluster_name)
         is_active = False
-        issue_encountered = False
-        while not is_active and not issue_encountered:
+        time_out_count = 0
+        while not is_active and time_out_count < 300:
             try:
                 clusters_dict = self.ecs_client.describe_clusters(clusters=[cluster_name])
-                status = clusters_dict['clusters'][0]['status']
-                if status == 'ACTIVE':
+                registered_instances_count = clusters_dict['clusters'][0]['registeredContainerInstancesCount']
+                if registered_instances_count == cluster_size:
                     is_active = True
-                    ret_status = 'available'
+                    cluster_status = 'available'
                     break
             except Exception as e:
                 fmlogger.debug("Exception encountered in trying to describe clusters:%s" % e)
-                issue_encountered = True
+            time.sleep(2)
+            time_out_count = time_out_count + 1
 
-        db_handler.DBHandler().update_resource(res_id, status='available')
+        db_handler.DBHandler().update_resource(res_id, status=cluster_status)
 
-        self.docker_handler.remove_container(cluster_name)
+        cp_cmd = ("docker cp {cont_id}:/src/{key_file}.pem {env_dir}/.").format(cont_id=cont_id,
+                                                                                env_dir=env_store_location,
+                                                                                key_file=keypair_name)
+        os.system(cp_cmd)
+
+
+        self.docker_handler.remove_container(cont_id)
         self.docker_handler.remove_container_image(cluster_name)
 
         env_output_config['subnets'] = subnet_list
@@ -215,11 +256,12 @@ class AWSHandler(object):
         env_output_config['cidr_block'] = cidr_block
         env_output_config['http-and-ssh-group-name'] = sec_group_name
         env_output_config['http-and-ssh-group-id'] = sec_group_id
+        env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
         db_handler.DBHandler().update_environment(env_id, status=env_obj[db_handler.ENV_STATUS],
                                                   output_config=str(env_output_config))
         fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
-        return ret_status
-    
+        return cluster_status
+
     def _get_cluster_name(self, env_id):
         resource_obj = db_handler.DBHandler().get_resources_for_environment(env_id)
         cluster_name = resource_obj[0][db_handler.RESOURCE_NAME]
@@ -612,7 +654,7 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
         self._stop_task(app_id)
-        
+
         cont_name = app_details_obj['cont_name']
         self.docker_handler.remove_container_image(cont_name)
 

@@ -124,12 +124,13 @@ def marshall_app_list(app_list):
 
 def marshall_env(env):
     output_env = {}
-    env_attr_table = [None] * 5
+    env_attr_table = [None] * 6
     env_attr_table[0] = db_handler.ENV_ID_COL
     env_attr_table[1] = db_handler.ENV_NAME_COL
     env_attr_table[2] = db_handler.ENV_STATUS_COL
     env_attr_table[3] = db_handler.ENV_DEFINITION_COL
     env_attr_table[4] = db_handler.ENV_OUTPUT_CONFIG_COL
+    env_attr_table[5] = db_handler.ENV_LOCATION_COL
 
     for idx, val in enumerate(env):
         output_env[env_attr_table[idx]] = env[idx]

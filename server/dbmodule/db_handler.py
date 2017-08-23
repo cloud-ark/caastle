@@ -31,12 +31,14 @@ ENV_NAME = 1
 ENV_STATUS = 2
 ENV_DEFINITION = 3
 ENV_OUTPUT_CONFIG = 4
+ENV_LOCATION = 5
 
 ENV_ID_COL = "env_id"
 ENV_NAME_COL = "env_name"
 ENV_STATUS_COL = "env_status"
 ENV_DEFINITION_COL = "env_definition"
 ENV_OUTPUT_CONFIG_COL = "env_details"
+ENV_LOCATION_COL = "env_location"
 
 APP_ID = 0
 APP_NAME = 1
@@ -73,7 +75,8 @@ class DBHandler(object):
                              NAME TEXT NOT NULL,
                              STATUS CHAR(200),
                              ENV_DEFINITION TEXT NOT NULL,
-                             OUTPUT_CONFIG TEXT);''')
+                             OUTPUT_CONFIG TEXT,
+                             LOCATION);''')
         conn.execute(environment_table)
         
         app_table = ('''CREATE TABLE if not exists app
@@ -150,13 +153,13 @@ class DBHandler(object):
         return rows
 
     # Actions on environment table
-    def add_environment(self, env_name, env_obj, env_version_stamp):
+    def add_environment(self, env_name, env_obj, env_version_stamp, env_location):
         env_definition = str(env_obj)
         env_output_config = {}
         env_output_config['env_version_stamp'] = env_version_stamp
         cursor = self.conn.cursor()
-        cmd = ('INSERT INTO environment(NAME, STATUS, ENV_DEFINITION, OUTPUT_CONFIG) VALUES(?, ?, ?, ?)')
-        params = [env_name, 'creating', env_definition, str(env_output_config)]
+        cmd = ('INSERT INTO environment(NAME, STATUS, ENV_DEFINITION, OUTPUT_CONFIG, LOCATION) VALUES(?, ?, ?, ?, ?)')
+        params = [env_name, 'creating', env_definition, str(env_output_config), env_location]
         cursor = self._execute_cmd(cmd, params)
         env_id = cursor.lastrowid
         return env_id
