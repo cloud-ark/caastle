@@ -141,7 +141,8 @@ Commands:
 Contact
 --------
 
-1) Slack channel: cloudark
+1) Slack channel: cloudark_
+.. _cloudark: https://join.slack.com/t/cloudark/shared_invite/MjMyMjYwMTAzODMwLTE1MDM1OTkzMzgtZmQ1MjNjZDI2MA
 
-2) Mailing list on google groups: cloudark@googlegroups.com
+2) Mailing list: cloudark@googlegroups.com
 
