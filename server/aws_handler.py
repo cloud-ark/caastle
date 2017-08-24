@@ -35,6 +35,7 @@ class AWSHandler(object):
     def __init__(self):
         self.ecr_client = boto3.client('ecr')
         self.ecs_client = boto3.client('ecs')
+        self.alb_client = boto3.client('elbv2')
         self.docker_handler = docker_lib.DockerLib()
 
     @staticmethod
@@ -465,9 +466,9 @@ class AWSHandler(object):
         sec_group_id = env_output_config['http-and-ssh-group-id']
         vpc_id = env_output_config['vpc_id']
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        app_url = AWSHandler.awshelper.create_service(app_info['app_name'], app_info['app_port'], vpc_id, 
-                                                      subnet_list, sec_group_id, cluster_name,
-                                                      task_def_arn, cont_name)
+        app_url, lb_arn, target_group_arn, listener_arn = AWSHandler.awshelper.create_service(app_info['app_name'], app_info['app_port'], vpc_id,
+                                                                                              subnet_list, sec_group_id, cluster_name,
+                                                                                              task_def_arn, cont_name)
         app_url = "http://" + app_url
         fmlogger.debug("App URL:%s" % app_url)
         if common_functions.is_app_ready(app_url):
@@ -477,7 +478,7 @@ class AWSHandler(object):
             fmlogger.debug("Application could not start properly.")
             app_status = constants.APP_DEPLOYMENT_TIMEOUT
 
-        return app_url, app_status
+        return app_url, app_status, lb_arn, target_group_arn, listener_arn
 
     def _get_container_port(self, task_def_arn):
         container_port = AWSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
@@ -633,10 +634,15 @@ class AWSHandler(object):
         task_def_arn, cont_name = self._register_task_definition(app_info, image_name, container_port)
 
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
-        app_url, app_status = self._create_ecs_app_service(app_info, cont_name, task_def_arn)
+        app_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
+                                                                                                   cont_name,
+                                                                                                   task_def_arn)
 
         fmlogger.debug('Application URL:%s' % app_url)
 
+        app_details['lb_arn'] = lb_arn
+        app_details['target_group_arn'] = target_group_arn
+        app_details['listener_arn'] = listener_arn
         app_details['task_def_arn'] = task_def_arn
         app_details['app_url'] = app_url
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
@@ -653,20 +659,39 @@ class AWSHandler(object):
         status = 'deleting'
         db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
-        self._stop_task(app_id)
+        task_def_arn = app_details_obj['task_def_arn']
 
         cont_name = app_details_obj['cont_name']
-        self.docker_handler.remove_container_image(cont_name)
+        self._update_ecs_app_service(app_info, cont_name, task_def_arn, task_desired_count=0)
+
+        self._deregister_task_definition(task_def_arn)
+
+        self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
+                                       service=app_obj[db_handler.APP_NAME])
+
+        try:
+            self.alb_client.delete_listener(ListenerArn=app_details_obj['listener_arn'])
+        except Exception as e:
+            fmlogger.error("Exception encountered in deleting listener %s" % e)
+
+        try:
+            self.alb_client.delete_target_group(TargetGroupArn=app_details_obj['target_group_arn'])
+        except Exception as e:
+            fmlogger.error("Exception encountered in deleting target group %s" % e)
+
+        try:
+            self.alb_client.delete_load_balancer(LoadBalancerArn=app_details_obj['lb_arn'])
+        except Exception as e:
+            fmlogger.error("Exception encountered in deleting load balancer %s" % e)
+
+        self._delete_repository(app_obj[db_handler.APP_NAME])
 
         tagged_image_list = common_functions.read_image_tag(app_info)
         if tagged_image_list:
             for tagged_image in tagged_image_list:
                 self.docker_handler.remove_container_image(tagged_image)
 
-        repo_name = app_obj[db_handler.APP_NAME]
-        self._delete_repository(repo_name)
-        
-        task_def_arn = app_details_obj['task_def_arn']
-        self._deregister_task_definition(task_def_arn)
-        
+        image_name = app_details_obj['image_name']
+        self.docker_handler.remove_container_image(image_name)
+
         db_handler.DBHandler().delete_app(app_id)

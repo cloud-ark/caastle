@@ -205,5 +205,5 @@ def read_container_id(app_info, file_name='container_id.txt'):
         fp = open(app_dir + "/" + file_name, "r")
         cont_id_list = fp.readlines()
     except Exception as e:
-        fmlogger.debug("Error encountered in reading container_id: %s" % e)
+        fmlogging.error("Error encountered in reading container_id: %s" % e)
     return cont_id_list

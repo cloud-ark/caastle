@@ -256,4 +256,4 @@ class AWSHelper(object):
                 fmlogger.debug("Exception encountered in trying to run describe_services. %s" % e)
                 issue_encountered = True
 
-        return app_url
+        return app_url, lb_arn, target_group_arn, listener_arn

@@ -267,6 +267,7 @@ class AppRestResource(Resource):
             app_info['app_name'] = app_obj[db_handler.APP_NAME]
             app_info['app_location'] = app_obj[db_handler.APP_LOCATION]
             app_info['app_version'] = app_obj[db_handler.APP_VERSION]
+            app_info['env_id'] = app_obj[db_handler.APP_ENV_ID]
 
             request_handler_thread = app_handler.AppHandler(app_id, app_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
