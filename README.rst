@@ -142,6 +142,7 @@ Contact
 --------
 
 1) Slack channel: cloudark_
+
 .. _cloudark: https://join.slack.com/t/cloudark/shared_invite/MjMyMjYwMTAzODMwLTE1MDM1OTkzMzgtZmQ1MjNjZDI2MA
 
 2) Mailing list: cloudark@googlegroups.com
