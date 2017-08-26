@@ -37,14 +37,14 @@ class RDSResourceHandler(object):
         response = ''
 
         vpc_id = ''
-        vpc_traffic_block = ''        
+        vpc_traffic_block = []     
         if 'vpc_id' in env_output_config and 'cidr_block' in env_output_config:
             vpc_id = env_output_config['vpc_id']
-            vpc_traffic_block = env_output_config['cidr_block']
+            vpc_traffic_block.append(env_output_config['cidr_block'])
         else:
             vpc_details = RDSResourceHandler.awshelper.get_vpc_details()
             vpc_id = vpc_details['vpc_id']
-            vpc_traffic_block = vpc_details['cidr_block']
+            vpc_traffic_block.append(vpc_details['cidr_block'])
 
         #env_sec_group = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, '')
         #env_sec_group = 'sg-687f8412'
@@ -52,13 +52,16 @@ class RDSResourceHandler(object):
         sec_group_id = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
 
         port_list = [3306]
-        RDSResourceHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
-                                                  sec_group_id, sec_group_name, port_list)
-        
+
         publicly_accessible = False
         if 'policy' in resource_details:
             if resource_details['policy']['access'] == 'open':
                 publicly_accessible = True
+                vpc_traffic_block.append('0.0.0.0/0')
+
+        RDSResourceHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
+                                                          sec_group_id, sec_group_name, port_list)
+
         try:
             response = self.client.create_db_instance(DBName=db_name,
                                                       DBInstanceIdentifier=instance_id,

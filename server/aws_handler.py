@@ -179,9 +179,11 @@ class AWSHandler(object):
         sec_group_name = cluster_name + "-http-ssh"
         sec_group_id = AWSHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
 
+        vpc_traffic_block = []
         internet_traffic = '0.0.0.0/0'
+        vpc_traffic_block.append(internet_traffic)
         port_list = [22, 80]
-        AWSHandler.awshelper.setup_security_group(vpc_id, internet_traffic,
+        AWSHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
                                                   sec_group_id, sec_group_name, port_list)
 
         region, access_key, secret_key = AWSHandler.get_aws_details()
@@ -518,7 +520,8 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
 
         db_handler.DBHandler().update_app(app_id, 'deregistering-current-task-ecs-app-service', str(app_details))
-        current_task_def_arn = app_details_obj['task_def_arn']
+
+        current_task_def_arn = app_details_obj['task_def_arn'][-1]
         container_port = self._get_container_port(current_task_def_arn)
         orig_cont_name = app_details_obj['cont_name']
         self._update_ecs_app_service(app_info, orig_cont_name, current_task_def_arn, task_desired_count=0)
@@ -528,7 +531,7 @@ class AWSHandler(object):
                                                                      container_port, cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
-        app_details_obj['task_def_arn'] = new_task_def_arn
+        app_details_obj['task_def_arn'].append(new_task_def_arn)
         app_details_obj['image_name'] = tagged_image
         app_details_obj['cont_name'] = orig_cont_name
 
@@ -637,13 +640,13 @@ class AWSHandler(object):
         app_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
                                                                                                    cont_name,
                                                                                                    task_def_arn)
-
         fmlogger.debug('Application URL:%s' % app_url)
 
         app_details['lb_arn'] = lb_arn
         app_details['target_group_arn'] = target_group_arn
         app_details['listener_arn'] = listener_arn
-        app_details['task_def_arn'] = task_def_arn
+
+        app_details['task_def_arn'] = [task_def_arn]
         app_details['app_url'] = app_url
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = image_name
@@ -659,12 +662,14 @@ class AWSHandler(object):
         status = 'deleting'
         db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
-        task_def_arn = app_details_obj['task_def_arn']
+        task_def_arn_list = app_details_obj['task_def_arn']
 
+        latest_task_def_arn = task_def_arn_list[-1]
         cont_name = app_details_obj['cont_name']
-        self._update_ecs_app_service(app_info, cont_name, task_def_arn, task_desired_count=0)
+        self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
 
-        self._deregister_task_definition(task_def_arn)
+        for task_def_arn in task_def_arn_list:
+            self._deregister_task_definition(task_def_arn)
 
         self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
                                        service=app_obj[db_handler.APP_NAME])
@@ -692,6 +697,6 @@ class AWSHandler(object):
                 self.docker_handler.remove_container_image(tagged_image)
 
         image_name = app_details_obj['image_name']
-        self.docker_handler.remove_container_image(image_name)
+        self.docker_handler.remove_container_image(image_name + ":latest")
 
         db_handler.DBHandler().delete_app(app_id)

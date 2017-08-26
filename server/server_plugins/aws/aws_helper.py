@@ -137,15 +137,13 @@ class AWSHelper(object):
         response = self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
     
     def setup_security_group(self, vpc_id, ip_range, sec_group_id, sec_group_name, port_list):
-        rules_dict = {}
-        rules_dict['protocol'] = 'tcp'
-        #rules_dict['to_port'] = 22
-        rules_dict['ip_range'] = ip_range
-        #self.authorize_security_group_ingress(sec_group_id, sec_group_name, rules_dict)
-
-        for port in port_list:
-            rules_dict['to_port'] = port
-            self.authorize_security_group_ingress(sec_group_id, sec_group_name, rules_dict)
+        for ip in ip_range:
+            rules_dict = {}
+            rules_dict['protocol'] = 'tcp'
+            rules_dict['ip_range'] = ip
+            for port in port_list:
+                rules_dict['to_port'] = port
+                self.authorize_security_group_ingress(sec_group_id, sec_group_name, rules_dict)
 
     def authorize_security_group_ingress(self, group_id, group_name, rules_dict):
         fmlogger.debug("Setting security group rules for group:%s" % group_name)
