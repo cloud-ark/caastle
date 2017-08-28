@@ -514,7 +514,8 @@ class AWSHandler(object):
         common_functions.save_image_tag(tagged_image, app_info)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
-            return
+            db_handler.DBHandler().update_app(app_id, 'error-encountered-in-pushing-app-cont-image', str(app_details_obj))
+            raise Exception()
         fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
 
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
@@ -532,7 +533,7 @@ class AWSHandler(object):
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
         app_details_obj['task_def_arn'].append(new_task_def_arn)
-        app_details_obj['image_name'] = tagged_image
+        app_details_obj['image_name'].append(tagged_image)
         app_details_obj['cont_name'] = orig_cont_name
 
         db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-become-ready', str(app_details_obj))
@@ -619,22 +620,25 @@ class AWSHandler(object):
                 fmlogger.debug("Error encountered in executing docker login command. Not continuing with the request. %s" % err)
                 return
 
+        tag = str(int(round(time.time() * 1000)))
+
         db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details))
-        err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint)
+        err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
+        tagged_image = image_name + ":" + tag
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
             return
 
         db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details))
-        err, output = self.docker_handler.push_container(image_name)
+        err, output = self.docker_handler.push_container(tagged_image)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
             return
-        fmlogger.debug("Completed pushing container %s to AWS ECR" % image_name)
+        fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
 
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
         container_port = int(app_info['app_port'])
-        task_def_arn, cont_name = self._register_task_definition(app_info, image_name, container_port)
+        task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
 
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
         app_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
@@ -649,7 +653,7 @@ class AWSHandler(object):
         app_details['task_def_arn'] = [task_def_arn]
         app_details['app_url'] = app_url
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
-        app_details['image_name'] = image_name
+        app_details['image_name'] = [tagged_image]
         app_details['cont_name'] = cont_name
         db_handler.DBHandler().update_app(app_id, app_status, str(app_details))
 
@@ -691,12 +695,13 @@ class AWSHandler(object):
 
         self._delete_repository(app_obj[db_handler.APP_NAME])
 
-        tagged_image_list = common_functions.read_image_tag(app_info)
+        #tagged_image_list = common_functions.read_image_tag(app_info)
+        tagged_image_list = app_details_obj['image_name']
         if tagged_image_list:
             for tagged_image in tagged_image_list:
                 self.docker_handler.remove_container_image(tagged_image)
 
-        image_name = app_details_obj['image_name']
-        self.docker_handler.remove_container_image(image_name + ":latest")
+        #image_name = app_details_obj['image_name']
+        #self.docker_handler.remove_container_image(image_name + ":latest")
 
         db_handler.DBHandler().delete_app(app_id)
