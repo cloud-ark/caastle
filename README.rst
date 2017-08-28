@@ -19,6 +19,9 @@ CloudARK essentially makes your containerized applications *cloud ready*.
 
 Try CloudARK
 -------------
+
+CloudARK has been developed and tested on Ubuntu 14.04 and Mac OS (Darwin)
+
 1) Clone this repository
 
 2) Install CloudARK:
@@ -32,6 +35,7 @@ Try CloudARK
 Note: CloudARK requires Docker to be installed. If you don't have Docker, you can install it_.
 
 .. _it: https://docs.docker.com/engine/installation/
+
 
 
 
