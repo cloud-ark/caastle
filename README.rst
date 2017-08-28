@@ -5,16 +5,17 @@ CloudARK
 Environment as Code for Cloud Native Containerized Applications.
 
 An environment for a cloud native containerized application consists of
+
 a) COE (Container Orchestration Engine) cluster
+
 b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL) and
+
 c) Application containers
 
-Currently such environments are not easy to share and reproduce because managed cloud services are not integral part of the application architecture definition. 
+Currently such environments are not easy to create, share, and reproduce because managed cloud services are not integral part of the application architecture definition. 
 
 CloudARK offers ‘Environment as Code’ solution to declare and create cloud environments for containerized applications.
 CloudARK allows developers to add managed cloud services as integral part of their micro services architecture definition.
-
-CloudARK essentially makes your containerized applications *cloud ready*.
 
 
 Try CloudARK
@@ -45,16 +46,18 @@ CloudARK has two primary concepts - *environment* and *application*.
 
 environment
   An environment consists of any cloud resource that is required by your application.
-  This includes cloud databases, load balancers, container orchestration engines, etc.
+  This includes cloud databases, load balancers, container orchestration engine cluster, etc.
   Environment is represented using a simple yaml format.
 
     Currently supported: AWS RDS, AWS ECS, AWS DynamoDB
-    Coming soon: Google Cloud SQL, Kubernetes
+
+    Coming soon: Google Cloud SQL, Kubernetes (GKE)
 
 application
   An application is a Docker container built from application source code.
   CloudARK assumes existence of Dockerfile in the application folder.
-  An application is deployed on an environment.
+  An application is deployed on an environment and is bound to the resources
+  provisioned as part of that environment.
 
 CloudARK seamlessly binds the application to the environment as part of orchestrating its deployment.
 
@@ -62,9 +65,10 @@ CloudARK seamlessly binds the application to the environment as part of orchestr
 Deployment to Amazon ECS
 -------------------------
 
-CloudARK assumes that you have done AWS setup and uses it (for example, using ~/.aws directory for
-credentials). The ~/.aws directory will typically be created when you setup AWS CLI. If you don't have this directory
-then follow these steps_.
+CloudARK assumes that you have done AWS setup and uses it during deployment. For example, CloudARK uses ~/.aws directory 
+to read aws 
+credentials. The ~/.aws directory will typically be created when you setup AWS CLI. If you don't have this directory
+then follow these steps_ to do AWS setup.
 
 .. _steps: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 
