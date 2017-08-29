@@ -152,6 +152,7 @@ Screenshots
 1) Creating an environment
 
    .. image:: ./docs/screenshots/env-create-show-2.png
+      :scale: 125%
 
 
 Contact
