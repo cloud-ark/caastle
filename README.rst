@@ -146,6 +146,14 @@ Commands:
   resource show
 
 
+Screenshots
+------------
+
+1) Creating an environment
+
+   .. image:: ./docs/screenshots/env-create-show-2.png
+
+
 Contact
 --------
 
