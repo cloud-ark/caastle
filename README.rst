@@ -149,18 +149,43 @@ Commands:
 Screenshots
 ------------
 
-1) Creating an environment
+1) Environment resource definition
 
-   .. image:: ./docs/screenshots/env-create-show-2.png
+   .. image:: ./docs/screenshots/env-yaml.png
+
+2) Create environment
+
+   .. image:: ./docs/screenshots/env-create-show.png
       :scale: 125%
 
+3) Deploy application
 
-Contact
+   .. image:: ./docs/screenshots/app-deploy.png
+
+4) Check application status
+
+   .. image:: ./docs/screenshots/app-deployment-complete.png
+
+5) Deployed application
+
+   .. image:: ./docs/screenshots/deployed-app.png
+
+6) AWS console
+
+   .. image:: ./docs/screenshots/rds-aws-console.png
+
+   .. image:: ./docs/screenshots/ecs-aws-console.png
+
+   .. image:: ./docs/screenshots/ecs-task-definition.png
+
+   .. image:: ./docs/screenshots/ecs-repository.png
+
+
+
+
+Contact:
 --------
 
-1) Slack channel: cloudark_
+Devdatta Kulkarni: devdattakulkarni at gmail 
 
-.. _cloudark: https://join.slack.com/t/cloudark/shared_invite/MjMyMjYwMTAzODMwLTE1MDM1OTkzMzgtZmQ1MjNjZDI2MA
-
-2) Mailing list: cloudark@googlegroups.com
 
