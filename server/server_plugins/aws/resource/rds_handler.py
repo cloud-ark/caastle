@@ -27,7 +27,6 @@ class RDSResourceHandler(object):
         res_type = resource_details['type']
         now = time.time()
         ts = str(now).split(".")[0]
-        #instance_id = "env-" + str(env_id) + "-" + res_type + "-" + ts
 
         env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
         env_version_stamp = env_output_config['env_version_stamp']
@@ -46,12 +45,19 @@ class RDSResourceHandler(object):
             vpc_id = vpc_details['vpc_id']
             vpc_traffic_block.append(vpc_details['cidr_block'])
 
-        #env_sec_group = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, '')
-        #env_sec_group = 'sg-687f8412'
         sec_group_name = instance_id + "-sql"
         sec_group_id = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
 
         port_list = [3306]
+
+        engine = DEFAULT_RDS_ENGINE
+        instance_class = DEFAULT_RDS_INSTANCE_CLASS
+
+        if 'configuration' in resource_details:
+            if 'engine' in resource_details['configuration']:
+                engine = resource_details['configuration']['engine']
+            if 'flavor' in resource_details['configuration']:
+                instance_class = resource_details['configuration']['flavor']
 
         publicly_accessible = False
         if 'policy' in resource_details:
@@ -61,12 +67,11 @@ class RDSResourceHandler(object):
 
         RDSResourceHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
                                                           sec_group_id, sec_group_name, port_list)
-
         try:
             response = self.client.create_db_instance(DBName=db_name,
                                                       DBInstanceIdentifier=instance_id,
-                                                      DBInstanceClass=DEFAULT_RDS_INSTANCE_CLASS,
-                                                      Engine=DEFAULT_RDS_ENGINE,
+                                                      DBInstanceClass=instance_class,
+                                                      Engine=engine,
                                                       MasterUsername=constants.DEFAULT_DB_USER,
                                                       MasterUserPassword=constants.DEFAULT_DB_PASSWORD,
                                                       PubliclyAccessible=publicly_accessible,
