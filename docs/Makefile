@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = CloudARK
 SOURCEDIR     = .
-BUILDDIR      = _build
+BUILDDIR      = html
 
 # Put it first so that "make" without argument is like "make help".
 help:
