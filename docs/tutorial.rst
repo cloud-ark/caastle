@@ -1,4 +1,6 @@
 Tutorial
 ---------
 
-Check the cloud-ark/cloudark-samples repository to see examples of deploying applications using CloudARK.
+Check the `repository`_ to see examples of deploying applications using CloudARK.
+
+.. _repository: https://github.com/cloud-ark/cloudark-samples

@@ -98,7 +98,8 @@ todo_include_todos = True
 # documentation.
 #
 # html_theme_options = {}
-html_theme_options = {'show_powered_by': False}
+html_theme_options = {'show_powered_by': False,
+                      'show_related': True}
 
 html_add_permalinks = ''
 html_show_copyright = False
@@ -120,7 +121,7 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         #'about.html',
-        #'navigation.html',
+        'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
         #'searchbox.html',
         #'donate.html',
