@@ -1,0 +1,17 @@
+1) Environment:
+
+environment:
+  resources:
+    aws:
+      - resource:
+          type: rds
+          configuration:
+            engine: mysql
+            flavor: db.m1.medium
+  app_deployment:
+    target: aws
+    type: ecs
+
+
+
+2) Application:
