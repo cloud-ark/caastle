@@ -98,8 +98,14 @@ todo_include_todos = True
 # documentation.
 #
 # html_theme_options = {}
+html_theme_options = {'show_powered_by': False}
 
 html_add_permalinks = ''
+html_show_copyright = False
+html_show_sphinx = False
+html_show_sourcelink = False
+html_copy_source = False
+html_use_index = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -113,11 +119,11 @@ html_static_path = ['_static']
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
-        'about.html',
-        'navigation.html',
+        #'about.html',
+        #'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-        'donate.html',
+        #'searchbox.html',
+        #'donate.html',
     ]
 }
 
