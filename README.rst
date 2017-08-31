@@ -32,20 +32,16 @@ CloudARK has been developed and tested on Ubuntu 14.04 and Mac OS (Darwin)
      - If above fails for some reason follow these steps:
        
        - Open a terminal and start the cloudark server process:
-
-         .. code:
-            - virtualenv cloudark-env
-            - source cloudark-env/bin/activate
-            - pip install -r requirements.txt
-            - python server/fmserver.py
+         (a) virtualenv cloudark-env
+         (b) source cloudark-env/bin/activate
+         (c) pip install -r requirements.txt
+         (d) python server/fmserver.py
   
        - Open another terminal and install cloudark client:
-    
-	 .. code:
-            - cd <cloudark directory>
-	    - source cloudark-env/bin/activate
-            - cd client
-            - python setup.py install
+         (a) cd <cloudark directory>
+	 (b) source cloudark-env/bin/activate
+         (c) cd client
+         (d) python setup.py install
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
 
@@ -55,6 +51,10 @@ Note: CloudARK requires Docker to be installed. If you don't have Docker, you ca
 
 .. _it: https://docs.docker.com/engine/installation/
 
+
+Chere this_ for more details about CloudARK
+
+.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
 
 
 
