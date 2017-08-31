@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-Environment as Code for Cloud Native Containerized Applications.
+Environment-as-Code for Cloud Native Containerized Applications.
 
 An environment for a cloud native containerized application consists of
 
@@ -10,11 +10,11 @@ a) COE (Container Orchestration Engine) cluster
 
 b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL) and
 
-c) Application containers
+Application containers are deployed on such an environment.
 
 Currently such environments are not easy to create, share, and reproduce because managed cloud services are not integral part of the application architecture definition. 
 
-CloudARK offers ‘Environment as Code’ solution to declare and create cloud environments for containerized applications.
+CloudARK offers ‘Environment-as-Code’ solution to declare and create cloud environments for containerized applications.
 CloudARK allows developers to add managed cloud services as integral part of their micro services architecture definition.
 
 
@@ -28,6 +28,24 @@ CloudARK has been developed and tested on Ubuntu 14.04 and Mac OS (Darwin)
 2) Install CloudARK:
 
      ./install.sh
+
+     - If above fails for some reason follow these steps:
+       
+       - Open a terminal and start the cloudark server process:
+
+         .. code:
+            - virtualenv cloudark-env
+            - source cloudark-env/bin/activate
+            - pip install -r requirements.txt
+            - python server/fmserver.py
+  
+       - Open another terminal and install cloudark client:
+    
+	 .. code:
+            - cd <cloudark directory>
+	    - source cloudark-env/bin/activate
+            - cd client
+            - python setup.py install
 
 3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
 
