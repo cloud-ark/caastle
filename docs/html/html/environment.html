@@ -42,7 +42,7 @@
   <div class="section" id="environment">
 <h1>Environment</h1>
 <p>An environment is defined in a yaml file using declarative syntax.
-An environment definition consists of two sections <em>resources</em> and <em>app_deployment</em>.
+Environment definition consists of two sections <em>resources</em> and <em>app_deployment</em>.
 The resources section is optional. Here is an example of environment definition
 containing AWS RDS resource and AWS ECS for application deployment.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">environment</span><span class="p p-Indicator">:</span>
@@ -58,9 +58,6 @@ containing AWS RDS resource and AWS ECS for application deployment.</p>
     <span class="l l-Scalar l-Scalar-Plain">type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ecs</span>
 </pre></div>
 </div>
-<p>The idea behind separating resources and application deployment in the environment
-definition is to support cross-cloud deployments in the future where one can deploy application
-on one cloud and bind it to managed resources from another cloud.</p>
 <p>The <em>resources</em> section consists of one or more resource definitions.
 A resource definition consists of the <em>type</em> attribute and an optional <em>configuration</em> directive.
 The <em>type</em> attribute identifies the type of the resource to provision.
@@ -74,6 +71,10 @@ cluster should be created. The type attribute identifies the type of the COE.
 Using target and type attributes we are able to capture different combinations of
 clouds and COEs such as, &lt;aws, ecs&gt;, &lt;aws, kubernetes&gt;, &lt;google, kubernetes&gt;, &lt;openstack, magnum&gt;, etc.
 Currently supported options are: &lt;aws, ecs&gt;.</p>
+<p>The reason behind separating resources and application deployment in the environment
+definition is to support cross-cloud deployments in the future where one can deploy application
+on one cloud and bind it to managed resources from another cloud. An environment is created using
+the <em>cld environment create {env}</em> command.</p>
 </div>
 
 

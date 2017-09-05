@@ -41,13 +41,13 @@
             
   <div class="section" id="application">
 <h1>Application</h1>
-<p>An application is defined as Docker container. CloudARK assumes that Dockerfile
-is present in the application directory from which CloudARK commands would be run.</p>
+<p>An application is a Docker container in CloudARK. CloudARK assumes that Dockerfile
+is present in the application directory.</p>
 <p>Application is deployed on an <em>environment</em>. The application deployment action takes
-the id of the environment as input. CloudARK builds the docker container image for
-the application and then deploys it on the COE cluster created as part of the specified
-environmnet.</p>
-<p>Application is bound to resources in the environment through environment variables
+the id of the environment as input (<em>cld app deploy {app-name} –env-id {env-id}</em>).
+CloudARK builds the docker container image for the application and then deploys it on the COE cluster created as part of the specified
+environmnet. As part of the deployment step CloudARK binds the application to resources
+in the environment through environment variables
 defined in the Dockerfile. For example here is a Dockerfile from <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a> application.</p>
 <div class="highlight-Dockerfile"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="s"> ubuntu:14.04</span>
 <span class="k">RUN</span> apt-get update -y <span class="se">\</span>
