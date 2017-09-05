@@ -1,15 +1,14 @@
 Application
 ------------
 
-An application is defined as Docker container. CloudARK assumes that Dockerfile
-is present in the application directory from which CloudARK commands would be run.
+An application is a Docker container in CloudARK. CloudARK assumes that Dockerfile
+is present in the application directory.
 
 Application is deployed on an *environment*. The application deployment action takes
-the id of the environment as input. CloudARK builds the docker container image for
-the application and then deploys it on the COE cluster created as part of the specified
-environmnet.
-
-Application is bound to resources in the environment through environment variables
+the id of the environment as input (*cld app deploy {app-name} --env-id {env-id}*).
+CloudARK builds the docker container image for the application and then deploys it on the COE cluster created as part of the specified
+environmnet. As part of the deployment step CloudARK binds the application to resources
+in the environment through environment variables
 defined in the Dockerfile. For example here is a Dockerfile from greetings_ application.
 
 .. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
