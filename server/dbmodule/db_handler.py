@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from os.path import expanduser
 import yaml
@@ -5,8 +6,10 @@ import yaml
 from common import constants
 
 home_dir = expanduser("~")
-
 APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
+if not os.path.exists(APP_STORE_PATH):
+    os.makedirs(APP_STORE_PATH)
+
 DBFILE = APP_STORE_PATH + "/cld.sqlite"
 
 RESOURCE_NAME = 2

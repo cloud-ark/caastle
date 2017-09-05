@@ -12,6 +12,8 @@ from os.path import expanduser
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Resource, Api
 
+from common import constants
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -24,12 +26,21 @@ home_dir = expanduser("~")
 APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 ENV_STORE_PATH = APP_STORE_PATH
 
-from common import fm_logger
-from common import common_functions
-from dbmodule import db_handler
-import request_handler
-import environment_handler
-import app_handler
+if not os.path.exists(home_dir + "/.aws/credentials") or not os.path.exists(home_dir + "/.aws/config"):
+    print(constants.AWS_SETUP_INCORRECT)
+    exit()
+
+try:
+    from common import fm_logger
+    from common import common_functions
+    from dbmodule import db_handler
+    import request_handler
+    import environment_handler
+    import app_handler
+except Exception as e:
+    if e.message == "You must specify a region.":
+        print(constants.AWS_SETUP_INCORRECT)
+        exit()
 
 dbhandler = db_handler.DBHandler()
 
@@ -380,13 +391,16 @@ api.add_resource(ResourcesRestResource, '/resources')
 api.add_resource(ResourceRestResource, '/resources/<resource_id>')
 
 if __name__ == '__main__':
-    if not os.path.exists(APP_STORE_PATH):
-        os.makedirs(APP_STORE_PATH)
-    fmlogging = fm_logger.Logging()
-    fmlogging.info("Starting CloudARK server")
+    try:
+        if not os.path.exists(APP_STORE_PATH):
+            os.makedirs(APP_STORE_PATH)
+        fmlogging = fm_logger.Logging()
+        fmlogging.info("Starting CloudARK server")
 
-    from gevent.wsgi import WSGIServer
-    http_server = WSGIServer(('', 5002), app)
-    http_server.serve_forever()
+        from gevent.wsgi import WSGIServer
+        http_server = WSGIServer(('', 5002), app)
+        http_server.serve_forever()
+    except Exception as e:
+        fmlogging.error(e)
 
     #app.run(debug=True, threaded=True, host='0.0.0.0', port=5002)
