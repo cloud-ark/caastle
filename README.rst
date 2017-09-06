@@ -133,36 +133,37 @@ Once the policy is created attach it to your user.
 Available commands
 -------------------
 
-$ cld --help
+::
+  $ cld --help
 
-usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
+  usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
 
-CloudARK command-line tool to create and manage cloud environments for
-containerized applications.
+  CloudARK command-line tool to create and manage cloud environments for
+  containerized applications.
 
-Commands:
+  Commands:
 
-  environment create
+    environment create
 
-  environment list
+    environment list
 
-  environment show
+    environment show
 
-  environment delete
+    environment delete
 
-  app deploy
+    app deploy
 
-  app redeploy
+    app redeploy
 
-  app list
+    app list
 
-  app show
+    app show
 
-  app delete
+    app delete
 
-  resource list
+    resource list
 
-  resource show
+    resource show
 
 
 Screenshots
@@ -173,31 +174,41 @@ Screenshots
    .. image:: ./docs/screenshots/env-yaml.png
 
 2) Create environment
-
+   
+   ::
+     $ cld environment create staging environment-rds-ecs.yaml
+ 
    .. image:: ./docs/screenshots/env-create-show.png
       :scale: 125%
 
 3) Deploy application
 
    .. image:: ./docs/screenshots/app-deploy.png
+      :scale: 125%
 
 4) Check application status
 
    .. image:: ./docs/screenshots/app-deployment-complete.png
+      :scale: 125%
 
 5) Deployed application
 
    .. image:: ./docs/screenshots/deployed-app.png
+      :scale: 125%
 
 6) AWS console
 
    .. image:: ./docs/screenshots/rds-aws-console.png
+      :scale: 125%
 
    .. image:: ./docs/screenshots/ecs-aws-console.png
+      :scale: 125%
 
    .. image:: ./docs/screenshots/ecs-task-definition.png
+      :scale: 125%
 
    .. image:: ./docs/screenshots/ecs-repository.png
+      :scale: 125%
 
 
 
