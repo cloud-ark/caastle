@@ -34,7 +34,7 @@ echo "Installing cloudark client done." >> $install_log
 
 cd ..
 echo "Starting server.." >> $install_log
-ps -eaf | grep 'python server/fmserver.py' | awk '{print $2}' | xargs kill >> $install_log
+ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill >> $install_log
 python server/fmserver.py 1>>cld-server.log 2>&1 &
 
 has_server_started=`ps -eaf | grep fmserver` 
