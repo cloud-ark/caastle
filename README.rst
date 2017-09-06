@@ -175,18 +175,21 @@ Screenshots
 
 2) Create environment
    
-   ::
-     $ cld environment create staging environment-rds-ecs.yaml
+   $ cld environment create staging environment-rds-ecs.yaml
  
    .. image:: ./docs/screenshots/env-create-show.png
       :scale: 125%
 
 3) Deploy application
 
+   $ cld app deploy greetings --env-id 27
+
    .. image:: ./docs/screenshots/app-deploy.png
       :scale: 125%
 
 4) Check application status
+
+   $ cld app show 17
 
    .. image:: ./docs/screenshots/app-deployment-complete.png
       :scale: 125%
