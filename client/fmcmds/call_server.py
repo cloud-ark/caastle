@@ -11,6 +11,9 @@ resource_stacks_endpoint = "http://localhost:5002/resource_stacks"
 environments_endpoint = "http://localhost:5002/environments"
 apps_endpoint = "http://localhost:5002/apps"
 
+SERVER_ERROR = "Something caused error in cloudark. Please submit bug report on cloudark github repo. "
+SERVER_ERROR = SERVER_ERROR + "Attach logs from cld.log which is available in cloudark directory."
+
 class TakeAction(object):
 
     def __init__(self):
@@ -50,15 +53,18 @@ class TakeAction(object):
         req = urllib2.Request(apps_endpoint)
         req.add_header('Content-Type', 'application/octet-stream')
 
-        response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
-
-        if response.code == '503':
-            print("Received 503 from server.")
-            return
-        if response.code == '412':
-            print("App cannot be deployed as Environment is not ready.")
-            return
-        app_url = response.headers.get('location')
+        app_url = ''
+        try:
+            response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+            app_url = response.headers.get('location')
+            print("Request to deploy application accepted.")
+        except Exception as e:
+            if e.code == 412:
+                print("App cannot be deployed as Environment is not ready yet.")
+            if e.code == 404:
+                print("Environment with id %s not found" % app_info['env_id'])
+            if e.code == 503 or e.code == 500:
+                print(SERVER_ERROR)
         self._delete_tarfile(tarfile_name, source_dir)
 
         return app_url
@@ -112,8 +118,7 @@ class TakeAction(object):
             if e.msg == 'NOT FOUND':
                 print("App with app-id %s not found." % app_id)
             if e.msg == 'INTERNAL SERVER ERROR':
-                print("Something caused error in the server. Please submit bug report on cloudark github repo. "
-                      "Attach logs from cld.log which is available in cloudark directory.")
+                print(SERVER_ERROR)
                 return
 
         self._delete_tarfile(tarfile_name, source_dir)

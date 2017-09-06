@@ -163,6 +163,10 @@ class AppsRestResource(Resource):
                 if 'env_id' in app_info:
                     env_id = app_info['env_id']
                     env_obj = dbhandler.get_environment(app_info['env_id'])
+                    if not env_obj:
+                        response.status_code = 404
+                        response.status_message = 'Environment not found.'
+                        return response
                     if not env_obj[db_handler.ENV_STATUS] or env_obj[db_handler.ENV_STATUS] != 'available':
                         response.status_code = 412
                         response.status_message = 'Environment not ready.'

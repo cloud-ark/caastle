@@ -60,4 +60,5 @@ class AppDeploy(Command):
 
         l = self.dep_track_url.rfind("/")
         app_id = self.dep_track_url[l+1:]
-        print("app id:%s" % app_id)
+        if app_id:
+            print("app id:%s" % app_id)
