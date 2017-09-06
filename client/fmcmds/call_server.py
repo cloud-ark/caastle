@@ -141,9 +141,12 @@ class TakeAction(object):
 
         data = {'environment_def': environment_def,
                 'environment_name': env_name}
-
-        response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
-
+        try:
+            response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+            print("Request to create environment accepted.")
+        except Exception as e:
+            if e.code == 503 or e.code == 500:
+                print(SERVER_ERROR)
         environment_url = response.headers.get('location')
         return environment_url
     
