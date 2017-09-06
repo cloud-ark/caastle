@@ -89,7 +89,7 @@ to read aws
 credentials. The ~/.aws directory will typically be created when you setup AWS CLI. If you don't have this directory
 then follow these steps_ to do AWS setup.
 
-.. _steps: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+.. _steps: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on AWS.

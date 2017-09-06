@@ -64,5 +64,5 @@ TIMEOUT_COUNT = 400
 
 AWS_SETUP_INCORRECT = "Looks like AWS setup is not properly done. Region is missing from ~/.aws/config file\n"
 AWS_SETUP_INCORRECT = AWS_SETUP_INCORRECT + "AWS setup includes following files: ~/.aws/config and ~/.aws/credentials\n"
-AWS_SETUP_INCORRECT = AWS_SETUP_INCORRECT + "Please do AWS setup (http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html) and then continue."
+AWS_SETUP_INCORRECT = AWS_SETUP_INCORRECT + "Please do AWS setup (http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and then continue."
 
