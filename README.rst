@@ -26,13 +26,17 @@ for binding of managed services with containerized applications.
 
 Environment-as-Code approach exemplified by CloudARK simplifies this alternative approach
 with a *non-hosted command-line* tool that supports declarative specification of an application's cloud environment
-and commands to create and reproduce such environments. This leads to following benefits:
+that includes managed service's definition, and a set of commands
+to create such environments and seamlessly bind the application to managed services in the environment.
+This leads to following benefits:
+
+a) No need of developing custom scripts for managed service provisioning and binding applications to them
 
 a) Environment definition can be reused for different applications
 
 b) Environment definition can be shared between team members
 
-c) CloudARK commands can be integrated in your custom workflows and scripts either locally or in a CI workflow
+c) CloudARK commands can be integrated in your custom workflows and scripts, either locally or in a CI workflow
 
 
 Try CloudARK
@@ -150,37 +154,37 @@ Once the policy is created attach it to your user.
 Available commands
 -------------------
 
-::
-  $ cld --help
 
-  usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
+$ cld --help
 
-  CloudARK command-line tool to create and manage cloud environments for
-  containerized applications.
+usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
 
-  Commands:
+CloudARK command-line tool to create and manage cloud environments for
+containerized applications.
 
-    environment create
+Commands:
 
-    environment list
+  environment create
 
-    environment show
+  environment list
 
-    environment delete
+  environment show
 
-    app deploy
+  environment delete
 
-    app redeploy
+  app deploy
 
-    app list
+  app redeploy
 
-    app show
+  app list
 
-    app delete
+  app show
 
-    resource list
+  app delete
 
-    resource show
+  resource list
+
+  resource show
 
 
 Screenshots
