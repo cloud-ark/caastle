@@ -8,7 +8,7 @@ An environment for a cloud native containerized application consists of
 
 a) COE (Container Orchestration Engine) cluster
 
-b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL) and
+b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
 Application containers are deployed on such an environment.
 
@@ -21,13 +21,13 @@ Platform-as-a-service (PaaS) systems support managed service integration with ap
 these systems are increasingly being challenged by Docker and Container-as-a-Service (CaaS) systems
 as most of the traditional PaaS functionality is now available through them. One area where they
 lack currently is managed services integration. So the alternative approach
-that is used today is to develop custom solution that combines CaaS + Infrastructure as code + custom scripting
-for binding managed services with containerized applications.
+that is used today is to develop custom solution that combines CaaS + Infrastructure as code solution
+such as CloudFormation + custom scripting for binding managed services with containerized applications.
 
 Environment-as-Code approach exemplified by CloudARK simplifies this alternative approach
 with a *non-hosted command-line* tool that supports declarative specification of an application's cloud environment
-that includes managed service's definition, and a set of commands
-to create such environments and seamlessly bind the application to managed services in the environment.
+that includes specification of managed services, and a set of commands
+to create such environments and to seamlessly bind the application to managed services in the environment.
 This leads to following benefits:
 
 a) No need to develop custom scripts for managed service provisioning and binding applications to them
