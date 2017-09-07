@@ -22,7 +22,7 @@ these systems are increasingly being challenged by Docker and Container-as-a-Ser
 as most of the traditional PaaS functionality is now available through them. One area where they
 lack currently is managed services integration. So the alternative approach
 that is used today is to develop custom solution that combines CaaS + Infrastructure as code + custom scripting
-for binding of managed services with containerized applications.
+for binding managed services with containerized applications.
 
 Environment-as-Code approach exemplified by CloudARK simplifies this alternative approach
 with a *non-hosted command-line* tool that supports declarative specification of an application's cloud environment
@@ -30,13 +30,13 @@ that includes managed service's definition, and a set of commands
 to create such environments and seamlessly bind the application to managed services in the environment.
 This leads to following benefits:
 
-a) No need of developing custom scripts for managed service provisioning and binding applications to them
+a) No need to develop custom scripts for managed service provisioning and binding applications to them
 
-a) Environment definition can be reused for different applications
+b) Environment definition can be reused for different applications
 
-b) Environment definition can be shared between team members
+c) Environment definition can be shared between team members
 
-c) CloudARK commands can be integrated in your custom workflows and scripts, either locally or in a CI workflow
+d) CloudARK commands can be integrated in your custom workflows and scripts, either locally or within CI setup
 
 
 Try CloudARK
