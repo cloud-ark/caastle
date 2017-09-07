@@ -74,12 +74,6 @@ Note: CloudARK requires Docker to be installed. If you don't have Docker, you ca
 .. _it: https://docs.docker.com/engine/installation/
 
 
-Read this_ for more details about CloudARK
-
-.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
-
-
-
 Concepts
 --------
 CloudARK has two primary concepts - *environment* and *application*.
@@ -100,6 +94,10 @@ application
   provisioned as part of that environment.
 
 CloudARK seamlessly binds the application to the environment as part of orchestrating its deployment.
+
+Read this_ for more details about environment and application concepts
+
+.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
 
 
 Deployment to Amazon ECS
