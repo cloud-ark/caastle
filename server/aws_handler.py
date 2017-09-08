@@ -197,12 +197,15 @@ class AWSHandler(object):
         cluster_size = 1
         if 'cluster_size' in env_details['environment']['app_deployment']:
             cluster_size = env_details['environment']['app_deployment']['cluster_size']
+        if 'instance_type' in env_details['environment']['app_deployment']:
+            instance_type = env_details['environment']['app_deployment']['instance_type']
         entry_point_cmd = ("ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
-                           "\"--security-group\", \"{security_group}\", \"--cluster\", \"{cluster}\"] \n").format(size=cluster_size,
+                           "\"--security-group\", \"{security_group}\", \"--instance-type\", \"{instance_type}\", \"--cluster\", \"{cluster}\"] \n").format(size=cluster_size,
                                                                                                                   cluster=cluster_name, vpc_id=vpc_id,
                                                                                                                   keypair=keypair_name,
                                                                                                                   security_group=sec_group_id,
-                                                                                                                  subnet_list=subnet_list)
+                                                                                                                  subnet_list=subnet_list,
+                                                                                                                  instance_type=instance_type)
         fmlogger.debug("Entry point cmd:%s" % entry_point_cmd)
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
