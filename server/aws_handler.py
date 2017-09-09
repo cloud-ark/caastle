@@ -197,6 +197,7 @@ class AWSHandler(object):
         cluster_size = 1
         if 'cluster_size' in env_details['environment']['app_deployment']:
             cluster_size = env_details['environment']['app_deployment']['cluster_size']
+        instance_type = 't2.micro'
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
         entry_point_cmd = ("ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
