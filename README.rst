@@ -2,37 +2,38 @@
 CloudARK
 =================
 
-Environment-as-Code for Cloud Native Containerized Applications.
+Environment-as-Code for Containerized Cloud Applications.
 
-An environment for a cloud native containerized application consists of
+An environment for containerized cloud application consists of following components:
 
-a) COE (Container Orchestration Engine) cluster
+a) Container Orchestration Engine (COE) cluster
 
 b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
-Application containers are deployed on such an environment.
+c) Application containers
 
-Currently such environments are not easy to create, share, and reproduce because managed cloud services are not integral part of the application architecture definition.
+An Environment-as-Code solution offers ability to declare these environment
+components for an application and a command-line tool to create this environmnet,
+binding all its components together.
+It is a non-hosted solution which is a PaaS alternative for containerized cloud applications.
 
-CloudARK offers ‘Environment-as-Code’ solution to declare and create cloud environments for containerized applications.
-CloudARK allows developers to add managed cloud services as integral part of their micro services architecture definition.
+Currently such cloud environments are not easy to create, share, and reproduce because managed cloud services
+(like Amazon Relational Database - RDS) are not integral part of the application architecture definition.
 
 Platform-as-a-service (PaaS) systems support managed service integration with applications, however,
-these systems are increasingly being challenged by Docker and Container-as-a-Service (CaaS) systems
-as most of the traditional PaaS functionality is now available through them. One area where they
-lack currently is managed services integration. So the alternative approach
-that is used today is to develop custom solution that combines CaaS + Infrastructure as code solution
-such as CloudFormation + custom scripting for binding managed services with containerized applications.
+PaaS's hosted (Client/server) architecture is increasingly seen as an overhead given most of the traditional PaaS
+functionality is now available in Docker and Container-as-a-service (CaaS) systems.
+The alternative approach today is to develop a custom solution using CaaS + Infrastructure-as-Code systems
+(like TerraForm) to provision managed cloud services + custom scripting for binding
+managed services with containerized applications.
 
 Environment-as-Code approach exemplified by CloudARK simplifies this alternative approach
-with a *non-hosted command-line* tool that supports declarative specification of an application's cloud environment
-that includes specification of managed services, and a set of commands
-to create such environments and to seamlessly bind the application to managed services in the environment.
-This leads to following benefits:
+with a *non-hosted command-line* tool and a declarative specification of an application's cloud environment.
+The CLI allows creation of these well-defined cloud environments for containerized cloud applications with the seamless binding of
+managed services to application containers. This leads to following benefits:
 
-a) No need to develop custom scripts for managed service provisioning and binding applications to them
-
-b) Environment definition can be reused for different applications
+a) No need to develop custom scripts for managed service provisioning and their binding to the containerized
+   applications
 
 c) Environment definition can be shared between team members
 
@@ -42,7 +43,7 @@ d) CloudARK commands can be integrated in your custom workflows and scripts, eit
 Try CloudARK
 -------------
 
-CloudARK has been developed and tested on Ubuntu 14.04 and Mac OS (Darwin)
+CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (Darwin)
 
 1) Clone this repository
 
@@ -104,9 +105,7 @@ Deployment to Amazon ECS
 -------------------------
 
 CloudARK assumes that you have done AWS setup and uses it during deployment. For example, CloudARK uses ~/.aws directory 
-to read aws 
-credentials. The ~/.aws directory will typically be created when you setup AWS CLI. If you don't have this directory
-then follow these steps_ to do AWS setup.
+to read aws credentials.  If you don't have this directory then follow these steps_ to do AWS setup.
 
 .. _steps: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
 
