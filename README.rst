@@ -13,15 +13,15 @@ b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 c) Application containers
 
 An Environment-as-Code solution offers ability to declare these environment
-components for an application and a command-line tool to create this environmnet,
+components for an application and a command-line tool to create the environmnet,
 binding all its components together.
-It is a non-hosted solution which is a PaaS alternative for containerized cloud applications.
+It is a *non-hosted* PaaS alternative for containerized cloud applications.
 
-Currently such cloud environments are not easy to create, share, and reproduce because managed cloud services
+Currently such cloud environments for containerized applications are not easy to create, share, and reproduce because managed cloud services
 (like Amazon Relational Database - RDS) are not integral part of the application architecture definition.
 
 Platform-as-a-service (PaaS) systems support managed service integration with applications, however,
-PaaS's hosted (Client/server) architecture is increasingly seen as an overhead given most of the traditional PaaS
+PaaS's hosted architecture is increasingly seen as an overhead for managed service integration given most of the traditional PaaS
 functionality is now available in Docker and Container-as-a-service (CaaS) systems.
 The alternative approach today is to develop a custom solution using CaaS + Infrastructure-as-Code systems
 (like TerraForm) to provision managed cloud services + custom scripting for binding
@@ -32,8 +32,7 @@ with a *non-hosted command-line* tool and a declarative specification of an appl
 The CLI allows creation of these well-defined cloud environments for containerized cloud applications with the seamless binding of
 managed services to application containers. This leads to following benefits:
 
-a) No need to develop custom scripts for managed service provisioning and their binding to the containerized
-   applications
+a) No need to develop custom scripts for managed service provisioning and their binding to the containerized applications
 
 c) Environment definition can be shared between team members
 
