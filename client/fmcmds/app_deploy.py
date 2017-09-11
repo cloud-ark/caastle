@@ -21,13 +21,8 @@ class AppDeploy(Command):
 
         parser.add_argument('app_name',
                             help="Application name")
-        
-        parser.add_argument('--deploylocal',
-                            dest='true',
-                            help="Application deployment target of local set to true")
 
-        parser.add_argument('--env-id',
-                            dest='env_id',
+        parser.add_argument('env_id',
                             help="Id of the environment to which application should be bound")
 
         return parser
@@ -39,16 +34,9 @@ class AppDeploy(Command):
             app_name = raw_input("Please enter name for the application>")
         app_info['app_name'] = app_name
 
-        target = parsed_args.true
-        if target:
-            app_info['target'] = 'local'
-
         env_id = parsed_args.env_id
         if env_id:
             app_info['env_id'] = env_id
-
-        if not target and not env_id:
-            app_info['target'] = 'local'
 
         app_port = raw_input("Please enter application port>")
         app_info['app_port'] = app_port
