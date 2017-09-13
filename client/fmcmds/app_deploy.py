@@ -25,6 +25,9 @@ class AppDeploy(Command):
         parser.add_argument('env_id',
                             help="Id of the environment to which application should be bound")
 
+        parser.add_argument('--memory',
+                            help="Memory in MB to be given to the application container at runtime")
+
         return parser
 
     def take_action(self, parsed_args):
@@ -40,6 +43,9 @@ class AppDeploy(Command):
 
         app_port = raw_input("Please enter application port>")
         app_info['app_port'] = app_port
+
+        if parsed_args.memory:
+            app_info['memory'] = parsed_args.memory
 
         app_location = os.getcwd()
         app_folder_name = self._get_app_folder_name(app_location)

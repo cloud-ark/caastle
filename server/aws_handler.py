@@ -277,13 +277,18 @@ class AWSHandler(object):
     def _register_task_definition(self, app_info, image, container_port, cont_name=''):
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
+        memory = 500 # Default memory size of 500MB. This is hard limit
+        if 'memory' in app_info:
+            memory = int(app_info['memory'])
         family_name = app_info['app_name']
         task_def_arn = ''
+        revision = str(int(round(time.time() * 1000)))
+        family_name = family_name + "-" + revision
         try:
             resp = self.ecs_client.register_task_definition(family=family_name,
                                                             containerDefinitions=[{'name': cont_name,
                                                                                    'image': image,
-                                                                                   'memory': 500, # Default memory size of 500MB. This is hard limit
+                                                                                   'memory': memory,
                                                                                    'portMappings':[{
                                                                                       'containerPort':container_port,
                                                                                       'hostPort':80,
@@ -504,6 +509,10 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
         db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
+
+        memory = ''
+        if 'memory' in app_details_obj:
+            app_info['memory'] = app_details_obj['memory']
         proxy_endpoint = app_details_obj['proxy_endpoint']
         repo_name = app_details_obj['repo_name']
         tag = str(int(round(time.time() * 1000)))
@@ -515,6 +524,7 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details_obj))
         tagged_image = image_name + ":" + tag
         err, output = self.docker_handler.push_container(tagged_image)
+
         common_functions.save_image_tag(tagged_image, app_info)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
@@ -659,6 +669,10 @@ class AWSHandler(object):
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = [tagged_image]
         app_details['cont_name'] = cont_name
+
+        if 'memory' in app_info:
+            app_details['memory'] = app_info['memory']
+
         db_handler.DBHandler().update_app(app_id, app_status, str(app_details))
 
     def delete_application(self, app_id, app_info):
