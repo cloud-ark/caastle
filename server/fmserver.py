@@ -362,16 +362,19 @@ class EnvironmentRestResource(Resource):
         fmlogging.debug("Received DELETE request for environment %s" % env_id)
         resp_data = {}
 
+        import pdb; pdb.set_trace()
+
         response = jsonify(**resp_data)
         environment_info = {}
 
         env_obj = db_handler.DBHandler().get_environment(env_id)
         if env_obj:
-            app_list = db_handler.DBHandler().get_apps_on_environment(env_id)
-            if app_list and len(app_list) > 0:
-                response.status_code = 412
-                response.status_message = 'Environment cannot be deleted as there are applications still running on it.'
-                return response            
+            if not request.args.get("force"):
+                app_list = db_handler.DBHandler().get_apps_on_environment(env_id)
+                if app_list and len(app_list) > 0:
+                    response.status_code = 412
+                    response.status_message = 'Environment cannot be deleted as there are applications still running on it.'
+                    return response
             environment_name = env_obj[db_handler.ENV_NAME]
             environment_def = env_obj[db_handler.ENV_DEFINITION]
             environment_info['name'] = environment_name

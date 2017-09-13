@@ -162,8 +162,10 @@ class TakeAction(object):
                 print("Environment with env-id %s not found." % env_id)
         return env_data
 
-    def delete_environment(self, env_id):
+    def delete_environment(self, env_id, force_flag=''):
         env_url = environments_endpoint + "/" + env_id
+        if force_flag:
+            env_url = environments_endpoint + "/" + env_id + "?force=" + force_flag
         response = requests.delete(env_url)
         if response.status_code == 404:
             print("Environment with env-id %s not found." % env_id)
