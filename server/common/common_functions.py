@@ -169,17 +169,22 @@ def marshall_resource_list(resource_list):
 def is_app_ready(app_url, timeout=300):
     ready = False
     count = 0
+    num_of_oks = 10
+    oks = 0
     while count < timeout and not ready:
         try:
             response = requests.get(app_url)
             if response.status_code == 200:
-                ready = True
-                break
+                oks = oks + 1
+                if oks == num_of_oks:
+                    ready = True
+                    break
         except Exception as e:
             fmlogging.error(e)
             continue
         count = count + 1
         time.sleep(3)
+
     return ready
 
 def save_image_tag(tag, app_info, file_name='container_id.txt'):

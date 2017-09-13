@@ -480,16 +480,20 @@ class AWSHandler(object):
         app_url, lb_arn, target_group_arn, listener_arn = AWSHandler.awshelper.create_service(app_info['app_name'], app_info['app_port'], vpc_id,
                                                                                               subnet_list, sec_group_id, cluster_name,
                                                                                               task_def_arn, cont_name)
-        app_url = "http://" + app_url
-        fmlogger.debug("App URL:%s" % app_url)
+        app_ip_url = self._get_app_url(app_info, cluster_name)
+        if not app_url:
+            app_url = app_ip_url
+        else:
+            app_url = "http://" + app_url
+        fmlogger.debug("App URL:%s App IP URL:" % (app_url, app_ip_url))
         if common_functions.is_app_ready(app_url):
             fmlogger.debug("Application is ready.")
             app_status = constants.APP_DEPLOYMENT_COMPLETE
         else:
             fmlogger.debug("Application could not start properly.")
-            app_status = constants.APP_DEPLOYMENT_TIMEOUT
+            app_status = constants.APP_LB_NOT_YET_READY + " " + constants.USE_APP_IP_URL
 
-        return app_url, app_status, lb_arn, target_group_arn, listener_arn
+        return app_url, app_ip_url, app_status, lb_arn, target_group_arn, listener_arn
 
     def _get_container_port(self, task_def_arn):
         container_port = AWSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
@@ -655,9 +659,9 @@ class AWSHandler(object):
         task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
 
         db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
-        app_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
-                                                                                                   cont_name,
-                                                                                                   task_def_arn)
+        app_url, app_ip_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
+                                                                                                               cont_name,
+                                                                                                               task_def_arn)
         fmlogger.debug('Application URL:%s' % app_url)
 
         app_details['lb_arn'] = lb_arn
@@ -666,6 +670,7 @@ class AWSHandler(object):
 
         app_details['task_def_arn'] = [task_def_arn]
         app_details['app_url'] = app_url
+        app_details['app_ip_url'] = app_ip_url
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = [tagged_image]
         app_details['cont_name'] = cont_name
