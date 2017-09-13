@@ -362,8 +362,6 @@ class EnvironmentRestResource(Resource):
         fmlogging.debug("Received DELETE request for environment %s" % env_id)
         resp_data = {}
 
-        import pdb; pdb.set_trace()
-
         response = jsonify(**resp_data)
         environment_info = {}
 
