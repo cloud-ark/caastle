@@ -328,7 +328,7 @@ class AWSHandler(object):
 
         err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile.get-cont-ip", 
                                                                 df_context=df_dir)
-
+        app_ip = ''
         if not err:
             run_err, run_output = self.docker_handler.run_container_sync(cont_name)
         
@@ -340,7 +340,8 @@ class AWSHandler(object):
                 if parts[3].strip().find(task_name) >= 0:
                     if parts[1].strip() == 'RUNNING':
                         app_url_str = parts[2].strip()
-                        app_url = app_url_str.split("->")[0].strip()
+                        app_ip = app_url_str.split("->")[0].strip()
+                        app_url = "http://" + app_ip
                         break
             self.docker_handler.stop_container(cont_name)
             self.docker_handler.remove_container(cont_name)
@@ -488,12 +489,12 @@ class AWSHandler(object):
             app_url = "http://" + app_url
         fmlogger.debug("App URL:%s" % app_url)
         fmlogger.debug("App IP URL:%s" % app_ip_url)
-        if common_functions.is_app_ready(app_url):
+        if common_functions.is_app_ready(app_ip_url):
             fmlogger.debug("Application is ready.")
-            app_status = constants.APP_DEPLOYMENT_COMPLETE
+            app_status = constants.APP_DEPLOYMENT_COMPLETE + ":" + constants.APP_IP_IS_RESPONSIVE
         else:
             fmlogger.debug("Application could not start properly.")
-            app_status = constants.APP_LB_NOT_YET_READY + " " + constants.USE_APP_IP_URL
+            app_status = constants.APP_LB_NOT_YET_READY + ":" + constants.USE_APP_IP_URL
 
         return app_url, app_ip_url, app_status, lb_arn, target_group_arn, listener_arn
 
