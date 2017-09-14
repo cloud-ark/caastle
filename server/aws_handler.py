@@ -485,7 +485,8 @@ class AWSHandler(object):
             app_url = app_ip_url
         else:
             app_url = "http://" + app_url
-        fmlogger.debug("App URL:%s App IP URL:" % (app_url, app_ip_url))
+        fmlogger.debug("App URL:%s" % app_url)
+        fmlogger.debug("App IP URL:%s" % app_ip_url)
         if common_functions.is_app_ready(app_url):
             fmlogger.debug("Application is ready.")
             app_status = constants.APP_DEPLOYMENT_COMPLETE
