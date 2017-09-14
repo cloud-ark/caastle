@@ -461,7 +461,7 @@ class AWSHandler(object):
 
         df_dir = app_dir + "/" + app_folder_name
 
-        if not os.path.exists(df_dir):
+        if not os.path.exists(df_dir + "/aws-creds"):
             shutil.copytree(home_dir +"/.aws", df_dir +"/aws-creds")
 
     def _update_ecs_app_service(self, app_info, cont_name, task_def_arn, task_desired_count=1):
