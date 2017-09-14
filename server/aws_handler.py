@@ -307,6 +307,7 @@ class AWSHandler(object):
 
     def _get_app_url(self, app_info, cluster_name):
         app_url = ''
+        self._copy_creds(app_info)
         df = self.docker_handler.get_dockerfile_snippet("aws")
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
