@@ -166,46 +166,56 @@ Screenshots
 
 1) Environment resource definition
 
-   .. image:: ./docs/screenshots/env-yaml.png
+   .. image:: ./docs/screenshots/wordpress/env-yaml.png
 
 2) Create environment
    
    $ cld env create staging environment-rds-ecs.yaml
  
-   .. image:: ./docs/screenshots/env-create-show.png
+   .. image:: ./docs/screenshots/wordpress/env-create-1.png
+      :scale: 125%
+
+   .. image:: ./docs/screenshots/wordpress/env-create-2.png
       :scale: 125%
 
 3) Deploy application
 
-   $ cld app deploy greetings 27
+   $ cld app deploy wordpress 12 --memory 1000
 
-   .. image:: ./docs/screenshots/app-deploy.png
+   .. image:: ./docs/screenshots/wordpress/app-deploy-1.png
       :scale: 125%
+
+   .. image:: ./docs/screenshots/wordpress/app-deploy-2.png
+      :scale: 125%
+
 
 4) Check application status
 
-   $ cld app show 17
+   $ cld app show 27
 
-   .. image:: ./docs/screenshots/app-deployment-complete.png
+   .. image:: ./docs/screenshots/wordpress/app-deployment-complete.png
       :scale: 125%
 
-5) Deployed application
+5) Deployed application (wordpress)
 
-   .. image:: ./docs/screenshots/deployed-app.png
+   .. image:: ./docs/screenshots/wordpress/wordpress-deployed-1.png
+      :scale: 125%
+
+   .. image:: ./docs/screenshots/wordpress/wordpress-using-elb.png
       :scale: 125%
 
 6) AWS console
 
-   .. image:: ./docs/screenshots/rds-aws-console.png
+   .. image:: ./docs/screenshots/wordpress/RDS.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/ecs-aws-console.png
+   .. image:: ./docs/screenshots/wordpress/ECS-cluster.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/ecs-task-definition.png
+   .. image:: ./docs/screenshots/wordpress/Task-Definition.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/ecs-repository.png
+   .. image:: ./docs/screenshots/wordpress/ECR.png
       :scale: 125%
 
 
