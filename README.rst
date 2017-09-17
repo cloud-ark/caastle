@@ -11,7 +11,7 @@ b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
 c) Application containers
 
-.. image:: ./docs/screenshots/Block-diagram.png
+.. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 50%
 
 CloudARK offers ability to easily define these environments, provision its components,
