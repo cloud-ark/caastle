@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-CloudARK is a *command-line tool* that offers ability to declare and create cloud environments for containerized applications.
+CloudARK is a *command-line tool* that offers ability to declare, create, and share environments of containerized cloud applications.
 An environment of containerized cloud application consists of following components:
 
 a) Container Orchestration Engine (COE) cluster
