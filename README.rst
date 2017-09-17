@@ -11,31 +11,38 @@ b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
 c) Application containers
 
-CloudARK creates all the environment components, seamlessly binding them together.
-It is a non-hosted PaaS alternative for containerized cloud applications.
+.. image:: ./docs/screenshots/Block-diagram.png
+   :scale: 125%
+
+CloudARK offers ability to easily define these environments, provision its components,
+and seamlessly bind them together at runtime.
 
 CloudARK is based on the concept of *Environment-as-Code*.
 Our view is that it should be possible to treat the environment of containerized applications
 similar to source code -- it should be version controlled, easy to modify for your needs, easy to integrate in your own workflows,
 and sharable between team members.
 
-Currently creating such environments of containerized applications is not straightforward.
-The key missing thing in today's systems is that the managed services are not integral part of application architecture definition.
-They are separate from application definition requiring separate provisioning and binding effort.
+Following are two key issues in creating cloud environments for containerized cloud applications today:
+
+a) Managed cloud services are not integral part of application architecture definition and require separate provisioning and binding effort.
+
+b) Differences in deploying an application to Docker and Container Orchestration Engines (COEs) add to the complexity of creating
+   consistent deployment workflows during development.
+
 Some of the existing Platform-as-a-service (PaaS) systems do support managed services integration with applications, however,
 their hosted architecture is increasingly seen as an
 overhead given most of the traditional PaaS functionality is now available in Docker and Container-as-a-service (CaaS) systems.
 The alternative approach today is to develop a custom solution using
-CaaS + Infrastructure-as-Code systems (like TerraForm) to provision managed cloud services + additional scripting to bind managed services with containerized applications.
+CaaS + Infrastructure-as-Code systems like TerraForm (to provision managed cloud services) + additional scripting (to bind managed services with containerized applications).
 CloudARK simplifies this alternative approach by supporting a declarative model
 for defining and creating environments of containerized applications, seamlessly binding
 managed services with application containers at runtime. This leads to following benefits:
 
-a) No need to develop custom scripts for managed service provisioning and their binding to containerized applications
+a) Extend application architecture definition to include cloud resources
 
-b) CloudARK commands can be integrated in your custom workflows and scripts, either locally or within CI setup
+b) Uniform workflow across Docker and COEs
 
-c) Environment definition can be shared between team members
+c) Integrate easily with your custom DevOps workflows
 
 Read this_ for more details about CloudARK
 
