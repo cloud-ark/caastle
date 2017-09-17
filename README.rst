@@ -2,8 +2,7 @@
 CloudARK
 =================
 
-Environment-as-Code for Containerized Cloud Applications.
-
+CloudARK is a command-line tool that offers ability to declare and create cloud environments for containerized applications.
 An environment for containerized cloud application consists of following components:
 
 a) Container Orchestration Engine (COE) cluster
@@ -12,31 +11,28 @@ b) Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
 c) Application containers
 
-An Environment-as-Code solution offers ability to declare these environment
-components for an application and a command-line tool to create the environmnet,
-binding all its components together.
-It is a *non-hosted* PaaS alternative for containerized cloud applications.
+CloudARK creates all the environment components, seamlessly binding them together.
+It is a non-hosted PaaS alternative for containerized cloud applications.
 
-Currently such cloud environments for containerized applications are not easy to create, share, and reproduce because managed cloud services
-(like Amazon Relational Database - RDS) are not integral part of the application architecture definition.
+Based on our survey 38% cloud developers use managed cloud services with their containerized cloud applications today.
+However, consuming these services within containerized applications is not straightforward.
+These services are not integral part of application architecture definition and require separate provisioning and binding effort.
+Platform-as-a-service (PaaS) systems support managed services integration with applications, however, PaaS's hosted architecture is increasingly seen as an
+overhead given most of the traditional PaaS functionality is now available in Docker and Container-as-a-service (CaaS) systems.
+The alternative approach today is to develop a custom solution using
+CaaS + Infrastructure-as-Code systems (like TerraForm) to provision managed cloud services + additional scripting to bind managed services with containerized applications.
+Environment-as-Code implementation by CloudARK simplifies this alternative approach by supporting a declarative model
+for defining the environment and a set of commands to create and provision the environment components leading to the following benefits:
 
-Platform-as-a-service (PaaS) systems support managed service integration with applications, however,
-PaaS's hosted architecture is increasingly seen as an overhead for managed service integration given most of the traditional PaaS
-functionality is now available in Docker and Container-as-a-service (CaaS) systems.
-The alternative approach today is to develop a custom solution using CaaS + Infrastructure-as-Code systems
-(like TerraForm) to provision managed cloud services + custom scripting for binding
-managed services with containerized applications.
+a) No need to develop custom scripts for managed service provisioning and their binding to containerized applications
 
-Environment-as-Code approach exemplified by CloudARK simplifies this alternative approach
-with a *non-hosted command-line* tool and a declarative specification of an application's cloud environment.
-The CLI allows creation of these well-defined cloud environments for containerized cloud applications with the seamless binding of
-managed services to application containers. This leads to following benefits:
-
-a) No need to develop custom scripts for managed service provisioning and their binding to the containerized applications
+b) CloudARK commands can be integrated in your custom workflows and scripts, either locally or within CI setup
 
 c) Environment definition can be shared between team members
 
-d) CloudARK commands can be integrated in your custom workflows and scripts, either locally or within CI setup
+Read this_ for more details about CloudARK
+
+.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
 
 
 Try CloudARK
@@ -74,39 +70,14 @@ Note: CloudARK requires Docker to be installed. If you don't have Docker, you ca
 .. _it: https://docs.docker.com/engine/installation/
 
 
-Concepts
---------
-CloudARK has two primary concepts - *environment* and *application*.
-
-environment
-  An environment consists of any cloud resource that is required by your application.
-  This includes cloud databases, load balancers, container orchestration engine cluster, etc.
-  Environment is represented using a simple yaml format.
-
-    Currently supported: AWS RDS, AWS ECS, AWS DynamoDB
-
-    Coming soon: Google Cloud SQL, Kubernetes (GKE)
-
-application
-  An application is a Docker container built from application source code.
-  CloudARK assumes existence of Dockerfile in the application folder.
-  An application is deployed on an environment and is bound to the resources
-  provisioned as part of that environment.
-
-CloudARK seamlessly binds the application to the environment as part of orchestrating its deployment.
-
-Read this_ for more details about environment and application concepts
-
-.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
-
 
 Deployment to Amazon ECS
 -------------------------
 
 CloudARK assumes that you have done AWS setup and uses it during deployment. For example, CloudARK uses ~/.aws directory 
-to read aws credentials.  If you don't have this directory then follow these steps_ to do AWS setup.
+to read aws credentials.  If you don't have this directory then follow these_ steps to do AWS setup.
 
-.. _steps: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
+.. _these: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on AWS.
@@ -160,13 +131,13 @@ containerized applications.
 
 Commands:
 
-  environment create
+  env create
 
-  environment list
+  env list
 
-  environment show
+  env show
 
-  environment delete
+  env delete
 
   app deploy
 
@@ -192,14 +163,14 @@ Screenshots
 
 2) Create environment
    
-   $ cld environment create staging environment-rds-ecs.yaml
+   $ cld env create staging environment-rds-ecs.yaml
  
    .. image:: ./docs/screenshots/env-create-show.png
       :scale: 125%
 
 3) Deploy application
 
-   $ cld app deploy greetings --env-id 27
+   $ cld app deploy greetings 27
 
    .. image:: ./docs/screenshots/app-deploy.png
       :scale: 125%
@@ -232,10 +203,9 @@ Screenshots
 
 
 
-
 Contact:
 --------
 
-Devdatta Kulkarni: devdattakulkarni at gmail 
+Devdatta Kulkarni: devdattakulkarni at gmail dot com
 
 
