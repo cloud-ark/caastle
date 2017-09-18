@@ -470,6 +470,16 @@ class AWSHandler(object):
         service_available = AWSHandler.awshelper.update_service(app_info['app_name'], cluster_name, 
                                                                 task_def_arn, task_desired_count)
 
+    def _check_if_app_is_ready(self, app_ip_url, app_url):
+        app_status = ''
+        if common_functions.is_app_ready(app_ip_url):
+            fmlogger.debug("Application is ready.")
+            app_status = constants.APP_DEPLOYMENT_COMPLETE + ":" + constants.APP_IP_IS_RESPONSIVE
+        else:
+            fmlogger.debug("Application could not start properly.")
+            app_status = constants.APP_LB_NOT_YET_READY + ":" + constants.USE_APP_IP_URL
+        return app_status
+
     def _create_ecs_app_service(self, app_info, cont_name, task_def_arn):
         app_status = ''
         env_obj = db_handler.DBHandler().get_environment(app_info['env_id'])
@@ -489,14 +499,8 @@ class AWSHandler(object):
             app_url = "http://" + app_url
         fmlogger.debug("App URL:%s" % app_url)
         fmlogger.debug("App IP URL:%s" % app_ip_url)
-        if common_functions.is_app_ready(app_ip_url):
-            fmlogger.debug("Application is ready.")
-            app_status = constants.APP_DEPLOYMENT_COMPLETE + ":" + constants.APP_IP_IS_RESPONSIVE
-        else:
-            fmlogger.debug("Application could not start properly.")
-            app_status = constants.APP_LB_NOT_YET_READY + ":" + constants.USE_APP_IP_URL
 
-        return app_url, app_ip_url, app_status, lb_arn, target_group_arn, listener_arn
+        return app_url, app_ip_url, lb_arn, target_group_arn, listener_arn
 
     def _get_container_port(self, task_def_arn):
         container_port = AWSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
@@ -660,28 +664,30 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
         container_port = int(app_info['app_port'])
         task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
-
-        db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
-        app_url, app_ip_url, app_status, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
-                                                                                                               cont_name,
-                                                                                                               task_def_arn)
-        fmlogger.debug('Application URL:%s' % app_url)
-
-        app_details['lb_arn'] = lb_arn
-        app_details['target_group_arn'] = target_group_arn
-        app_details['listener_arn'] = listener_arn
-
         app_details['task_def_arn'] = [task_def_arn]
-        app_details['app_url'] = app_url
-        app_details['app_ip_url'] = app_ip_url
+        app_details['cont_name'] = cont_name
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = [tagged_image]
-        app_details['cont_name'] = cont_name
-
         if 'memory' in app_info:
             app_details['memory'] = app_info['memory']
 
-        db_handler.DBHandler().update_app(app_id, app_status, str(app_details))
+        db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
+        app_url, app_ip_url, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
+                                                                                                   cont_name,
+                                                                                                   task_def_arn)
+        app_details['lb_arn'] = lb_arn
+        app_details['target_group_arn'] = target_group_arn
+        app_details['listener_arn'] = listener_arn
+        app_details['app_url'] = app_url
+        app_details['app_ip_url'] = app_ip_url
+        db_handler.DBHandler().update_app(app_id, 'ecs-app-service-created', str(app_details))
+
+        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-get-ready', str(app_details))
+        status = self._check_if_app_is_ready(app_ip_url, app_url)
+
+        fmlogger.debug('Application URL:%s' % app_url)
+        db_handler.DBHandler().update_app(app_id, status, str(app_details))
+
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
