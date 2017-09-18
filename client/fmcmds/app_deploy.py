@@ -28,10 +28,13 @@ class AppDeploy(Command):
         parser.add_argument('--memory',
                             help="Memory in MB to be given to the application container at runtime")
 
+        parser.add_argument('--port',
+                            help="Application port (default port 80)")
+
         return parser
 
     def take_action(self, parsed_args):
-        app_info = {}        
+        app_info = {}
         app_name = parsed_args.app_name
         if not app_name:
             app_name = raw_input("Please enter name for the application>")
@@ -41,7 +44,9 @@ class AppDeploy(Command):
         if env_id:
             app_info['env_id'] = env_id
 
-        app_port = raw_input("Please enter application port>")
+        app_port = '80'
+        if parsed_args.port:
+            app_port = parsed_args.port
         app_info['app_port'] = app_port
 
         if parsed_args.memory:
