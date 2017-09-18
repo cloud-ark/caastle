@@ -159,19 +159,29 @@ class AppsRestResource(Resource):
             else:
                 app_info = args_dict['app_info']
 
-                env_id = -1
-                if 'env_id' in app_info:
-                    env_id = app_info['env_id']
-                    env_obj = dbhandler.get_environment(app_info['env_id'])
-                    if not env_obj:
-                        response.status_code = 404
-                        response.status_message = 'Environment not found.'
-                        return response
-                    if not env_obj[db_handler.ENV_STATUS] or env_obj[db_handler.ENV_STATUS] != 'available':
-                        response.status_code = 412
-                        response.status_message = 'Environment not ready.'
-                        return response
                 app_name = app_info['app_name']
+                env_id = app_info['env_id']
+                app_id = ''
+                app_location = ''
+                app_version = ''
+                cloud = ''
+                try:
+                    app_id = dbhandler.add_app(app_name, app_location, app_version, cloud, int(env_id))
+                except Exception as e:
+                    message = ("App with name {app_name} already exists. Will not proceed.").format(app_name=app_name)
+                    fmlogging.debug(message)
+                    response.status_code = 400
+                    response.status_message = message
+                    return response
+                env_obj = dbhandler.get_environment(app_info['env_id'])
+                if not env_obj:
+                    response.status_code = 404
+                    response.status_message = 'Environment not found.'
+                    return response
+                if not env_obj[db_handler.ENV_STATUS] or env_obj[db_handler.ENV_STATUS] != 'available':
+                    response.status_code = 412
+                    response.status_message = 'Environment not ready.'
+                    return response
                 app_tar_name = app_info['app_tar_name']
                 content = app_info['app_content']
                 if 'target' in app_info:
@@ -184,7 +194,7 @@ class AppsRestResource(Resource):
                 app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
                 app_info['app_location'] = app_location
                 app_info['app_version'] = app_version
-                app_id = dbhandler.add_app(app_name, app_location, app_version, cloud, int(env_id))
+                dbhandler.update_app_base_data(app_id, app_location, app_version, cloud, int(env_id))
                 request_handler_thread = app_handler.AppHandler(app_id, app_info, action='deploy')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
                 response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)

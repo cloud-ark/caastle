@@ -84,7 +84,7 @@ class DBHandler(object):
         
         app_table = ('''CREATE TABLE if not exists app
                      (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                      NAME TEXT NOT NULL,
+                      NAME TEXT NOT NULL UNIQUE,
                       LOCATION TEXT NOT NULL,
                       VERSION TEXT NOT NULL,
                       DEP_TARGET TEXT NOT NULL,
@@ -119,15 +119,34 @@ class DBHandler(object):
         return cursor
 
     # Actions on app table
-    def add_app(self, app_name, app_location, app_version, cloud, env_id):
+    def add_app(self, app_name):
         cmd = ('INSERT INTO app(NAME, LOCATION, VERSION, DEP_TARGET, ENV_ID) VALUES(?, ?, ?, ?, ?)') 
         params = [app_name, app_location, app_version, cloud, env_id]
+        cursor = self._execute_cmd(cmd, params)
+        return cursor.lastrowid
+
+    def add_app(self, app_name, app_location, app_version, cloud, env_id):
+        cmd = ('INSERT INTO app(NAME, LOCATION, VERSION, DEP_TARGET, ENV_ID) VALUES(?, ?, ?, ?, ?)')
+        params = [app_name, app_location, app_version, cloud, env_id]
+        cursor = self._execute_cmd(cmd, params)
+        return cursor.lastrowid
+
+    def update_app_base_data(self, app_id, app_location, app_version, cloud, env_id):
+        cmd = ('update app set LOCATION=?, VERSION=?, DEP_TARGET=?, ENV_ID=? where ID=?')
+        params = [app_location, app_version, cloud, env_id, app_id]
         cursor = self._execute_cmd(cmd, params)
         return cursor.lastrowid
 
     def get_app(self, app_id):
         cmd = ("select * from app where id=?")
         params = [app_id]
+        cursor = self._execute_cmd(cmd, params)
+        row = cursor.fetchone()
+        return row
+
+    def get_app_with_name(self, app_name):
+        cmd = ("select * from app where name=?")
+        params = [app_name]
         cursor = self._execute_cmd(cmd, params)
         row = cursor.fetchone()
         return row

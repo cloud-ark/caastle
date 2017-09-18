@@ -63,6 +63,8 @@ class TakeAction(object):
                 print("App cannot be deployed as Environment is not ready yet.")
             if e.code == 404:
                 print("Environment with id %s not found" % app_info['env_id'])
+            if e.code == 400:
+                print("App with the name %s already exists. Please use a different name." % app_name)
             if e.code == 503 or e.code == 500:
                 print(SERVER_ERROR)
         self._delete_tarfile(tarfile_name, source_dir)
