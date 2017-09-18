@@ -166,7 +166,7 @@ def marshall_resource_list(resource_list):
         output_resource_list.append(output_resource)
     return output_resource_list
 
-def is_app_ready(app_url, timeout=300):
+def is_app_ready(app_url, app_id='', timeout=300):
     ready = False
     count = 0
     num_of_oks = 10
@@ -184,6 +184,13 @@ def is_app_ready(app_url, timeout=300):
             continue
         count = count + 1
         time.sleep(3)
+
+    #After every 10 counts check if app still exists
+    if app_id:
+        if count % 10 == 0:
+            app_obj = dbhandler.get_app(app_id)
+            if not app_obj:
+                count = timeout
 
     return ready
 

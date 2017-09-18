@@ -470,9 +470,9 @@ class AWSHandler(object):
         service_available = AWSHandler.awshelper.update_service(app_info['app_name'], cluster_name, 
                                                                 task_def_arn, task_desired_count)
 
-    def _check_if_app_is_ready(self, app_ip_url, app_url):
+    def _check_if_app_is_ready(self, app_id, app_ip_url, app_url):
         app_status = ''
-        if common_functions.is_app_ready(app_ip_url):
+        if common_functions.is_app_ready(app_ip_url, app_id=app_id):
             fmlogger.debug("Application is ready.")
             app_status = constants.APP_DEPLOYMENT_COMPLETE + ":" + constants.APP_IP_IS_RESPONSIVE
         else:
@@ -516,10 +516,7 @@ class AWSHandler(object):
         app_obj = db_handler.DBHandler().get_app(app_id)
         app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
         app_details_obj = ast.literal_eval(app_details)
-        status = 'redeploying'
-        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
-
-        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
+        db_handler.DBHandler().update_app(app_id, 'redeploying', str(app_details_obj))
 
         memory = ''
         if 'memory' in app_details_obj:
@@ -527,6 +524,8 @@ class AWSHandler(object):
         proxy_endpoint = app_details_obj['proxy_endpoint']
         repo_name = app_details_obj['repo_name']
         tag = str(int(round(time.time() * 1000)))
+
+        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
         err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request.")
@@ -543,13 +542,10 @@ class AWSHandler(object):
             raise Exception()
         fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
 
-        db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
-
-        db_handler.DBHandler().update_app(app_id, 'deregistering-current-task-ecs-app-service', str(app_details))
-
         current_task_def_arn = app_details_obj['task_def_arn'][-1]
         container_port = self._get_container_port(current_task_def_arn)
         orig_cont_name = app_details_obj['cont_name']
+        db_handler.DBHandler().update_app(app_id, 'deregistering-current-task-ecs-app-service', str(app_details))
         self._update_ecs_app_service(app_info, orig_cont_name, current_task_def_arn, task_desired_count=0)
 
         db_handler.DBHandler().update_app(app_id, 'registering-new-task-ecs-app-service', str(app_details))
@@ -559,18 +555,12 @@ class AWSHandler(object):
 
         app_details_obj['task_def_arn'].append(new_task_def_arn)
         app_details_obj['image_name'].append(tagged_image)
-        app_details_obj['cont_name'] = orig_cont_name
 
-        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-become-ready', str(app_details_obj))
-        app_status = ''
-        if common_functions.is_app_ready(app_details_obj['app_url']):
-            fmlogger.debug("Application is ready.")
-            app_status = constants.APP_DEPLOYMENT_COMPLETE
-        else:
-            fmlogger.debug("Application could not start properly.")
-            app_status = constants.APP_DEPLOYMENT_TIMEOUT
-
-        db_handler.DBHandler().update_app(app_id, app_status, str(app_details_obj))
+        app_ip_url = app_details_obj['app_ip_url']
+        app_url = app_details_obj['app_url']
+        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-get-ready', str(app_details_obj))
+        status = self._check_if_app_is_ready(app_id, app_ip_url, app_url)
+        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
     def deploy_application(self, app_id, app_info):
         app_location = app_info['app_location']
@@ -631,7 +621,7 @@ class AWSHandler(object):
         db_handler.DBHandler().update_app(app_id, 'ecs-app-service-created', str(app_details))
 
         db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-get-ready', str(app_details))
-        status = self._check_if_app_is_ready(app_ip_url, app_url)
+        status = self._check_if_app_is_ready(app_id, app_ip_url, app_url)
 
         fmlogger.debug('Application URL:%s' % app_url)
         db_handler.DBHandler().update_app(app_id, status, str(app_details))
