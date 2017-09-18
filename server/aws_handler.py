@@ -572,58 +572,6 @@ class AWSHandler(object):
 
         db_handler.DBHandler().update_app(app_id, app_status, str(app_details_obj))
 
-
-    def redeploy_application_1(self, app_id, app_info):
-        app_location = app_info['app_location']
-        cloud = app_info['target']
-        self._copy_creds(app_info)
-
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
-
-        app_obj = db_handler.DBHandler().get_app(app_id)
-        app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
-        app_details_obj = ast.literal_eval(app_details)
-        app_details_obj['app_url'] = ''
-        status = 'redeploying'
-        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
-        
-        proxy_endpoint = app_details_obj['proxy_endpoint']
-        repo_name = app_details_obj['repo_name']
-
-        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
-        err, output, cont_name = self._build_app_container(app_info, repo_name, proxy_endpoint)
-        if err:
-            fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request.")
-            return
-
-        db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details_obj))
-        err, output = self.docker_handler.push_container(cont_name)
-        if err:
-            fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
-            return
-        # We could remove the container image here; but it delays future pushes as then we have
-        # to pay penalty of building the image first and then pushing it to ECR. Another advantage of not
-        # deleting image is that subsequent builds are faster due to existing image layers.
-        # So we should delete the image only when application is deleted.
-        #else:
-            #fmlogger.debug("Done pushing container image to ECR. Removing the local image.")
-            #self.docker_handler.remove_container_image(cont_name)
-        fmlogger.debug("Completed pushing container %s to AWS ECR" % cont_name)
-
-        db_handler.DBHandler().update_app(app_id, 'stopping-previous-task', str(app_details_obj))
-        self._stop_task(app_id)
-
-        db_handler.DBHandler().update_app(app_id, 'running-task', str(app_details_obj))
-        app_url, task_arn, cluster_name = self._run_task(app_info)
-        fmlogger.debug('Application URL:%s' % app_url)
-
-        app_details_obj['app_url'] = app_url
-        app_details_obj['task_arn'] = task_arn
-        app_details_obj['cluster_name'] = cluster_name
-        app_details_obj['cont_name'] = cont_name
-        db_handler.DBHandler().update_app(app_id, 'available', str(app_details_obj))
-
     def deploy_application(self, app_id, app_info):
         app_location = app_info['app_location']
         cloud = app_info['target']
