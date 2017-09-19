@@ -45,9 +45,9 @@ b) Uniform workflow across Docker and COEs
 
 c) Integrate easily with your custom DevOps workflows
 
-Currently Supported: Local Docker, AWS ECS, AWS RDS, AWS DynamoDB
+*Currently Supported: Local Docker, AWS ECS, AWS RDS, AWS DynamoDB*
 
-Soon coming: GKE, Google Cloud SQL
+*Coming soon: GKE, Google Cloud SQL*
 
 Read this_ for more details about CloudARK
 
