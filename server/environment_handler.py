@@ -4,9 +4,10 @@ import threading
 import time
 
 import aws_handler
-
 from common import fm_logger
 from dbmodule import db_handler
+from dbmodule.objects import environment as env_db
+from dbmodule.objects import resource as res_db
 
 fmlogging = fm_logger.Logging()
 
@@ -54,7 +55,7 @@ class EnvironmentHandler(threading.Thread):
         if 'app_deployment' in env_details:
             app_deployment = env_details['app_deployment']
             if app_deployment['target'] == 'aws':
-                db_handler.DBHandler().update_environment_status(self.env_id, status='creating_ecs_cluster')
+                env_db.Environment().update(self.env_id, {'status': 'creating_ecs_cluster'})
                 status = EnvironmentHandler.registered_cloud_handlers['aws'].create_cluster(self.env_id, self.environment_info)
                 status_list.append(status)
 
@@ -80,24 +81,24 @@ class EnvironmentHandler(threading.Thread):
                 all_available = all_available and False
         
         if all_available:
-            db_handler.DBHandler().update_environment_status(self.env_id, status='available')
+            env_db.Environment().update(self.env_id, {'status': 'available'})
         else:
             fmlogging.debug("One or more resources in environment failed to provision.")
 
-
     def _delete_environment(self):
         resource_list = dbhandler.get_resources_for_environment(self.env_id)
+        #resource_list = res_db.Resource().get_by_env(self.env_id)
         env_details = ast.literal_eval(self.environment_def)
 
-        db_handler.DBHandler().update_environment_status(self.env_id, status='deleting')
+        env_db.Environment().update(self.env_id, {'status': 'deleting'})
         for resource in resource_list:
             type = resource[db_handler.RESOURCE_TYPE]
             if type == 'ecs-cluster':
                 status = EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
             else:
                 EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id, resource)
-                
-        db_handler.DBHandler().delete_environment(self.env_id)
+
+        env_db.Environment().delete(self.env_id)
 
     def run(self):
         fmlogging.debug("Creating environment with id %s " % self.env_id)

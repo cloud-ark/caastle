@@ -6,7 +6,6 @@ import sys
 import tarfile
 import time
 import thread
-
 from os.path import expanduser
 
 from flask import Flask, jsonify, request
@@ -34,6 +33,11 @@ try:
     from common import fm_logger
     from common import common_functions
     from dbmodule import db_handler
+    from dbmodule import objects
+    from dbmodule import db_main
+    from dbmodule.objects import app as app_db
+    from dbmodule.objects import environment as env_db
+    from dbmodule.objects import resource as res_db
     import request_handler
     import environment_handler
     import app_handler
@@ -51,33 +55,6 @@ def start_thread(request_handler_thread):
         fmlogging.error(e)
 
 class ResourcesRestResource(Resource):
-    def post(self):
-        fmlogging.debug("Received POST request to create resource")
-        args = request.get_json(force=True)
-
-        response = jsonify()
-        response.status_code = 201
-
-        args_dict = dict(args)
-        
-        try:
-            # Handle resource creation request
-            if not 'resource_info' in args_dict:
-                response.status_code = 400
-            else:
-                request_obj = args_dict['resource_info']
-                resource_id = dbhandler.add_resource(request_obj)
-                request_obj['resource_id'] = resource_id
-                request_handler_thread = request_handler.RequestHandler(request_obj)
-                thread.start_new_thread(start_thread, (request_handler_thread, ))
-
-                response.headers['location'] = ('/resource/{resource_id}').format(resource_id=resource_id)
-        except OSError as oe:
-            fmlogging.error(oe)
-            # Send back internal server error
-            response.status_code = 500
-
-        return response
 
     def get(self):
         fmlogging.debug("Received GET request for all resources.")
@@ -88,57 +65,29 @@ class ResourcesRestResource(Resource):
         if env_id:
             resp_data['data'] = dbhandler.get_resources_for_environment(env_id)
         else:
-            all_resources = dbhandler.get_resources()
-            resp_data['data'] = common_functions.marshall_resource_list(all_resources)
+            all_resources = res_db.Resource().get_all()
+            resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
 
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
 
 class ResourceRestResource(Resource):
+
     def get(self, resource_id):
         fmlogging.debug("Received GET request for resource %s" % resource_id)
         resp_data = {}
 
         env_id = request.args.get('env_id')
-
         response = jsonify(**resp_data)
 
-        resource = dbhandler.get_resource(resource_id)
+        resource = res_db.get(resource_id)
         if resource:
-            marshalled_resource = common_functions.marshall_resource(resource)
-            resp_data['data'] = marshalled_resource
+            resp_data['data'] = resource
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
             response.status_code = 404
-
-        return response
-
-    def delete(self, resource_id):
-        fmlogging.debug("Received DELETE request for resource %s" % resource_id)
-
-        response = jsonify()
-        response.status_code = 201
-        
-        try:
-            request_obj = dict()
-            resource = db_handler.DBHandler().get_resource(resource_id)
-            if resource:
-                request_obj['resource_type'] = resource[db_handler.RESOURCE_TYPE]
-                request_obj['name'] = resource[db_handler.RESOURCE_NAME]
-                request_obj['resource_id'] = resource_id
-                request_obj['artifact_type'] = 'resource'
-                request_obj['action'] = 'delete'
-                request_handler_thread = request_handler.RequestHandler(request_obj)
-                thread.start_new_thread(start_thread, (request_handler_thread, ))
-                response.headers['location'] = ('/resource/{resource_id}').format(resource_id=resource_id)
-            else:
-                response.status_code = 404
-        except OSError as oe:
-            fmlogging.error(oe)
-            # Send back service unavailable status
-            response.status_code = 503
 
         return response
 
@@ -165,20 +114,27 @@ class AppsRestResource(Resource):
                 app_location = ''
                 app_version = ''
                 cloud = ''
+                app_data = {}
                 try:
-                    app_id = dbhandler.add_app(app_name, app_location, app_version, cloud, int(env_id))
+                    app_data['name'] = app_name
+                    app_data['location'] = app_location
+                    app_data['version'] = app_version
+                    app_data['dep_target'] = cloud
+                    app_data['env_id'] = env_id
+                    app_id = app_db.App().insert(app_data)
                 except Exception as e:
+                    fmlogging.debug(e)
                     message = ("App with name {app_name} already exists. Will not proceed.").format(app_name=app_name)
                     fmlogging.debug(message)
                     response.status_code = 400
                     response.status_message = message
                     return response
-                env_obj = dbhandler.get_environment(app_info['env_id'])
+                env_obj = env_db.Environment().get(app_info['env_id'])
                 if not env_obj:
                     response.status_code = 404
                     response.status_message = 'Environment not found.'
                     return response
-                if not env_obj[db_handler.ENV_STATUS] or env_obj[db_handler.ENV_STATUS] != 'available':
+                if not env_obj.status or env_obj.status != 'available':
                     response.status_code = 412
                     response.status_message = 'Environment not ready.'
                     return response
@@ -187,14 +143,19 @@ class AppsRestResource(Resource):
                 if 'target' in app_info:
                     cloud = app_info['target']
                 else:
-                    env_dict = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+                    env_dict = ast.literal_eval(env_obj.env_definition)
                     cloud = env_dict['environment']['app_deployment']['target']
                     app_info['target'] = cloud
 
                 app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
                 app_info['app_location'] = app_location
                 app_info['app_version'] = app_version
-                dbhandler.update_app_base_data(app_id, app_location, app_version, cloud, int(env_id))
+
+                app_data['location'] = app_location
+                app_data['version'] = app_version
+                app_data['dep_target'] = cloud
+                app_db.App().update(app_id, app_data)
+
                 request_handler_thread = app_handler.AppHandler(app_id, app_info, action='deploy')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
                 response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
@@ -208,26 +169,19 @@ class AppsRestResource(Resource):
     def get(self):
         fmlogging.debug("Received GET request for all apps")
         resp_data = {}
-
-        all_apps = dbhandler.get_apps()
-        marshalled_app_list = common_functions.marshall_app_list(all_apps)
-
-        resp_data['data'] = marshalled_app_list
-
+        all_apps = app_db.App().get_all()
+        resp_data['data'] = [app_db.App.to_json(app) for app in all_apps]
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
     
 class AppRestResource(Resource):
     def get(self, app_id):
-
         resp_data = {}
         response = jsonify(**resp_data)
-
-        app = dbhandler.get_app(app_id)
+        app = app_db.App().get(app_id)
         if app:
-            marshalled_app = common_functions.marshall_app(app)
-            resp_data['data'] = marshalled_app
+            resp_data['data'] = app_db.App.to_json(app)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
@@ -302,6 +256,7 @@ class AppRestResource(Resource):
         return response
 
 class EnvironmentsRestResource(Resource):
+
     def post(self):
         fmlogging.debug("Received POST request to create environment")
         args = request.get_json(force=True)
@@ -312,7 +267,6 @@ class EnvironmentsRestResource(Resource):
         args_dict = dict(args)
 
         try:
-            # Handle resource creation request
             if not 'environment_def' in args_dict:
                 response.status_code = 400
             else:
@@ -321,7 +275,12 @@ class EnvironmentsRestResource(Resource):
                 env_version_stamp = common_functions.get_version_stamp()
                 env_location = (ENV_STORE_PATH + "/environments/{env_name}-{env_version_stamp}").format(env_name=environment_name,
                                                                                                         env_version_stamp=env_version_stamp)
-                env_id = dbhandler.add_environment(environment_name, environment_def, env_version_stamp, env_location)
+                env_data = {}
+                env_data['name'] = environment_name
+                env_data['location'] = env_location
+                env_data['env_version_stamp'] = env_version_stamp
+                env_data['env_definition'] = environment_def
+                env_id = env_db.Environment().insert(env_data)
                 environment_info = {}
                 environment_info['name'] = environment_name
 
@@ -332,7 +291,6 @@ class EnvironmentsRestResource(Resource):
                 response.headers['location'] = ('/environments/{env_id}').format(env_id=env_id)
         except OSError as oe:
             fmlogging.error(oe)
-            # Send back service unavailable status
             response.status_code = 503
 
         return response
@@ -341,31 +299,25 @@ class EnvironmentsRestResource(Resource):
         fmlogging.debug("Received GET request for all environments")
         resp_data = {}
 
-        all_envs = dbhandler.get_environments()
-        marshalled_env_list = common_functions.marshall_env_list(all_envs)
-
-        resp_data['data'] = marshalled_env_list
+        all_envs = env_db.Environment().get_all()
+        resp_data['data'] = [env_db.Environment.to_json(env) for env in all_envs]
 
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
 
 class EnvironmentRestResource(Resource):
+
     def get(self, env_id):
-
         resp_data = {}
-        
         response = jsonify(**resp_data)
-
-        env = dbhandler.get_environment(env_id)
+        env = env_db.Environment().get(env_id)
         if env:
-            marshalled_env = common_functions.marshall_env(env)
-            resp_data['data'] = marshalled_env
+            resp_data['data'] = env_db.Environment.to_json(env)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
             response.status_code = 404
-
         return response
 
     def delete(self, env_id):
@@ -375,18 +327,18 @@ class EnvironmentRestResource(Resource):
         response = jsonify(**resp_data)
         environment_info = {}
 
-        env_obj = db_handler.DBHandler().get_environment(env_id)
-        if env_obj:
+        env = env_db.Environment().get(env_id)
+        if env:
             if not request.args.get("force"):
                 app_list = db_handler.DBHandler().get_apps_on_environment(env_id)
                 if app_list and len(app_list) > 0:
                     response.status_code = 412
                     response.status_message = 'Environment cannot be deleted as there are applications still running on it.'
                     return response
-            environment_name = env_obj[db_handler.ENV_NAME]
-            environment_def = env_obj[db_handler.ENV_DEFINITION]
+            environment_name = env.name
+            environment_def = env.env_definition
             environment_info['name'] = environment_name
-            environment_info['location'] = env_obj[db_handler.ENV_LOCATION]
+            environment_info['location'] = env.location
             request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
 
