@@ -7,3 +7,4 @@ gevent
 boto3
 stevedore
 pyparsing
+SQLAlchemy
