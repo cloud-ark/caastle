@@ -19,7 +19,8 @@ class App(db_base.Base):
     env_id = sa.Column(sa.Integer)
 
     def __init__(self):
-        db_base.init()
+        #db_base.init()
+        pass
 
     def get(self, app_id):
         app = ''

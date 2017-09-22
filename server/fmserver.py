@@ -34,6 +34,9 @@ try:
     from common import fm_logger
     from common import common_functions
     from dbmodule import db_handler
+    from dbmodule import objects
+    from dbmodule import db_main
+    from dbmodule.objects import environment as env_db
     import request_handler
     import environment_handler
     import app_handler
@@ -321,7 +324,12 @@ class EnvironmentsRestResource(Resource):
                 env_version_stamp = common_functions.get_version_stamp()
                 env_location = (ENV_STORE_PATH + "/environments/{env_name}-{env_version_stamp}").format(env_name=environment_name,
                                                                                                         env_version_stamp=env_version_stamp)
-                env_id = dbhandler.add_environment(environment_name, environment_def, env_version_stamp, env_location)
+                env_data = {}
+                env_data['name'] = environment_name
+                env_data['location'] = env_location
+                env_data['env_version_stamp'] = env_version_stamp
+                env_data['env_definition'] = environment_def
+                env_id = env_db.Environment().insert(env_data)
                 environment_info = {}
                 environment_info['name'] = environment_name
 
@@ -352,20 +360,15 @@ class EnvironmentsRestResource(Resource):
 
 class EnvironmentRestResource(Resource):
     def get(self, env_id):
-
         resp_data = {}
-        
         response = jsonify(**resp_data)
-
-        env = dbhandler.get_environment(env_id)
+        env = env_db.Environment().get(env_id)
         if env:
-            marshalled_env = common_functions.marshall_env(env)
-            resp_data['data'] = marshalled_env
+            resp_data['data'] = env_db.Environment.to_json(env)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
             response.status_code = 404
-
         return response
 
     def delete(self, env_id):
@@ -375,18 +378,18 @@ class EnvironmentRestResource(Resource):
         response = jsonify(**resp_data)
         environment_info = {}
 
-        env_obj = db_handler.DBHandler().get_environment(env_id)
-        if env_obj:
+        env = env_db.Environment().get(env_id)
+        if env:
             if not request.args.get("force"):
                 app_list = db_handler.DBHandler().get_apps_on_environment(env_id)
                 if app_list and len(app_list) > 0:
                     response.status_code = 412
                     response.status_message = 'Environment cannot be deleted as there are applications still running on it.'
                     return response
-            environment_name = env_obj[db_handler.ENV_NAME]
-            environment_def = env_obj[db_handler.ENV_DEFINITION]
+            environment_name = env.name
+            environment_def = env.env_definition
             environment_info['name'] = environment_name
-            environment_info['location'] = env_obj[db_handler.ENV_LOCATION]
+            environment_info['location'] = env.location
             request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
 
