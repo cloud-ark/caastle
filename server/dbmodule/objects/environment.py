@@ -1,11 +1,10 @@
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError as IntegrityError
 from sqlalchemy import create_engine
-from server.dbmodule import db_base
-
 from sqlite3 import dbapi2 as sqlite
 
 from server.common import fm_logger
+from server.dbmodule import db_base
 
 fmlogger = fm_logger.Logging()
 

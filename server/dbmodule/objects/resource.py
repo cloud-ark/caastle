@@ -1,7 +1,9 @@
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError as IntegrityError
-from server.dbmodule import db_base
+from sqlalchemy import create_engine
+from sqlite3 import dbapi2 as sqlite
 
+from server.dbmodule import db_base
 from server.common import fm_logger
 
 fmlogger = fm_logger.Logging()
@@ -19,10 +21,12 @@ class Resource(db_base.Base):
     detailed_description = sa.Column(sa.Text)
     
     def __init__(self):
-        db_base.init()
+        DBFILE = db_base.APP_STORE_PATH + "/" + db_base.DBFILE_NAME
+        engine = create_engine('sqlite+pysqlite:///' + DBFILE, module=sqlite, echo=True)
+        db_base.Session.configure(bind=engine)
 
     def get(self, res_id):
-        env = ''
+        res = ''
         try:
             session = db_base.Session()
             res = session.query(Resource).filter_by(id=res_id).first()
@@ -31,12 +35,11 @@ class Resource(db_base.Base):
         return res
 
     def insert(self, res_data):
-        res = Resource()
-        res.env_id = res_data['env_id']
-        res.output_config = res_data['output_config']
-        res.type = res_data['type']
-        res.input_config = res_data['input_config']
-        res.status = ''
+        self.env_id = res_data['env_id']
+        self.output_config = res_data['output_config']
+        self.type = res_data['type']
+        self.input_config = res_data['input_config']
+        self.status = 'creating'
         try:
             session = db_base.Session()
             session.add(res)
@@ -45,3 +48,11 @@ class Resource(db_base.Base):
             fmlogger.debug(e)
         return res
 
+    def get_by_env(self, env_id):
+        res_list = ''
+        try:
+            session = db_base.Session()
+            res_list = session.query(Resource).filter_by(env_id=env_id).all()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return res_list

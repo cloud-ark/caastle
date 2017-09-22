@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError as IntegrityError
-from server.dbmodule import db_base
 
+from server.dbmodule import db_base
 from server.common import fm_logger
 
 fmlogger = fm_logger.Logging()

@@ -6,7 +6,6 @@ import sys
 import tarfile
 import time
 import thread
-
 from os.path import expanduser
 
 from flask import Flask, jsonify, request

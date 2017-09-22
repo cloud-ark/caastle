@@ -3,11 +3,9 @@ import os
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
-
 from sqlite3 import dbapi2 as sqlite
 
 from dbmodule import db_base
-
 from objects import app
 from objects import environment
 

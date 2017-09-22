@@ -5,15 +5,14 @@ import json
 import os
 import shutil
 import time
+from os.path import expanduser
 
 from common import common_functions
 from common import constants
+from common import docker_lib
 from common import fm_logger
 from dbmodule import db_handler
-from common import docker_lib
-
-from os.path import expanduser
-
+from dbmodule.objects import environment as env_db
 from server.server_plugins.aws import aws_helper
 from server.server_plugins.aws.resource import rds_handler
 from server.server_plugins.aws.resource import dynamodb_handler
@@ -23,7 +22,9 @@ home_dir = expanduser("~")
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
 fmlogger = fm_logger.Logging()
+
 dbhandler = db_handler.DBHandler()
+
 
 class AWSHandler(object):
 
@@ -90,7 +91,7 @@ class AWSHandler(object):
         for resource_defs in resource_list:
             resource_details = resource_defs['resource']
             type = resource_details['type']
-            dbhandler.update_environment_status(env_id, status='creating_' + type)
+            env_db.Environment().update(env_id, {'status':'creating_' + type})
             status = AWSHandler.registered_resource_handlers[type].create(env_id, resource_details)
             ret_status_list.append(status)
         return ret_status_list
@@ -98,7 +99,7 @@ class AWSHandler(object):
     def delete_resource(self, env_id, resource):
         resource_details = ''
         type = resource[db_handler.RESOURCE_TYPE]
-        dbhandler.update_environment_status(env_id, status='deleting_' + type)
+        env_db.Environment().update(env_id, {'status':'deleting_' + type})
         status = AWSHandler.registered_resource_handlers[type].delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
@@ -144,8 +145,8 @@ class AWSHandler(object):
         except Exception as e:
             fmlogger.error("Error encountered in deleting cluster %s" % e)
 
-        env_obj = dbhandler.get_environment(env_id)
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_obj = env_db.Environment().get(env_id)
+        env_output_config = ast.literal_eval(env_obj.output_config)
         sec_group_name = env_output_config['http-and-ssh-group-name']
         sec_group_id = env_output_config['http-and-ssh-group-id']
         vpc_id = env_output_config['vpc_id']
@@ -155,10 +156,10 @@ class AWSHandler(object):
 
     def create_cluster(self, env_id, env_info):
         cluster_status = 'unavailable'
-        env_obj = dbhandler.get_environment(env_id)
-        env_name = env_obj[db_handler.ENV_NAME]
+        env_obj = env_db.Environment().get(env_id)
+        env_name = env_obj.name
 
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_output_config = ast.literal_eval(env_obj.output_config)
         env_version_stamp = env_output_config['env_version_stamp']
 
         cluster_name = env_name + "-" + env_version_stamp
@@ -193,7 +194,7 @@ class AWSHandler(object):
                                                                                                         key_file=keypair_name)
         df = self.docker_handler.get_dockerfile_snippet("aws")
 
-        env_details = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+        env_details = ast.literal_eval(env_obj.env_definition)
         cluster_size = 1
         if 'cluster_size' in env_details['environment']['app_deployment']:
             cluster_size = env_details['environment']['app_deployment']['cluster_size']
@@ -264,8 +265,11 @@ class AWSHandler(object):
         env_output_config['http-and-ssh-group-name'] = sec_group_name
         env_output_config['http-and-ssh-group-id'] = sec_group_id
         env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
-        db_handler.DBHandler().update_environment(env_id, status=env_obj[db_handler.ENV_STATUS],
-                                                  output_config=str(env_output_config))
+
+        env_update = {}
+        env_update['status'] = env_obj.status
+        env_update['output_config'] = str(env_output_config)
+        env_db.Environment().update(env_id, env_update)
         fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
         return cluster_status
 
@@ -625,7 +629,6 @@ class AWSHandler(object):
 
         fmlogger.debug('Application URL:%s' % app_url)
         db_handler.DBHandler().update_app(app_id, status, str(app_details))
-
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
