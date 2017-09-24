@@ -36,6 +36,7 @@ try:
     from dbmodule import objects
     from dbmodule import db_main
     from dbmodule.objects import environment as env_db
+    from dbmodule.objects import resource as res_db
     import request_handler
     import environment_handler
     import app_handler
@@ -53,33 +54,6 @@ def start_thread(request_handler_thread):
         fmlogging.error(e)
 
 class ResourcesRestResource(Resource):
-    def post(self):
-        fmlogging.debug("Received POST request to create resource")
-        args = request.get_json(force=True)
-
-        response = jsonify()
-        response.status_code = 201
-
-        args_dict = dict(args)
-        
-        try:
-            # Handle resource creation request
-            if not 'resource_info' in args_dict:
-                response.status_code = 400
-            else:
-                request_obj = args_dict['resource_info']
-                resource_id = dbhandler.add_resource(request_obj)
-                request_obj['resource_id'] = resource_id
-                request_handler_thread = request_handler.RequestHandler(request_obj)
-                thread.start_new_thread(start_thread, (request_handler_thread, ))
-
-                response.headers['location'] = ('/resource/{resource_id}').format(resource_id=resource_id)
-        except OSError as oe:
-            fmlogging.error(oe)
-            # Send back internal server error
-            response.status_code = 500
-
-        return response
 
     def get(self):
         fmlogging.debug("Received GET request for all resources.")
@@ -90,57 +64,29 @@ class ResourcesRestResource(Resource):
         if env_id:
             resp_data['data'] = dbhandler.get_resources_for_environment(env_id)
         else:
-            all_resources = dbhandler.get_resources()
-            resp_data['data'] = common_functions.marshall_resource_list(all_resources)
+            all_resources = res_db.Resource().get_all()
+            resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
 
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
 
 class ResourceRestResource(Resource):
+
     def get(self, resource_id):
         fmlogging.debug("Received GET request for resource %s" % resource_id)
         resp_data = {}
 
         env_id = request.args.get('env_id')
-
         response = jsonify(**resp_data)
 
-        resource = dbhandler.get_resource(resource_id)
+        resource = res_db.get(resource_id)
         if resource:
-            marshalled_resource = common_functions.marshall_resource(resource)
-            resp_data['data'] = marshalled_resource
+            resp_data['data'] = resource
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
             response.status_code = 404
-
-        return response
-
-    def delete(self, resource_id):
-        fmlogging.debug("Received DELETE request for resource %s" % resource_id)
-
-        response = jsonify()
-        response.status_code = 201
-        
-        try:
-            request_obj = dict()
-            resource = db_handler.DBHandler().get_resource(resource_id)
-            if resource:
-                request_obj['resource_type'] = resource[db_handler.RESOURCE_TYPE]
-                request_obj['name'] = resource[db_handler.RESOURCE_NAME]
-                request_obj['resource_id'] = resource_id
-                request_obj['artifact_type'] = 'resource'
-                request_obj['action'] = 'delete'
-                request_handler_thread = request_handler.RequestHandler(request_obj)
-                thread.start_new_thread(start_thread, (request_handler_thread, ))
-                response.headers['location'] = ('/resource/{resource_id}').format(resource_id=resource_id)
-            else:
-                response.status_code = 404
-        except OSError as oe:
-            fmlogging.error(oe)
-            # Send back service unavailable status
-            response.status_code = 503
 
         return response
 
@@ -304,6 +250,7 @@ class AppRestResource(Resource):
         return response
 
 class EnvironmentsRestResource(Resource):
+
     def post(self):
         fmlogging.debug("Received POST request to create environment")
         args = request.get_json(force=True)
@@ -314,7 +261,6 @@ class EnvironmentsRestResource(Resource):
         args_dict = dict(args)
 
         try:
-            # Handle resource creation request
             if not 'environment_def' in args_dict:
                 response.status_code = 400
             else:
@@ -339,7 +285,6 @@ class EnvironmentsRestResource(Resource):
                 response.headers['location'] = ('/environments/{env_id}').format(env_id=env_id)
         except OSError as oe:
             fmlogging.error(oe)
-            # Send back service unavailable status
             response.status_code = 503
 
         return response
@@ -348,16 +293,15 @@ class EnvironmentsRestResource(Resource):
         fmlogging.debug("Received GET request for all environments")
         resp_data = {}
 
-        all_envs = dbhandler.get_environments()
-        marshalled_env_list = common_functions.marshall_env_list(all_envs)
-
-        resp_data['data'] = marshalled_env_list
+        all_envs = env_db.Environment().get_all()
+        resp_data['data'] = [env_db.Environment.to_json(env) for env in all_envs]
 
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
 
 class EnvironmentRestResource(Resource):
+
     def get(self, env_id):
         resp_data = {}
         response = jsonify(**resp_data)
