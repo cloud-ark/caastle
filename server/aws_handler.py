@@ -13,6 +13,7 @@ from common import docker_lib
 from common import fm_logger
 from dbmodule import db_handler
 from dbmodule.objects import environment as env_db
+from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
 from server.server_plugins.aws.resource import rds_handler
 from server.server_plugins.aws.resource import dynamodb_handler
@@ -120,8 +121,8 @@ class AWSHandler(object):
         fp.write(df)
         fp.close()
 
-        res_id = db_handler.DBHandler().update_resource_for_environment(env_id, 'deleting')
-        
+        res_id = res_db.Resource().update_res_for_env(env_id, {'status': 'deleting'})
+
         cont_name = cluster_name + "-delete"
         err, output = self.docker_handler.build_container_image(cont_name,
                                                                 env_store_location + "/Dockerfile.delete-cluster",
@@ -152,7 +153,7 @@ class AWSHandler(object):
         vpc_id = env_output_config['vpc_id']
         AWSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
 
-        db_handler.DBHandler().delete_resource(res_id)
+        res_db.Resource().delete(res_id)
 
     def create_cluster(self, env_id, env_info):
         cluster_status = 'unavailable'
@@ -225,7 +226,12 @@ class AWSHandler(object):
         fp.write(df)
         fp.close()
 
-        res_id = db_handler.DBHandler().add_resource(env_id, cluster_name, 'ecs-cluster', 'provisioning')
+        res_data = {}
+        res_data['env_id'] = env_id
+        res_data['cloud_resource_id'] = cluster_name
+        res_data['type'] = 'ecs-cluster'
+        res_data['status'] = 'provisioning'
+        res_id = res_db.Resource().insert(res_data)
         err, image_id = self.docker_handler.build_container_image(cluster_name,
                                                                   env_store_location + "/Dockerfile.create-cluster",
                                                                   df_context=env_store_location)
@@ -248,7 +254,7 @@ class AWSHandler(object):
             time.sleep(2)
             time_out_count = time_out_count + 1
 
-        db_handler.DBHandler().update_resource(res_id, status=cluster_status)
+        res_db.Resource().update(res_id, {'status': cluster_status})
 
         cp_cmd = ("docker cp {cont_id}:/src/{key_file}.pem {env_dir}/.").format(cont_id=cont_id,
                                                                                 env_dir=env_store_location,

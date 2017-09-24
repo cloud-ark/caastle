@@ -43,6 +43,15 @@ class Environment(db_base.Base):
             fmlogger.debug(e)
         return env
 
+    def get_all(self):
+        env_list = ''
+        try:
+            session = db_base.Session()
+            env_list = session.query(Environment).all()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return env_list
+
     def insert(self, env_data):
         self.name = env_data['name']
         self.location = env_data['location']
