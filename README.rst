@@ -235,6 +235,6 @@ Screenshots
 Contact:
 --------
 
-Devdatta Kulkarni: devdattakulkarni at gmail dot com
+Devdatta Kulkarni: devdatta at cloudark dot io
 
 
