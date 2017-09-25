@@ -1,5 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError as IntegrityError
+from sqlalchemy import create_engine
+from sqlite3 import dbapi2 as sqlite
 
 from server.dbmodule import db_base
 from server.common import fm_logger
@@ -19,8 +21,22 @@ class App(db_base.Base):
     env_id = sa.Column(sa.Integer)
 
     def __init__(self):
-        #db_base.init()
-        pass
+        DBFILE = db_base.APP_STORE_PATH + "/" + db_base.DBFILE_NAME
+        engine = create_engine('sqlite+pysqlite:///' + DBFILE, module=sqlite, echo=True)
+        db_base.Session.configure(bind=engine)
+
+    @classmethod
+    def to_json(self, app):
+        app_json = {}
+        app_json['id'] = app.id
+        app_json['name'] = app.name
+        app_json['location'] = app.location
+        app_json['version'] = app.version
+        app_json['dep_target'] = app.dep_target
+        app_json['status'] = app.status
+        app_json['output_config'] = str(app.output_config)
+        app_json['env_id'] = app.env_id
+        return app_json
 
     def get(self, app_id):
         app = ''
@@ -31,22 +47,30 @@ class App(db_base.Base):
             fmlogger.debug(e)
         return app
 
-    def insert(self, app_data):
-        app = App()
-        app.name = app_data['name']
-        app.location = app_data['location']
-        app.version = app_data['version']
-        app.dep_target = app_data['dep_target']
-        app.status = ''
-        app.output_config = ''
-        app.env_id = int(app_data['env_id'])
+    def get_all(self):
+        app_list = ''
         try:
             session = db_base.Session()
-            session.add(app)
+            app_list = session.query(App).all()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return app_list
+
+    def insert(self, app_data):
+        self.name = app_data['name']
+        self.location = app_data['location']
+        self.version = app_data['version']
+        self.dep_target = app_data['dep_target']
+        self.status = 'deploying'
+        self.output_config = ''
+        self.env_id = app_data['env_id']
+        try:
+            session = db_base.Session()
+            session.add(self)
             session.commit()
         except IntegrityError as e:
             fmlogger.debug(e)
-        return app
+        return self.id
 
     def update(self, app_id, app_data):
         try:

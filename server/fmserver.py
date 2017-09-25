@@ -35,6 +35,7 @@ try:
     from dbmodule import db_handler
     from dbmodule import objects
     from dbmodule import db_main
+    from dbmodule.objects import app as app_db
     from dbmodule.objects import environment as env_db
     from dbmodule.objects import resource as res_db
     import request_handler
@@ -113,20 +114,27 @@ class AppsRestResource(Resource):
                 app_location = ''
                 app_version = ''
                 cloud = ''
+                app_data = {}
                 try:
-                    app_id = dbhandler.add_app(app_name, app_location, app_version, cloud, int(env_id))
+                    app_data['name'] = app_name
+                    app_data['location'] = app_location
+                    app_data['version'] = app_version
+                    app_data['dep_target'] = cloud
+                    app_data['env_id'] = env_id
+                    app_id = app_db.App().insert(app_data)
                 except Exception as e:
+                    fmlogging.debug(e)
                     message = ("App with name {app_name} already exists. Will not proceed.").format(app_name=app_name)
                     fmlogging.debug(message)
                     response.status_code = 400
                     response.status_message = message
                     return response
-                env_obj = dbhandler.get_environment(app_info['env_id'])
+                env_obj = env_db.Environment().get(app_info['env_id'])
                 if not env_obj:
                     response.status_code = 404
                     response.status_message = 'Environment not found.'
                     return response
-                if not env_obj[db_handler.ENV_STATUS] or env_obj[db_handler.ENV_STATUS] != 'available':
+                if not env_obj.status or env_obj.status != 'available':
                     response.status_code = 412
                     response.status_message = 'Environment not ready.'
                     return response
@@ -135,14 +143,19 @@ class AppsRestResource(Resource):
                 if 'target' in app_info:
                     cloud = app_info['target']
                 else:
-                    env_dict = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+                    env_dict = ast.literal_eval(env_obj.env_definition)
                     cloud = env_dict['environment']['app_deployment']['target']
                     app_info['target'] = cloud
 
                 app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
                 app_info['app_location'] = app_location
                 app_info['app_version'] = app_version
-                dbhandler.update_app_base_data(app_id, app_location, app_version, cloud, int(env_id))
+
+                app_data['location'] = app_location
+                app_data['version'] = app_version
+                app_data['dep_target'] = cloud
+                app_db.App().update(app_id, app_data)
+
                 request_handler_thread = app_handler.AppHandler(app_id, app_info, action='deploy')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
                 response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
@@ -156,26 +169,19 @@ class AppsRestResource(Resource):
     def get(self):
         fmlogging.debug("Received GET request for all apps")
         resp_data = {}
-
-        all_apps = dbhandler.get_apps()
-        marshalled_app_list = common_functions.marshall_app_list(all_apps)
-
-        resp_data['data'] = marshalled_app_list
-
+        all_apps = app_db.App().get_all()
+        resp_data['data'] = [app_db.App.to_json(app) for app in all_apps]
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
     
 class AppRestResource(Resource):
     def get(self, app_id):
-
         resp_data = {}
         response = jsonify(**resp_data)
-
-        app = dbhandler.get_app(app_id)
+        app = app_db.App().get(app_id)
         if app:
-            marshalled_app = common_functions.marshall_app(app)
-            resp_data['data'] = marshalled_app
+            resp_data['data'] = app_db.App.to_json(app)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:

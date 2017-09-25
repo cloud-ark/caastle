@@ -47,6 +47,15 @@ class Resource(db_base.Base):
             fmlogger.debug(e)
         return res
 
+    def get_resource_for_env(self, env_id, res_type):
+        res = ''
+        try:
+            session = db_base.Session()
+            res = session.query(Resource).filter_by(env_id=env_id).filter_by(type=res_type).first()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return res
+
     def get_all(self):
         res_list = ''
         try:
