@@ -2,7 +2,7 @@ import logging
 import inspect
 import traceback
 
-from common import constants
+from server.common import constants
 
 class Logging():
     

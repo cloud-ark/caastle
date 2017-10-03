@@ -5,15 +5,16 @@ import json
 import os
 import shutil
 import time
+from os.path import expanduser
 
 from common import common_functions
 from common import constants
+from common import docker_lib
 from common import fm_logger
 from dbmodule import db_handler
-from common import docker_lib
-
-from os.path import expanduser
-
+from dbmodule.objects import app as app_db
+from dbmodule.objects import environment as env_db
+from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
 from server.server_plugins.aws.resource import rds_handler
 from server.server_plugins.aws.resource import dynamodb_handler
@@ -23,7 +24,9 @@ home_dir = expanduser("~")
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
 fmlogger = fm_logger.Logging()
+
 dbhandler = db_handler.DBHandler()
+
 
 class AWSHandler(object):
 
@@ -90,7 +93,7 @@ class AWSHandler(object):
         for resource_defs in resource_list:
             resource_details = resource_defs['resource']
             type = resource_details['type']
-            dbhandler.update_environment_status(env_id, status='creating_' + type)
+            env_db.Environment().update(env_id, {'status':'creating_' + type})
             status = AWSHandler.registered_resource_handlers[type].create(env_id, resource_details)
             ret_status_list.append(status)
         return ret_status_list
@@ -98,7 +101,7 @@ class AWSHandler(object):
     def delete_resource(self, env_id, resource):
         resource_details = ''
         type = resource[db_handler.RESOURCE_TYPE]
-        dbhandler.update_environment_status(env_id, status='deleting_' + type)
+        env_db.Environment().update(env_id, {'status':'deleting_' + type})
         status = AWSHandler.registered_resource_handlers[type].delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
@@ -119,8 +122,8 @@ class AWSHandler(object):
         fp.write(df)
         fp.close()
 
-        res_id = db_handler.DBHandler().update_resource_for_environment(env_id, 'deleting')
-        
+        res_id = res_db.Resource().update_res_for_env(env_id, {'status': 'deleting'})
+
         cont_name = cluster_name + "-delete"
         err, output = self.docker_handler.build_container_image(cont_name,
                                                                 env_store_location + "/Dockerfile.delete-cluster",
@@ -144,21 +147,21 @@ class AWSHandler(object):
         except Exception as e:
             fmlogger.error("Error encountered in deleting cluster %s" % e)
 
-        env_obj = dbhandler.get_environment(env_id)
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_obj = env_db.Environment().get(env_id)
+        env_output_config = ast.literal_eval(env_obj.output_config)
         sec_group_name = env_output_config['http-and-ssh-group-name']
         sec_group_id = env_output_config['http-and-ssh-group-id']
         vpc_id = env_output_config['vpc_id']
         AWSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
 
-        db_handler.DBHandler().delete_resource(res_id)
+        res_db.Resource().delete(res_id)
 
     def create_cluster(self, env_id, env_info):
         cluster_status = 'unavailable'
-        env_obj = dbhandler.get_environment(env_id)
-        env_name = env_obj[db_handler.ENV_NAME]
+        env_obj = env_db.Environment().get(env_id)
+        env_name = env_obj.name
 
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_output_config = ast.literal_eval(env_obj.output_config)
         env_version_stamp = env_output_config['env_version_stamp']
 
         cluster_name = env_name + "-" + env_version_stamp
@@ -193,7 +196,7 @@ class AWSHandler(object):
                                                                                                         key_file=keypair_name)
         df = self.docker_handler.get_dockerfile_snippet("aws")
 
-        env_details = ast.literal_eval(env_obj[db_handler.ENV_DEFINITION])
+        env_details = ast.literal_eval(env_obj.env_definition)
         cluster_size = 1
         if 'cluster_size' in env_details['environment']['app_deployment']:
             cluster_size = env_details['environment']['app_deployment']['cluster_size']
@@ -224,7 +227,12 @@ class AWSHandler(object):
         fp.write(df)
         fp.close()
 
-        res_id = db_handler.DBHandler().add_resource(env_id, cluster_name, 'ecs-cluster', 'provisioning')
+        res_data = {}
+        res_data['env_id'] = env_id
+        res_data['cloud_resource_id'] = cluster_name
+        res_data['type'] = 'ecs-cluster'
+        res_data['status'] = 'provisioning'
+        res_id = res_db.Resource().insert(res_data)
         err, image_id = self.docker_handler.build_container_image(cluster_name,
                                                                   env_store_location + "/Dockerfile.create-cluster",
                                                                   df_context=env_store_location)
@@ -247,7 +255,7 @@ class AWSHandler(object):
             time.sleep(2)
             time_out_count = time_out_count + 1
 
-        db_handler.DBHandler().update_resource(res_id, status=cluster_status)
+        res_db.Resource().update(res_id, {'status': cluster_status})
 
         cp_cmd = ("docker cp {cont_id}:/src/{key_file}.pem {env_dir}/.").format(cont_id=cont_id,
                                                                                 env_dir=env_store_location,
@@ -264,14 +272,17 @@ class AWSHandler(object):
         env_output_config['http-and-ssh-group-name'] = sec_group_name
         env_output_config['http-and-ssh-group-id'] = sec_group_id
         env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
-        db_handler.DBHandler().update_environment(env_id, status=env_obj[db_handler.ENV_STATUS],
-                                                  output_config=str(env_output_config))
+
+        env_update = {}
+        env_update['status'] = env_obj.status
+        env_update['output_config'] = str(env_output_config)
+        env_db.Environment().update(env_id, env_update)
         fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
         return cluster_status
 
     def _get_cluster_name(self, env_id):
-        resource_obj = db_handler.DBHandler().get_resources_for_environment(env_id)
-        cluster_name = resource_obj[0][db_handler.RESOURCE_NAME]
+        resource_obj = res_db.Resource().get_resource_for_env(env_id, 'ecs-cluster')
+        cluster_name = resource_obj.cloud_resource_id
         return cluster_name
     
     def _register_task_definition(self, app_info, image, container_port, cont_name=''):
@@ -482,8 +493,8 @@ class AWSHandler(object):
 
     def _create_ecs_app_service(self, app_info, cont_name, task_def_arn):
         app_status = ''
-        env_obj = db_handler.DBHandler().get_environment(app_info['env_id'])
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_obj = env_db.Environment().get(app_info['env_id'])
+        env_output_config = ast.literal_eval(env_obj.output_config)
         subnet_string = env_output_config['subnets']
         subnet_list = subnet_string.split(',')
         sec_group_id = env_output_config['http-and-ssh-group-id']
@@ -569,9 +580,12 @@ class AWSHandler(object):
 
         if app_info['env_id']:
             common_functions.resolve_environment(app_id, app_info)
-        
+
         app_details = {}
-        db_handler.DBHandler().update_app(app_id, 'creating-ecr-repository', str(app_details))
+        app_data = {}
+        app_data['status'] = 'creating-ecr-repository'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
         repo_name, proxy_endpoint, username, password = self._create_repository(app_info)
         app_details['repo_name'] = repo_name
         app_details['proxy_endpoint'] = proxy_endpoint
@@ -585,21 +599,28 @@ class AWSHandler(object):
 
         tag = str(int(round(time.time() * 1000)))
 
-        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details))
+        app_data['status'] = 'building-app-container'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
         err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
         tagged_image = image_name + ":" + tag
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
             return
 
-        db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details))
+        app_data['status'] = 'pushing-app-cont-to-ecr-repository'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
         err, output = self.docker_handler.push_container(tagged_image)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
             return
         fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
 
-        db_handler.DBHandler().update_app(app_id, 'registering-task-definition', str(app_details))
+        app_data['status'] = 'registering-task-definition'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
+
         container_port = int(app_info['app_port'])
         task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
         app_details['task_def_arn'] = [task_def_arn]
@@ -609,7 +630,10 @@ class AWSHandler(object):
         if 'memory' in app_info:
             app_details['memory'] = app_info['memory']
 
-        db_handler.DBHandler().update_app(app_id, 'creating-ecs-app-service', str(app_details))
+        app_data['status'] = 'creating-ecs-app-service'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
+
         app_url, app_ip_url, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
                                                                                                    cont_name,
                                                                                                    task_def_arn)
@@ -618,14 +642,22 @@ class AWSHandler(object):
         app_details['listener_arn'] = listener_arn
         app_details['app_url'] = app_url
         app_details['app_ip_url'] = app_ip_url
-        db_handler.DBHandler().update_app(app_id, 'ecs-app-service-created', str(app_details))
 
-        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-get-ready', str(app_details))
+        app_data['status'] = 'ecs-app-service-created'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
+
+        app_data['status'] = 'waiting-for-app-to-get-ready'
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
+
         status = self._check_if_app_is_ready(app_id, app_ip_url, app_url)
 
         fmlogger.debug('Application URL:%s' % app_url)
-        db_handler.DBHandler().update_app(app_id, status, str(app_details))
 
+        app_data['status'] = status
+        app_data['output_config'] = str(app_details)
+        app_db.App().update(app_id, app_data)
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)

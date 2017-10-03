@@ -3,14 +3,11 @@ import threading
 import time
 
 import aws_handler
-import local_handler
-
 from common import fm_logger
 from dbmodule import db_handler
+import local_handler
 
 fmlogging = fm_logger.Logging()
-
-dbhandler = db_handler.DBHandler()
 
 class AppHandler(threading.Thread):
 
