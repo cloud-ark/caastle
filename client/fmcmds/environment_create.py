@@ -4,11 +4,14 @@ import os
 import yaml
 
 from cliff.command import Command
+import common
 from pydoc import locate
 
 import call_server as server
 
 env_file_request_string = "Name of yaml file containing environment resource specification"
+
+not_allowed_regex_list = ["--+", "^\d", "-$"]
 
 class EnvironmentCreate(Command):
     
@@ -39,8 +42,20 @@ class EnvironmentCreate(Command):
             plugin_class.verify_cli_options()
 
     def take_action(self, parsed_args):
-        
+
         env_name = parsed_args.env_name
+
+        is_name_invalid = common.check_env_name(env_name,
+                                                not_allowed_regex_list)
+
+        if is_name_invalid or len(env_name) > 10:
+            print("Invalid environment name. Please follow these constraints for env name:")
+            print("- Must be upto 10 characters in length.")
+            print("- May contain alphanumeric characters or hyphens.")
+            print("- First character must be a letter.")
+            print("- Cannot end with a hyphen or contain two consecutive hyphens.")
+            exit(0)
+
         if not env_name:
             env_name = raw_input("Please enter name for the environment>")
       
