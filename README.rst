@@ -30,18 +30,14 @@ a) Managed cloud services are not integral part of application architecture defi
 b) Differences in deploying an application to Docker and Container Orchestration Engines (COEs) add to the complexity of creating
    consistent deployment workflows during development.
 
-Some of the existing Platform-as-a-service (PaaS) systems do support managed services integration with applications, however,
-their hosted architecture is increasingly seen as an
-overhead given most of the traditional PaaS functionality is now available in Docker and Container-as-a-service (CaaS) systems.
-The alternative approach today is to develop a custom solution using
-CaaS + Infrastructure-as-Code systems like TerraForm (to provision managed cloud services) + additional scripting (to bind managed services with containerized applications).
-CloudARK simplifies this alternative approach by supporting a declarative model
-for defining and creating environments of containerized applications, seamlessly binding
-managed services with application containers at runtime. This leads to following benefits:
+CloudARK simplifies the process through a declarative model
+for defining the entire environment of a containerized application, seamlessly binding
+managed services with application containers at runtime, and deploying them on container orchestration
+engine cluster. This leads to following benefits:
+
+a) Uniform workflow across Docker and COEs
 
 a) Extend application architecture definition to include cloud resources
-
-b) Uniform workflow across Docker and COEs
 
 c) Integrate easily with your custom DevOps workflows
 
@@ -57,7 +53,7 @@ Read this_ for more details about CloudARK
 Try CloudARK
 -------------
 
-CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (Darwin)
+CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (El Capitan 10.11.4)
 
 1) Clone this repository
 
@@ -107,15 +103,19 @@ containerized applications on AWS.
 - AmazonEC2ContainerServiceFullAccess
 - AmazonEC2ContainerServiceAutoscaleRole
 - AmazonEC2ContainerServiceforEC2Role
+- AmazonRDSFullAccess (if your application depends on RDS)
 
-Include AmazonRDSFullAccess policy as well if your application depends on RDS.
+Your AWS user will also need to have the EC2 Container Service Role. Use these steps to create it:
+- AWS Web Console -> IAM -> Roles -> Create Role -> Select EC2 Container Service -> In "Select your use case" choose EC2 Container Service 
+ -> Next: Permissions -> Next: Review -> For role name give "EcsServiceRole" -> Hit "Create Role".
 
 You will also need to add IAM policy shown below which will grant permissions to the
 ECS agent running on your ECS cluster instances to perform IAM actions
 such as create a ECS instance profile role and assume that role.
 These permissions are required for the ECS agent to communicate with the ECS service.
 
-Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
+Use these steps to create it:
+- AWS Web Console -> IAM -> Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
 -> Create Your Own Policy
 
 In the Policy Document enter the following policy. Replace <account-id> with your account id.
