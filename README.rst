@@ -23,25 +23,24 @@ Our view is that it should be possible to treat the environment of containerized
 similar to source code -- it should be version controlled, easy to modify for your needs, easy to integrate in your own workflows,
 and sharable between team members.
 
-Following are two key issues in creating cloud environments for containerized cloud applications today:
+The two main issues in creating cloud environments for containerized cloud applications today are:
 
 a) Managed cloud services are not integral part of application architecture definition and require separate provisioning and binding effort.
 
-b) Differences in deploying an application to Docker and Container Orchestration Engines (COEs) add to the complexity of creating
-   consistent deployment workflows during development.
+b) Differences in deploying an application to Docker and COEs add to the complexity of creating consistent deployment workflows.
 
-CloudARK simplifies the process through a declarative model
-for defining the entire environment of a containerized application, seamlessly binding
-managed services with application containers at runtime, and deploying them on container orchestration
-engine cluster. This leads to following benefits:
+CloudARK solves these problems through a declarative model
+for defining and creating entire environment of containerized cloud application consisting of application containers,
+managed cloud services, and COE cluster. This leads to following benefits:
 
-a) Uniform workflow across Docker and COEs
+a) No need to create custom scripts for provisioning managed cloud services and binding them to containerized applications
 
-a) Extend application architecture definition to include cloud resources
+b) Non-hosted command-line form factor of CloudARK makes it easy to integrate in your custom DevOps workflows
 
-c) Integrate easily with your custom DevOps workflows
+c) You get uniform workflow across Docker and COEs
 
-*Currently Supported: Local Docker, AWS ECS, AWS RDS, AWS DynamoDB*
+
+*Currently Supported: AWS ECS, AWS RDS, AWS DynamoDB and Local deployment through Docker*
 
 *Coming soon: GKE, Google Cloud SQL*
 
