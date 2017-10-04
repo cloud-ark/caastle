@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-CloudARK is a *command-line tool* that offers ability to declare, create, and share environments of containerized cloud applications.
+CloudARK is a command-line tool that offers ability to declare, create, and share environments of containerized cloud applications.
 An environment of containerized cloud application consists of following components:
 
 a) Container Orchestration Engine (COE) cluster
@@ -105,9 +105,10 @@ containerized applications on AWS.
 - AmazonEC2ContainerServiceforEC2Role
 - AmazonRDSFullAccess (if your application depends on RDS)
 
-Your AWS user will also need to have the EC2 Container Service Role. Use these steps to create it:
-- AWS Web Console -> IAM -> Roles -> Create Role -> Select EC2 Container Service -> In "Select your use case" choose EC2 Container Service 
- -> Next: Permissions -> Next: Review -> For role name give "EcsServiceRole" -> Hit "Create Role".
+Your AWS user will need to have the EC2 Container Service Role. Use these steps to create it:
+
+-> AWS Web Console -> IAM -> Roles -> Create Role -> Select EC2 Container Service -> In "Select your use case" choose EC2 Container Service 
+-> Next: Permissions -> Next: Review -> For role name give "EcsServiceRole" -> Hit "Create Role".
 
 You will also need to add IAM policy shown below which will grant permissions to the
 ECS agent running on your ECS cluster instances to perform IAM actions
@@ -115,7 +116,8 @@ such as create a ECS instance profile role and assume that role.
 These permissions are required for the ECS agent to communicate with the ECS service.
 
 Use these steps to create it:
-- AWS Web Console -> IAM -> Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
+
+-> AWS Web Console -> IAM -> Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
 -> Create Your Own Policy
 
 In the Policy Document enter the following policy. Replace <account-id> with your account id.
