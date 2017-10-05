@@ -1,31 +1,22 @@
 #!/bin/bash
 
-install_log="install.log"
-touch $install_log
+# Check if the platform is one that we support
+declare -a supported_platform_list=("Ubuntu 14.04", "Ubuntu 16.04", "OS X - Darwin");
+platform=`uname -a | grep -E "Ubuntu|Darwin"`
 
-virtenv="cloudark-virtenv"
-virtenvbin=`pwd`/$virtenv/bin
-echo "Creating virtual environment $virtenv" &>> $install_log
-virtualenv $virtenv &>> $install_log
-source $virtenv/bin/activate &>> $install_log
+if [[ -z "$platform" ]]; then
+   echo "Unsupported platform. Currently supported platforms: ${supported_platform_list[@]}"
+   exit
+fi
 
-pip install -r requirements.txt &>> $install_log
-cd client
-../$virtenv/bin/python setup.py install &>> $install_log
+host_platform=`uname -a | awk '{print $4}'`
 
-[[ ":$PATH:" != *":`pwd`:"* ]] && PATH="`pwd`:${PATH}"
-[[ ":$PATH:" != *":$virtenvbin:"* ]] && PATH="$virtenvbin:${PATH}"
-echo '### Added by CloudARK' >> ~/.profile
-echo "export PATH=$PATH" >> ~/.profile
-echo '### Added by CloudARK' >> ~/.bashrc
-echo "export PATH=$PATH" >> ~/.bashrc
-
-[[ ":$PYTHONPATH:" != *":`pwd`:"* ]] && PYTHONPATH="`pwd`:${PYTHONPATH}"
-[[ ":$PYTHONPATH:" != *":$virtenvbin:"* ]] && PYTHONPATH="$virtenvbin:${PYTHONPATH}"
-echo '### Added by CloudARK' >> ~/.profile
-echo "export PYTHONPATH=$PYTHONPATH" >> ~/.profile
-echo '### Added by CloudARK' >> ~/.bashrc
-echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
-
-cd ..
-python server/fmserver.py 1>>cld.log 2>&1 &
+if [ "$host_platform" = "Darwin" ]; then
+   echo "Host OS: Mac OS X"
+   source lib/start-cloudark-mac.sh
+elif [[ "$host_platform" =~ "Ubuntu" ]]; then
+   echo "Host OS: Ubuntu"
+   source lib/start-cloudark-ubuntu.sh
+else
+   echo "Unknown platform"
+fi
