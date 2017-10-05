@@ -8,7 +8,6 @@ from common import constants
 from common import common_functions
 from common import docker_lib
 from common import fm_logger
-from dbmodule import db_handler
 from dbmodule.objects import app as app_db
 
 fmlogger = fm_logger.Logging()
