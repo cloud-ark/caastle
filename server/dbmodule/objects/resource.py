@@ -47,6 +47,15 @@ class Resource(db_base.Base):
             fmlogger.debug(e)
         return res
 
+    def get_by_cloud_resource_id(self, cloud_resource_id):
+        res = ''
+        try:
+            session = db_base.Session()
+            res = session.query(Resource).filter_by(cloud_resource_id=cloud_resource_id).first()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return res
+
     def get_resource_for_env(self, env_id, res_type):
         res = ''
         try:
