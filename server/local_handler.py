@@ -5,14 +5,13 @@ import subprocess
 import time
 
 from common import constants
-from common import fm_logger
-from common import docker_lib
 from common import common_functions
+from common import docker_lib
+from common import fm_logger
 from dbmodule import db_handler
+from dbmodule.objects import app as app_db
 
 fmlogger = fm_logger.Logging()
-
-dbhandler = db_handler.DBHandler()
 
 tagged_images_file = 'tagged_images.txt'
 
@@ -89,25 +88,28 @@ class LocalHandler(object):
         fmlogger.debug("Deploying application %s %s" % (app_id, app_info['app_name']))
         if 'env_id' in app_info:
             common_functions.resolve_environment(app_id, app_info)
-        dbhandler.update_app(app_id, status=constants.BUILDING_APP)
+
+        app_db.App().update(app_id, {'status': constants.BUILDING_APP})
+
         err, output, cont_name = self._build_app_container(app_info)
         if err:
             fmlogger.debug("Encountered error in building application container:%s. Returning." % cont_name)
             return
-        
-        dbhandler.update_app(app_id, status=constants.DEPLOYING_APP)
+
+        app_db.App().update(app_id, {'status': constants.DEPLOYING_APP})
         app_url, app_status = self._deploy_app_container(cont_name, app_info)
         
         if app_url:
-            dbhandler.update_app(app_id, status=app_status, output_config=app_url)
+            app_db.App().update(app_id, {'status': app_status,
+                                         'output_config': app_url})
         else:
-            dbhandler.update_app(app_id, status=constants.DEPLOYMENT_ERROR)
+            app_db.App().update(app_id, {'status': constants.DEPLOYMENT_ERROR})
         fmlogger.debug("Done deploying application")
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting application %s %s" % (app_id, app_info['app_name']))
         cont_image_name = app_info['app_name'] + '-' + app_info['app_version']
-        dbhandler.update_app(app_id, status=constants.DELETING_APP)
+        app_db.App().update(app_id, {'status': constants.DELETING_APP})
         cont_id_list = common_functions.read_container_id(app_info)
         if cont_id_list:
             for cont_id in cont_id_list:
@@ -122,5 +124,5 @@ class LocalHandler(object):
                 self.docker_handler.remove_container_image(tagged_image)
 
         self.docker_handler.remove_container_image(cont_image_name)
-        dbhandler.delete_app(app_id)
+        app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application")
