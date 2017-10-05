@@ -5,7 +5,7 @@ import time
 from common import constants
 from common import fm_logger
 from dbmodule import db_handler
-
+from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
 
 fmlogger = fm_logger.Logging()
@@ -101,6 +101,11 @@ class RDSResourceHandler(object):
             count = count + 1
             time.sleep(2)
 
+        # Saving vpc_id here for convenience as when we delete RDS instance we can directly read it
+        # from the resource table than querying the env table.
+        filtered_description['vpc_id'] = vpc_id
+        filtered_description['sql-security-group-name'] = sec_group_name
+        filtered_description['sql-security-group-id'] = sec_group_id
         filtered_description['DBInstanceIdentifier'] = instance_id
         filtered_description['DBInstanceClass'] = DEFAULT_RDS_INSTANCE_CLASS
         filtered_description['Engine'] = DEFAULT_RDS_ENGINE
@@ -125,20 +130,31 @@ class RDSResourceHandler(object):
         except Exception as e:
             fmlogger.error(e)
             db_handler.DBHandler().delete_resource(request_obj[db_handler.RESOURCE_ID])
-            
+
+        db_obj = res_db.Resource().get_by_cloud_resource_id(instance_id)
         deleted = False
         count = 1
         while count < constants.TIMEOUT_COUNT and not deleted:
             try:
                 status_dict = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
                 status = status_dict['DBInstances'][0]['DBInstanceStatus']
-                db_handler.DBHandler().update_resource(request_obj[db_handler.RESOURCE_ID], status)
+                res_db.Resource().update(db_obj.id, {'status' : status})
                 count = count + 1
                 time.sleep(2)
             except Exception as e:
                 fmlogger.error(e)
                 deleted = True
-                db_handler.DBHandler().delete_resource(request_obj[db_handler.RESOURCE_ID])
+
+        filtered_description = ast.literal_eval(db_obj.filtered_description)
+        sec_group_name = filtered_description['sql-security-group-name']
+        sec_group_id = filtered_description['sql-security-group-id']
+        vpc_id = filtered_description['vpc_id']
+        try:
+            RDSResourceHandler.awshelper.delete_security_group_for_vpc(vpc_id,
+                                                                       sec_group_id,
+                                                                       sec_group_name)
+        except Exception as e:
+            fmlogger.error(e)
 
 class RDS():
     @staticmethod
