@@ -11,8 +11,6 @@ from dbmodule.objects import resource as res_db
 
 fmlogging = fm_logger.Logging()
 
-dbhandler = db_handler.DBHandler()
-
 class EnvironmentHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
@@ -86,13 +84,12 @@ class EnvironmentHandler(threading.Thread):
             fmlogging.debug("One or more resources in environment failed to provision.")
 
     def _delete_environment(self):
-        resource_list = dbhandler.get_resources_for_environment(self.env_id)
-        #resource_list = res_db.Resource().get_by_env(self.env_id)
+        resource_list = res_db.Resource().get_resources_for_env(self.env_id)
         env_details = ast.literal_eval(self.environment_def)
 
         env_db.Environment().update(self.env_id, {'status': 'deleting'})
         for resource in resource_list:
-            type = resource[db_handler.RESOURCE_TYPE]
+            type = resource.type
             if type == 'ecs-cluster':
                 status = EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
             else:

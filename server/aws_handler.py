@@ -25,8 +25,6 @@ APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=h
 
 fmlogger = fm_logger.Logging()
 
-dbhandler = db_handler.DBHandler()
-
 
 class AWSHandler(object):
 
@@ -100,12 +98,12 @@ class AWSHandler(object):
 
     def delete_resource(self, env_id, resource):
         resource_details = ''
-        type = resource[db_handler.RESOURCE_TYPE]
+        type = resource.type
         env_db.Environment().update(env_id, {'status':'deleting_' + type})
         status = AWSHandler.registered_resource_handlers[type].delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
-        cluster_name = resource[db_handler.RESOURCE_NAME]
+        cluster_name = resource.cloud_resource_id
 
         df = self.docker_handler.get_dockerfile_snippet("aws")
         df = df + ("COPY . /src \n"
@@ -377,8 +375,8 @@ class AWSHandler(object):
         return task_desc
 
     def _stop_task(self, app_id):
-        app_obj = db_handler.DBHandler().get_app(app_id)
-        app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
+        app_obj = app_db.App().get(app_id)
+        app_details = app_obj.output_config
         app_details_obj = ast.literal_eval(app_details)
 
         cluster_name = app_details_obj['cluster_name']
@@ -524,10 +522,14 @@ class AWSHandler(object):
         if app_info['env_id']:
             common_functions.resolve_environment(app_id, app_info)
 
-        app_obj = db_handler.DBHandler().get_app(app_id)
-        app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
+        app_obj = app_db.App().get(app_id)
+        app_details = app_obj.output_config
         app_details_obj = ast.literal_eval(app_details)
-        db_handler.DBHandler().update_app(app_id, 'redeploying', str(app_details_obj))
+
+        app_dt = {}
+        app_dt['status'] = 'redeploying'
+        app_dt['output_config'] = str(app_details_obj)
+        app_db.App().update(app_id, app_dt)
 
         memory = ''
         if 'memory' in app_details_obj:
@@ -536,30 +538,39 @@ class AWSHandler(object):
         repo_name = app_details_obj['repo_name']
         tag = str(int(round(time.time() * 1000)))
 
-        db_handler.DBHandler().update_app(app_id, 'building-app-container', str(app_details_obj))
+        app_dt['status'] = 'building-app-container'
+        app_db.App().update(app_id, app_dt)
         err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request.")
             return
 
-        db_handler.DBHandler().update_app(app_id, 'pushing-app-cont-to-ecr-repository', str(app_details_obj))
+        app_dt['status'] = 'pushing-app-cont-to-ecr-repository'
+        app_db.App().update(app_id, app_dt)
+
         tagged_image = image_name + ":" + tag
         err, output = self.docker_handler.push_container(tagged_image)
 
         common_functions.save_image_tag(tagged_image, app_info)
         if err:
             fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
-            db_handler.DBHandler().update_app(app_id, 'error-encountered-in-pushing-app-cont-image', str(app_details_obj))
+
+            app_dt['status'] = 'error-encountered-in-pushing-app-cont-image'
+            app_db.App().update(app_id, app_dt)
             raise Exception()
         fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
 
         current_task_def_arn = app_details_obj['task_def_arn'][-1]
         container_port = self._get_container_port(current_task_def_arn)
         orig_cont_name = app_details_obj['cont_name']
-        db_handler.DBHandler().update_app(app_id, 'deregistering-current-task-ecs-app-service', str(app_details))
+
+        app_dt['status'] = 'deregistering-current-task-ecs-app-service'
+        app_db.App().update(app_id, app_dt)
+
         self._update_ecs_app_service(app_info, orig_cont_name, current_task_def_arn, task_desired_count=0)
 
-        db_handler.DBHandler().update_app(app_id, 'registering-new-task-ecs-app-service', str(app_details))
+        app_dt['status'] = 'registering-new-task-ecs-app-service'
+        app_db.App().update(app_id, app_dt)
         new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
                                                                      container_port, cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
@@ -569,9 +580,14 @@ class AWSHandler(object):
 
         app_ip_url = app_details_obj['app_ip_url']
         app_url = app_details_obj['app_url']
-        db_handler.DBHandler().update_app(app_id, 'waiting-for-app-to-get-ready', str(app_details_obj))
+
+        app_dt['status'] = 'waiting-for-app-to-get-ready'
+        app_db.App().update(app_id, app_dt)
+
         status = self._check_if_app_is_ready(app_id, app_ip_url, app_url)
-        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
+
+        app_dt['status'] = status
+        app_db.App().update(app_id, app_dt)
 
     def deploy_application(self, app_id, app_info):
         app_location = app_info['app_location']
@@ -661,24 +677,28 @@ class AWSHandler(object):
 
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
-        app_obj = db_handler.DBHandler().get_app(app_id)
-        app_details = app_obj[db_handler.APP_OUTPUT_CONFIG]
+        app_obj = app_db.App().get(app_id)
+        app_details = app_obj.output_config
         app_details_obj = ast.literal_eval(app_details)
         app_details_obj['app_url'] = ''
         status = 'deleting'
-        db_handler.DBHandler().update_app(app_id, status, str(app_details_obj))
 
-        task_def_arn_list = app_details_obj['task_def_arn']
+        app_dt = {}
+        app_dt['status'] = 'deleting'
+        app_dt['output_config'] = str(app_details_obj)
+        app_db.App().update(app_id, app_dt)
 
-        latest_task_def_arn = task_def_arn_list[-1]
-        cont_name = app_details_obj['cont_name']
-        self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
-
-        for task_def_arn in task_def_arn_list:
-            self._deregister_task_definition(task_def_arn)
-
-        self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
-                                       service=app_obj[db_handler.APP_NAME])
+        try:
+            task_def_arn_list = app_details_obj['task_def_arn']
+            latest_task_def_arn = task_def_arn_list[-1]
+            cont_name = app_details_obj['cont_name']
+            self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
+            for task_def_arn in task_def_arn_list:
+                self._deregister_task_definition(task_def_arn)
+            self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
+                                           service=app_obj.name)
+        except Exception as e:
+            fmlogger.error("Exception encountered in trying to delete ecs service.")
 
         try:
             self.alb_client.delete_listener(ListenerArn=app_details_obj['listener_arn'])
@@ -695,15 +715,21 @@ class AWSHandler(object):
         except Exception as e:
             fmlogger.error("Exception encountered in deleting load balancer %s" % e)
 
-        self._delete_repository(app_obj[db_handler.APP_NAME])
+        try:
+            self._delete_repository(app_obj.name)#[db_handler.APP_NAME])
+        except Exception as e:
+            fmlogger.error("Exception encountered while deleting ecr repository.")
 
-        #tagged_image_list = common_functions.read_image_tag(app_info)
-        tagged_image_list = app_details_obj['image_name']
-        if tagged_image_list:
-            for tagged_image in tagged_image_list:
-                self.docker_handler.remove_container_image(tagged_image)
+        try:
+            #tagged_image_list = common_functions.read_image_tag(app_info)
+            tagged_image_list = app_details_obj['image_name']
+            if tagged_image_list:
+                for tagged_image in tagged_image_list:
+                    self.docker_handler.remove_container_image(tagged_image)
+        except Exception as e:
+            fmlogger.error("Exception encountered while deleting images")
 
         #image_name = app_details_obj['image_name']
         #self.docker_handler.remove_container_image(image_name + ":latest")
 
-        db_handler.DBHandler().delete_app(app_id)
+        app_db.App().delete(app_id)
