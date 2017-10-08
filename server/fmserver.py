@@ -32,7 +32,6 @@ if not os.path.exists(home_dir + "/.aws/credentials") or not os.path.exists(home
 try:
     from common import fm_logger
     from common import common_functions
-    from dbmodule import db_handler
     from dbmodule import objects
     from dbmodule import db_main
     from dbmodule.objects import app as app_db
@@ -46,7 +45,6 @@ except Exception as e:
         print(constants.AWS_SETUP_INCORRECT)
         exit()
 
-dbhandler = db_handler.DBHandler()
 
 def start_thread(request_handler_thread):
     try:
@@ -61,15 +59,12 @@ class ResourcesRestResource(Resource):
         resp_data = {}
         
         env_id = request.args.get('env_id')
+        all_resources = ''
         if env_id:
-            resp_data['data'] = dbhandler.get_resources_for_environment(env_id)
-            #TODO: Replace above method by direct call to Resource object as shown below
-            #This change needs to be made along with the client side change to add a env-id flag
-            #for cld resource show command.
-            #resp_data['data'] = res_db.Resource().get_resources_for_env(env_id)
+            all_resources = res_db.Resource().get_resources_for_env(env_id)
         else:
             all_resources = res_db.Resource().get_all()
-            resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
+        resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
 
         response = jsonify(**resp_data)
         response.status_code = 200
@@ -81,12 +76,11 @@ class ResourceRestResource(Resource):
         fmlogging.debug("Received GET request for resource %s" % resource_id)
         resp_data = {}
 
-        env_id = request.args.get('env_id')
         response = jsonify(**resp_data)
 
-        resource = res_db.get(resource_id)
+        resource = res_db.Resource().get(resource_id)
         if resource:
-            resp_data['data'] = resource
+            resp_data['data'] = res_db.Resource.to_json(resource)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:
