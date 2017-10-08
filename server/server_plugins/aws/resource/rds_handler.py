@@ -4,7 +4,6 @@ import time
 
 from common import constants
 from common import fm_logger
-from dbmodule import db_handler
 from dbmodule.objects import resource as res_db
 from dbmodule.objects import environment as env_db
 from server.server_plugins.aws import aws_helper
@@ -14,7 +13,6 @@ fmlogger = fm_logger.Logging()
 DEFAULT_RDS_ENGINE = 'mysql'
 DEFAULT_RDS_INSTANCE_CLASS = 'db.t1.micro'  
 
-dbhandler = db_handler.DBHandler()
 
 class RDSResourceHandler(object):
     
@@ -131,7 +129,7 @@ class RDSResourceHandler(object):
         return status.lower()
 
     def delete(self, request_obj):
-        db_name = instance_id = request_obj.cloud_resource_id #[db_handler.RESOURCE_NAME]
+        db_name = instance_id = request_obj.cloud_resource_id
 
         try:
             response = self.client.delete_db_instance(DBInstanceIdentifier=instance_id,
