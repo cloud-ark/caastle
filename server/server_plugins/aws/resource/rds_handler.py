@@ -6,6 +6,7 @@ from common import constants
 from common import fm_logger
 from dbmodule import db_handler
 from dbmodule.objects import resource as res_db
+from dbmodule.objects import environment as env_db
 from server.server_plugins.aws import aws_helper
 
 fmlogger = fm_logger.Logging()
@@ -23,20 +24,20 @@ class RDSResourceHandler(object):
         self.client = boto3.client('rds')
     
     def create(self, env_id, resource_details):
-        env_obj = dbhandler.get_environment(env_id)
+        env_obj = env_db.Environment().get(env_id)
         res_type = resource_details['type']
         now = time.time()
         ts = str(now).split(".")[0]
 
-        env_output_config = ast.literal_eval(env_obj[db_handler.ENV_OUTPUT_CONFIG])
+        env_output_config = ast.literal_eval(env_obj.output_config)
         env_version_stamp = env_output_config['env_version_stamp']
 
-        instance_id = env_obj[db_handler.ENV_NAME] + "-" + env_version_stamp
+        instance_id = env_obj.name + "-" + env_version_stamp
         db_name = constants.DEFAULT_DB_NAME
         response = ''
 
         vpc_id = ''
-        vpc_traffic_block = []     
+        vpc_traffic_block = []
         if 'vpc_id' in env_output_config and 'cidr_block' in env_output_config:
             vpc_id = env_output_config['vpc_id']
             vpc_traffic_block.append(env_output_config['cidr_block'])
@@ -87,17 +88,24 @@ class RDSResourceHandler(object):
 
         instance_description = ''
         filtered_description = dict()
-        res_id = db_handler.DBHandler().add_resource(env_id, instance_id, res_type, status)
+
+        res_data = {}
+        res_data['env_id'] = env_id
+        res_data['cloud_resource_id'] = instance_id
+        res_data['type'] = res_type
+        res_data['status'] = status
+        res_id = res_db.Resource().insert(res_data)
+
         while count < constants.TIMEOUT_COUNT and status.lower() is not 'available':
             instance_description = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
             status = instance_description['DBInstances'][0]['DBInstanceStatus']
-            
             if status.lower() == 'available':
                 break
+            res_data['status'] = status
+            res_data['filtered_description'] = str(filtered_description)
+            res_data['detailed_description'] = str(instance_description)
+            res_db.Resource().update(res_id, res_data)
 
-            db_handler.DBHandler().update_resource(res_id, status=status,
-                                                   filtered_description=str(filtered_description),
-                                                   detailed_description=str(instance_description))
             count = count + 1
             time.sleep(2)
 
@@ -115,21 +123,22 @@ class RDSResourceHandler(object):
         endpoint_address = instance_description['DBInstances'][0]['Endpoint']['Address']
         filtered_description['Address'] = endpoint_address
 
-        db_handler.DBHandler().update_resource(res_id, status=status,
-                                               filtered_description=str(filtered_description),
-                                               detailed_description=str(instance_description))
-        
+        res_data['status'] = status
+        res_data['filtered_description'] = str(filtered_description)
+        res_data['detailed_description'] = str(instance_description)
+        res_db.Resource().update(res_id, res_data)
+
         return status.lower()
 
     def delete(self, request_obj):
-        db_name = instance_id = request_obj[db_handler.RESOURCE_NAME]
+        db_name = instance_id = request_obj.cloud_resource_id #[db_handler.RESOURCE_NAME]
 
         try:
             response = self.client.delete_db_instance(DBInstanceIdentifier=instance_id,
                                                       SkipFinalSnapshot=True)
         except Exception as e:
             fmlogger.error(e)
-            db_handler.DBHandler().delete_resource(request_obj[db_handler.RESOURCE_ID])
+            res_db.Resource().delete(request_obj.id)
 
         db_obj = res_db.Resource().get_by_cloud_resource_id(instance_id)
         deleted = False
@@ -155,6 +164,8 @@ class RDSResourceHandler(object):
                                                                        sec_group_name)
         except Exception as e:
             fmlogger.error(e)
+
+        res_db.Resource().delete(request_obj.id)
 
 class RDS():
     @staticmethod

@@ -5,7 +5,6 @@ import time
 
 import aws_handler
 from common import fm_logger
-from dbmodule import db_handler
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 
