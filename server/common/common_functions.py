@@ -11,7 +11,6 @@ import thread
 from os.path import expanduser
 
 import fm_logger
-from dbmodule import db_handler
 from dbmodule.objects import app as app_db
 from dbmodule.objects import resource as res_db
 
@@ -99,73 +98,6 @@ def resolve_environment(app_id, app_info):
         fp.write("\n")
     fp.close()
     fp1.close()
-
-def marshall_app(app):
-    output_app = {}
-    app_attr_table = [None] * 8
-    app_attr_table[0] = db_handler.APP_ID_COL
-    app_attr_table[1] = db_handler.APP_NAME_COL
-    app_attr_table[2] = db_handler.APP_LOCATION_COL
-    app_attr_table[3] = db_handler.APP_VERSION_COL
-    app_attr_table[4] = db_handler.APP_DEP_TARGET_COL
-    app_attr_table[5] = db_handler.APP_STATUS_COL
-    app_attr_table[6] = db_handler.APP_OUTPUT_CONFIG_COL
-    app_attr_table[7] = db_handler.APP_ENV_ID_COL
-
-    for idx, val in enumerate(app):
-        output_app[app_attr_table[idx]] = app[idx]
-    return output_app
-
-def marshall_app_list(app_list):
-    output_app_list = []
-    for app in app_list:
-        output_app = marshall_app(app)
-        output_app_list.append(output_app)
-    return output_app_list
-
-def marshall_env(env):
-    output_env = {}
-    env_attr_table = [None] * 6
-    env_attr_table[0] = db_handler.ENV_ID_COL
-    env_attr_table[1] = db_handler.ENV_NAME_COL
-    env_attr_table[2] = db_handler.ENV_STATUS_COL
-    env_attr_table[3] = db_handler.ENV_DEFINITION_COL
-    env_attr_table[4] = db_handler.ENV_OUTPUT_CONFIG_COL
-    env_attr_table[5] = db_handler.ENV_LOCATION_COL
-
-    for idx, val in enumerate(env):
-        output_env[env_attr_table[idx]] = env[idx]
-    return output_env
-
-def marshall_env_list(env_list):
-    output_env_list = []
-    for env in env_list:
-        output_env = marshall_env(env)
-        output_env_list.append(output_env)
-    return output_env_list
-
-def marshall_resource(resource):
-    output_resource = {}
-    resource_attr_table = [None] * 8
-    resource_attr_table[0] = db_handler.RES_ID_COL
-    resource_attr_table[1] = db_handler.RES_ENV_ID_COL
-    resource_attr_table[2] = db_handler.RES_CLOUD_ID_COL
-    resource_attr_table[3] = db_handler.RES_TYPE_COL
-    resource_attr_table[4] = db_handler.RES_STATUS_COL
-    resource_attr_table[5] = db_handler.RES_INPUT_CONFIG_COL
-    resource_attr_table[6] = db_handler.RES_FILTERED_DESC_COL
-    resource_attr_table[7] = db_handler.RES_DETAILED_DESC_COL
-
-    for idx, val in enumerate(resource):
-        output_resource[resource_attr_table[idx]] = resource[idx]
-    return output_resource
-
-def marshall_resource_list(resource_list):
-    output_resource_list = []
-    for resource in resource_list:
-        output_resource = marshall_resource(resource)
-        output_resource_list.append(output_resource)
-    return output_resource_list
 
 def is_app_ready(app_url, app_id='', timeout=300):
     ready = False
