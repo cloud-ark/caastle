@@ -11,7 +11,6 @@ from common import common_functions
 from common import constants
 from common import docker_lib
 from common import fm_logger
-from dbmodule import db_handler
 from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
@@ -716,7 +715,7 @@ class AWSHandler(object):
             fmlogger.error("Exception encountered in deleting load balancer %s" % e)
 
         try:
-            self._delete_repository(app_obj.name)#[db_handler.APP_NAME])
+            self._delete_repository(app_obj.name)
         except Exception as e:
             fmlogger.error("Exception encountered while deleting ecr repository.")
 

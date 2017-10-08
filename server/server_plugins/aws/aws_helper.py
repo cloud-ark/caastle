@@ -8,11 +8,9 @@ import time
 
 from common import constants
 from common import fm_logger
-from dbmodule import db_handler
 from common import docker_lib
 
 fmlogger = fm_logger.Logging()
-dbhandler = db_handler.DBHandler()
 
 class AWSHelper(object):
     

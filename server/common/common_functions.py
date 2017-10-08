@@ -12,6 +12,8 @@ from os.path import expanduser
 
 import fm_logger
 from dbmodule import db_handler
+from dbmodule.objects import app as app_db
+from dbmodule.objects import resource as res_db
 
 home_dir = expanduser("~")
 
@@ -19,7 +21,6 @@ APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 
 fmlogging = fm_logger.Logging()
 
-dbhandler = db_handler.DBHandler()
 
 def untar_the_app(app_tar_file, versioned_app_path):
     fmlogging.debug("Untarring received app tar file %s" % app_tar_file)
@@ -65,15 +66,15 @@ def _get_env_value(resource_list, placeholder_env_value):
     resource_property = parts[2]
 
     for resource in resource_list:
-        if resource[db_handler.RESOURCE_TYPE] == resource_type.lower():
-            resource_desc = resource[db_handler.RESOURCE_FILTERED_DESCRIPTION]
+        if resource.type == resource_type.lower():
+            resource_desc = resource.filtered_description
             res_desc_dict = ast.literal_eval(resource_desc)
             env_value = res_desc_dict[resource_property.rstrip()]
 
     return env_value
 
 def resolve_environment(app_id, app_info):
-    resource_list = dbhandler.get_resources_for_environment(app_info['env_id'])
+    resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
     app_dir = app_info['app_location']
     app_folder_name = app_info['app_folder_name']
     df_dir = app_dir + "/" + app_folder_name
@@ -188,7 +189,7 @@ def is_app_ready(app_url, app_id='', timeout=300):
     #After every 10 counts check if app still exists
     if app_id:
         if count % 10 == 0:
-            app_obj = dbhandler.get_app(app_id)
+            app_obj = app_db.App().get(app_id)
             if not app_obj:
                 count = timeout
 
