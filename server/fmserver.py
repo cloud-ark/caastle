@@ -1,15 +1,10 @@
 import ast
-import datetime
-import logging
 import os
-import sys
-import tarfile
-import time
 import thread
 from os.path import expanduser
 
 from flask import Flask, jsonify, request
-from flask_restful import reqparse, abort, Resource, Api
+from flask_restful import reqparse, Resource, Api
 
 from common import constants
 
@@ -32,12 +27,9 @@ if not os.path.exists(home_dir + "/.aws/credentials") or not os.path.exists(home
 try:
     from common import fm_logger
     from common import common_functions
-    from dbmodule import objects
-    from dbmodule import db_main
     from dbmodule.objects import app as app_db
     from dbmodule.objects import environment as env_db
     from dbmodule.objects import resource as res_db
-    import request_handler
     import environment_handler
     import app_handler
 except Exception as e:

@@ -1,8 +1,3 @@
-import logging
-import prettytable
-import os
-import yaml
-
 from cliff.command import Command
 
 import call_server as server

@@ -1,7 +1,6 @@
 import ast
 import base64
 import boto3
-import json
 import os
 import shutil
 import time

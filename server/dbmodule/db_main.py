@@ -1,6 +1,5 @@
 import os
 
-import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
 from sqlite3 import dbapi2 as sqlite

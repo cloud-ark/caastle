@@ -1,6 +1,4 @@
-import logging
 import threading
-import time
 
 import aws_handler
 from common import fm_logger
