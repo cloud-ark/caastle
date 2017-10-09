@@ -2,10 +2,11 @@ import ast
 import boto3
 import time
 
-from common import constants
-from common import fm_logger
-from dbmodule.objects import environment as env_db
-from dbmodule.objects import resource as res_db
+from server.common import constants
+from server.common import fm_logger
+from server.dbmodule.objects import environment as env_db
+from server.dbmodule.objects import resource as res_db
+import resource_base
 from server.server_plugins.aws import aws_helper
 
 fmlogger = fm_logger.Logging()
@@ -14,8 +15,10 @@ DEFAULT_RDS_ENGINE = 'mysql'
 DEFAULT_RDS_INSTANCE_CLASS = 'db.t1.micro'  
 
 
-class RDSResourceHandler(object):
-    
+class RDSResourceHandler(resource_base.ResourceBase):
+    """RDS Resource handler.
+    """
+
     awshelper = aws_helper.AWSHelper()
 
     def __init__(self):

@@ -6,6 +6,8 @@ from os.path import expanduser
 import shutil
 import time
 
+from stevedore import extension
+
 from common import common_functions
 from common import constants
 from common import docker_lib
@@ -30,6 +32,11 @@ class AWSHandler(object):
     registered_resource_handlers['rds'] = rds_handler.RDSResourceHandler()
     registered_resource_handlers['dynamodb'] = dynamodb_handler.DynamoDBResourceHandler()
     awshelper = aws_helper.AWSHelper()
+
+    mgr = extension.ExtensionManager(
+        namespace='server.server_plugins.aws.resource',
+        invoke_on_load=True,
+        )
 
     def __init__(self):
         self.ecr_client = boto3.client('ecr')
@@ -86,12 +93,17 @@ class AWSHandler(object):
     def create_resources(self, env_id, resource_list):
         resource_details = ''
         ret_status_list = []
+
         for resource_defs in resource_list:
             resource_details = resource_defs['resource']
             type = resource_details['type']
             env_db.Environment().update(env_id, {'status':'creating_' + type})
-            status = AWSHandler.registered_resource_handlers[type].create(env_id, resource_details)
-            ret_status_list.append(status)
+
+            for name, ext in AWSHandler.mgr.items():
+                if name == type:
+                    status = ext.obj.create(env_id, resource_details)
+                    if status: ret_status_list.append(status)
+
         return ret_status_list
 
     def delete_resource(self, env_id, resource):

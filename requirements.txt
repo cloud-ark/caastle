@@ -8,3 +8,4 @@ boto3
 stevedore
 pyparsing
 SQLAlchemy
+six

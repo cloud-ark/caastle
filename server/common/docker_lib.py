@@ -1,4 +1,4 @@
-from common import fm_logger
+import fm_logger
 import subprocess
 
 fmlogging = fm_logger.Logging()
