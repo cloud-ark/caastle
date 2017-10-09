@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy.exc import IntegrityError as IntegrityError
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError as IntegrityError
 from sqlite3 import dbapi2 as sqlite
 
 from server.common import fm_logger

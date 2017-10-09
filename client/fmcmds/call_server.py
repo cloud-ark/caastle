@@ -1,9 +1,9 @@
+import gzip
 import json
+import os
+import requests
 import tarfile
 import urllib2
-import os
-import gzip
-import requests
 
 resources_endpoint = "http://localhost:5002/resources"
 resource_stacks_endpoint = "http://localhost:5002/resource_stacks"

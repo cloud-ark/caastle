@@ -2,8 +2,8 @@ import threading
 
 from common import fm_logger
 
-from server.server_plugins.aws.resource import rds_handler
 from server.server_plugins.aws.resource import dynamodb_handler
+from server.server_plugins.aws.resource import rds_handler
 
 fmlogging = fm_logger.Logging()
 
