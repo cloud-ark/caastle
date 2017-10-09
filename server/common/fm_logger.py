@@ -3,6 +3,7 @@ import logging
 
 from server.common import constants
 
+
 class Logging():
     
     def __init__(self):

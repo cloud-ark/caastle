@@ -165,6 +165,7 @@ class RDSResourceHandler(object):
 
         res_db.Resource().delete(request_obj.id)
 
+
 class RDS():
     @staticmethod
     def verify_cli_options(self):

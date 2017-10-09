@@ -11,6 +11,7 @@ fmlogger = fm_logger.Logging()
 
 tagged_images_file = 'tagged_images.txt'
 
+
 class LocalHandler(object):
 
     def __init__(self):

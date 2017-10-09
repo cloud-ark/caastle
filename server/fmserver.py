@@ -44,6 +44,7 @@ def start_thread(request_handler_thread):
     except Exception as e:
         fmlogging.error(e)
 
+
 class ResourcesRestResource(Resource):
 
     def get(self):
@@ -62,6 +63,7 @@ class ResourcesRestResource(Resource):
         response.status_code = 200
         return response
 
+
 class ResourceRestResource(Resource):
 
     def get(self, resource_id):
@@ -79,6 +81,7 @@ class ResourceRestResource(Resource):
             response.status_code = 404
 
         return response
+
 
 class AppsRestResource(Resource):
 
@@ -163,7 +166,8 @@ class AppsRestResource(Resource):
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
-    
+
+
 class AppRestResource(Resource):
     def get(self, app_id):
         resp_data = {}
@@ -244,6 +248,7 @@ class AppRestResource(Resource):
             response.status_code = 404
         return response
 
+
 class EnvironmentsRestResource(Resource):
 
     def post(self):
@@ -294,6 +299,7 @@ class EnvironmentsRestResource(Resource):
         response = jsonify(**resp_data)
         response.status_code = 200
         return response
+
 
 class EnvironmentRestResource(Resource):
 

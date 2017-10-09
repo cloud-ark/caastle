@@ -8,6 +8,7 @@ from server.dbmodule import db_base
 
 fmlogger = fm_logger.Logging()
 
+
 class Resource(db_base.Base):
     __tablename__ = 'resource'
 
