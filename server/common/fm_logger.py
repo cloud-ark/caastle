@@ -1,5 +1,5 @@
-import logging
 import inspect
+import logging
 
 from server.common import constants
 

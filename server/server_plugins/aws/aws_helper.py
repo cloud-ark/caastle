@@ -1,7 +1,7 @@
 import boto3
 
-from common import fm_logger
 from common import docker_lib
+from common import fm_logger
 
 fmlogger = fm_logger.Logging()
 

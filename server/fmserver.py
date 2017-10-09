@@ -1,7 +1,7 @@
 import ast
 import os
-import thread
 from os.path import expanduser
+import thread
 
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, Resource, Api
@@ -25,13 +25,13 @@ if not os.path.exists(home_dir + "/.aws/credentials") or not os.path.exists(home
     exit()
 
 try:
-    from common import fm_logger
+    import app_handler
     from common import common_functions
+    from common import fm_logger
     from dbmodule.objects import app as app_db
     from dbmodule.objects import environment as env_db
     from dbmodule.objects import resource as res_db
     import environment_handler
-    import app_handler
 except Exception as e:
     if e.message == "You must specify a region.":
         print(constants.AWS_SETUP_INCORRECT)

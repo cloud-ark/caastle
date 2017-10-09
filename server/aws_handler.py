@@ -2,9 +2,9 @@ import ast
 import base64
 import boto3
 import os
+from os.path import expanduser
 import shutil
 import time
-from os.path import expanduser
 
 from common import common_functions
 from common import constants
@@ -14,8 +14,8 @@ from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
-from server.server_plugins.aws.resource import rds_handler
 from server.server_plugins.aws.resource import dynamodb_handler
+from server.server_plugins.aws.resource import rds_handler
 
 home_dir = expanduser("~")
 
