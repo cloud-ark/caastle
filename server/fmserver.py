@@ -95,7 +95,7 @@ class AppsRestResource(Resource):
         args_dict = dict(args)
 
         try:
-            if not 'app_info' in args_dict:
+            if 'app_info' not in args_dict:
                 response.status_code = 400
             else:
                 app_info = args_dict['app_info']
@@ -193,7 +193,7 @@ class AppRestResource(Resource):
         args_dict = dict(args)
         app_obj = app_db.App().get(app_id)
         try:
-            if not 'app_info' in args_dict:
+            if 'app_info' not in args_dict:
                 response.status_code = 400
             else:
                 if app_obj:
@@ -261,7 +261,7 @@ class EnvironmentsRestResource(Resource):
         args_dict = dict(args)
 
         try:
-            if not 'environment_def' in args_dict:
+            if 'environment_def' not in args_dict:
                 response.status_code = 400
             else:
                 environment_def = args_dict['environment_def']
