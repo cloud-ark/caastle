@@ -1,6 +1,5 @@
-import logging
 import threading
-import time
+
 from common import fm_logger
 
 from server.server_plugins.aws.resource import rds_handler

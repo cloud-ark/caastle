@@ -1,6 +1,5 @@
 import logging
 import inspect
-import traceback
 
 from server.common import constants
 

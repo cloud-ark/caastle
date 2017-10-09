@@ -1,10 +1,4 @@
-import logging
-import prettytable
-import os
-import yaml
-
 from cliff.command import Command
-from pydoc import locate
 
 import call_server as server
 

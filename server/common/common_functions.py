@@ -1,12 +1,9 @@
 import ast
 import os
 import datetime
-import logging
 import requests
-import sys
 import tarfile
 import time
-import thread
 
 from os.path import expanduser
 

@@ -1,9 +1,7 @@
 from random import randint
-import sys
 from testtools import TestCase
 
 from server.dbmodule.objects import app
-from server.dbmodule import db_base
 
 class TestApp(TestCase):
 

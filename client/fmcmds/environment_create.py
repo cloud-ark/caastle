@@ -1,6 +1,3 @@
-import logging
-import prettytable
-import os
 import yaml
 
 from cliff.command import Command

@@ -1,6 +1,6 @@
 from testtools import TestCase
+
 from server.dbmodule.objects import environment
-from server.dbmodule import db_base
 
 class TestEnvironment(TestCase):
 
@@ -13,6 +13,7 @@ class TestEnvironment(TestCase):
         environment.db_base.delete_db_file(environment.db_base.DBFILE_NAME)
 
     def test_env_insert(self):
+        ''
         env_data = {}
         env_data['name'] = 'abc'
         env_data['location'] = 'abc'
