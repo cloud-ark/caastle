@@ -25,10 +25,12 @@ def untar_the_app(app_tar_file, versioned_app_path):
     tar.extractall(path=versioned_app_path)
     tar.close()
 
+
 def get_version_stamp():
     ts = time.time()
     version_stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
     return version_stamp
+
 
 def store_app_contents(app_name, app_tar_name, content, app_version=''):
     # create directory
@@ -55,6 +57,7 @@ def store_app_contents(app_name, app_tar_name, content, app_version=''):
     untar_the_app(app_tar_file, versioned_app_path)
     return versioned_app_path, app_version
 
+
 def _get_env_value(resource_list, placeholder_env_value):
     env_value = ''
     parts = placeholder_env_value.split("_")
@@ -68,6 +71,7 @@ def _get_env_value(resource_list, placeholder_env_value):
             env_value = res_desc_dict[resource_property.rstrip()]
 
     return env_value
+
 
 def resolve_environment(app_id, app_info):
     resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
@@ -95,6 +99,7 @@ def resolve_environment(app_id, app_info):
         fp.write("\n")
     fp.close()
     fp1.close()
+
 
 def is_app_ready(app_url, app_id='', timeout=300):
     ready = False
@@ -124,9 +129,11 @@ def is_app_ready(app_url, app_id='', timeout=300):
 
     return ready
 
+
 def save_image_tag(tag, app_info, file_name='container_id.txt'):
     tag = tag + "\n"
     save_container_id(tag, app_info, file_name)
+
 
 def save_container_id(cont_id, app_info, file_name='container_id.txt'):
     app_dir = app_info['app_location']
@@ -135,9 +142,11 @@ def save_container_id(cont_id, app_info, file_name='container_id.txt'):
     fp.flush()
     fp.close()
 
+
 def read_image_tag(app_info, file_name='container_id.txt'):
     cont_id_list = read_container_id(app_info, file_name)
     return cont_id_list
+
 
 def read_container_id(app_info, file_name='container_id.txt'):
     cont_id = ''

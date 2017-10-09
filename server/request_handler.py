@@ -7,6 +7,7 @@ from server.server_plugins.aws.resource import rds_handler
 
 fmlogging = fm_logger.Logging()
 
+
 class RequestHandler(threading.Thread):
 
     registered_services = dict()

@@ -5,6 +5,7 @@ from common import fm_logger
 
 fmlogger = fm_logger.Logging()
 
+
 class AWSHelper(object):
     
     def __init__(self):

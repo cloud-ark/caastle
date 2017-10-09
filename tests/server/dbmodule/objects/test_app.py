@@ -3,6 +3,7 @@ from testtools import TestCase
 
 from server.dbmodule.objects import app
 
+
 class TestApp(TestCase):
 
     @classmethod

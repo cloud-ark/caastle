@@ -9,6 +9,7 @@ TIMEOUT_COUNT = 400
 
 fmlogger = fm_logger.Logging()
 
+
 class DynamoDBResourceHandler(object):
 
     def __init__(self):

@@ -13,6 +13,7 @@ apps_endpoint = "http://localhost:5002/apps"
 SERVER_ERROR = "Something caused error in cloudark. Please submit bug report on cloudark github repo. "
 SERVER_ERROR = SERVER_ERROR + "Attach logs from cld.log which is available in cloudark directory."
 
+
 class TakeAction(object):
 
     def __init__(self):

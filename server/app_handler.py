@@ -6,6 +6,7 @@ import local_handler
 
 fmlogging = fm_logger.Logging()
 
+
 class AppHandler(threading.Thread):
 
     registered_cloud_handlers = dict()

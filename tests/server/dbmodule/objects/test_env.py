@@ -2,6 +2,7 @@ from testtools import TestCase
 
 from server.dbmodule.objects import environment
 
+
 class TestEnvironment(TestCase):
 
     @classmethod
