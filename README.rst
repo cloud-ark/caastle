@@ -2,7 +2,24 @@
 CloudARK
 =================
 
-CloudARK is a command-line tool that offers ability to declare, create, and share environments of containerized cloud applications.
+CloudARK is a command-line non-hosted alternative to PaaS. Using CloudARK
+
+a) Deploy web applications directly from Docker to popular container systems like Amazon ECS.
+
+b) Simple and predictable way to deploy microservices on cloud.
+
+c) Get ultimate dev/prod parity between local Docker environment and production cloud environment.
+
+Non-hosted nature of CloudARK has following benefits:
+
+a) Easy setup alongside Docker
+
+b) No indirection to a remote service like self-hosted / public PaaS for cloud deployments
+
+c) Integration in your custom DevOps workflows locally or within your CI setup
+
+
+CloudARK is based on the concept of *Environment-as-Code*.
 An environment of containerized cloud application consists of following components:
 
 a) Container Orchestration Engine (COE) cluster
@@ -15,30 +32,8 @@ c) Application containers
    :scale: 100%
    :align: center
 
-CloudARK offers ability to easily define these environments, provision its components,
-and seamlessly bind them together at runtime.
-
-CloudARK is based on the concept of *Environment-as-Code*.
-Our view is that it should be possible to treat the environment of containerized applications
-similar to source code -- it should be version controlled, easy to modify for your needs, easy to integrate in your own workflows,
-and sharable between team members.
-
-The two main issues in creating cloud environments for containerized cloud applications today are:
-
-a) Managed cloud services are not integral part of application architecture definition and require separate provisioning and binding effort.
-
-b) Differences in deploying an application to Docker and COEs add to the complexity of creating consistent deployment workflows.
-
-CloudARK solves these problems through a declarative model
-for defining and creating entire environment of containerized cloud application consisting of application containers,
-managed cloud services, and COE cluster. This leads to following benefits:
-
-a) No need to create custom scripts for provisioning managed cloud services and binding them to containerized applications
-
-b) Non-hosted command-line form factor of CloudARK makes it easy to integrate in your custom DevOps workflows
-
-c) You get uniform workflow across Docker and COEs
-
+CloudARK offers ability to easily define and create such environments
+seamlessly binding the environment components together at runtime.
 
 *Currently Supported: AWS ECS, AWS RDS, AWS DynamoDB and Local deployment through Docker*
 
@@ -79,16 +74,16 @@ CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (El Capitan 
 
 4) Choose a sample application and follow the steps in the included README
 
-Note: CloudARK requires Docker to be installed. If you don't have Docker, you can install it_.
+Note: CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps_.
 
-.. _it: https://docs.docker.com/engine/installation/
+.. _steps: https://docs.docker.com/engine/installation/
 
 
 
 Deployment to Amazon ECS
 -------------------------
 
-CloudARK assumes that you have done AWS setup and uses it during deployment. For example, CloudARK uses ~/.aws directory 
+CloudARK assumes that you have done AWS setup and uses that during deployment. For example, CloudARK uses ~/.aws directory
 to read aws credentials.  If you don't have this directory then follow these_ steps to do AWS setup.
 
 .. _these: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
@@ -98,7 +93,6 @@ containerized applications on AWS.
 
 - AmazonEC2FullAccess
 - AmazonEC2ContainerRegistryFullAccess
-- AmazonEC2ContainerServiceRole
 - AmazonEC2ContainerServiceFullAccess
 - AmazonEC2ContainerServiceAutoscaleRole
 - AmazonEC2ContainerServiceforEC2Role
@@ -237,5 +231,3 @@ Contact:
 --------
 
 Devdatta Kulkarni: devdatta at cloudark dot io
-
-
