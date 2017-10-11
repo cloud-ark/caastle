@@ -7,8 +7,8 @@ import time
 
 from os.path import expanduser
 
-from dbmodule.objects import app as app_db
-from dbmodule.objects import resource as res_db
+from server.dbmodule.objects import app as app_db
+from server.dbmodule.objects import resource as res_db
 import fm_logger
 
 home_dir = expanduser("~")
