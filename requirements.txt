@@ -5,7 +5,7 @@ testtools
 requests
 gevent
 boto3
-stevedore
+stevedore==1.27.1
 pyparsing
 SQLAlchemy
 six
