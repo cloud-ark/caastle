@@ -94,4 +94,4 @@ class AWSHandler(object):
         coe_type = self._get_coe_type_for_app(app_id)
         for name, ext in AWSHandler.coe_mgr.items():
             if name == coe_type:
-                ext.obj.redeploy_application(app_id, app_info)
+                ext.obj.delete_application(app_id, app_info)
