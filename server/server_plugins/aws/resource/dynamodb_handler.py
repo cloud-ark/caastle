@@ -1,10 +1,10 @@
 import boto3
 import time
 
+import resource_base
 from server.common import constants
 from server.common import fm_logger
-#from server.dbmodule import db_handler
-import resource_base
+# from server.dbmodule import db_handler
 
 TIMEOUT_COUNT = 400
 
@@ -49,7 +49,7 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
         while count < constants.TIMEOUT_COUNT and status.lower() is not 'active':
             status_dict = self.client.describe_table(TableName=table_name)
             status = status_dict['Table']['TableStatus']
-            #db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
+            # db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
             count = count + 1
             time.sleep(2)
 
@@ -61,7 +61,7 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
             response = self.client.delete_table(TableName=table_name)
         except Exception as e:
             fmlogger.error(e)
-            #db_handler.DBHandler().delete_resource(request_obj['resource_id'])
+            # db_handler.DBHandler().delete_resource(request_obj['resource_id'])
             return
 
         deleted = False
@@ -70,10 +70,10 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
             try:
                 status_dict = self.client.describe_table(TableName=table_name)
                 status = status_dict['Table']['TableStatus']
-                #db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
+                # db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
                 count = count + 1
                 time.sleep(2)
             except Exception as e:
                 fmlogger.error(e)
                 deleted = True
-                #db_handler.DBHandler().delete_resource(request_obj['resource_id'])
+                # db_handler.DBHandler().delete_resource(request_obj['resource_id'])

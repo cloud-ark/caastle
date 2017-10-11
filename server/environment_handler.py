@@ -21,25 +21,26 @@ class EnvironmentHandler(threading.Thread):
         self.action = action
 
     def _create_environment(self):
-        """
-            environment:
-              resources:
-                aws:
-                  - resource:
-                      type: rds
-                      configuration:
-                        engine: mysql
-                        flavor: db.m1.medium
+        """Create environment.
+
+        environment:
+           resources:
+              aws:
+                - resource:
+                    type: rds
+                    configuration:
+                      engine: mysql
+                      flavor: db.m1.medium
                       policy:
                         access: open
-                  - resource:
-                      type: container
-                      name: nginx
-                      source: https://hub.docker.com/_/nginx/
-              app_deployment:
-                target: aws
-                type: ecs
-        """        
+                - resource:
+                    type: container
+                    name: nginx
+                    source: https://hub.docker.com/_/nginx/
+            app_deployment:
+              target: aws
+              type: ecs
+        """
         if not self.environment_def:
             fmlogging.debug("Environment definition is empty. Cannot create empty environment. Returning.")
             return
@@ -66,7 +67,7 @@ class EnvironmentHandler(threading.Thread):
                 stat_list = EnvironmentHandler.registered_cloud_handlers['aws'].create_resources(self.env_id, resources_list)
                 status_list.extend(stat_list)
             if 'google' in resources:
-                fmlogging.debug("Creating Google resources")        
+                fmlogging.debug("Creating Google resources")
                 resources_list = resources['google']
 
         all_available = True

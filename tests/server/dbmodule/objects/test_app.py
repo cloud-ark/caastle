@@ -8,7 +8,7 @@ class TestApp(TestCase):
 
     @classmethod
     def setUpClass(self):
-        app.db_base.DBFILE_NAME="test-cld-app.sqlite"
+        app.db_base.DBFILE_NAME = "test-cld-app.sqlite"
 
     @classmethod
     def tearDownClass(self):

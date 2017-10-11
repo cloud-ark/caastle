@@ -30,7 +30,7 @@ class LocalHandler(object):
 
         tag = str(int(round(time.time() * 1000)))
 
-        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile", 
+        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile",
                                                                 df_context=df_dir, tag=tag)
 
         tagged_image = cont_name + ":" + tag

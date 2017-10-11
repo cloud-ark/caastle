@@ -12,7 +12,7 @@ class FirstMileApp(App):
             version='0.0.1',
             command_manager=CommandManager('cld.cmds'),
             deferred_help=True,
-            )
+        )
 
     def initialize_app(self, argv):
         self.LOG.debug('initialize_app %s' % argv)

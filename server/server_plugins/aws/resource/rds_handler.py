@@ -2,17 +2,17 @@ import ast
 import boto3
 import time
 
+import resource_base
 from server.common import constants
 from server.common import fm_logger
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
-import resource_base
 from server.server_plugins.aws import aws_helper
 
 fmlogger = fm_logger.Logging()
 
 DEFAULT_RDS_ENGINE = 'mysql'
-DEFAULT_RDS_INSTANCE_CLASS = 'db.t1.micro'  
+DEFAULT_RDS_INSTANCE_CLASS = 'db.t1.micro'
 
 
 class RDSResourceHandler(resource_base.ResourceBase):
@@ -169,7 +169,7 @@ class RDSResourceHandler(resource_base.ResourceBase):
         res_db.Resource().delete(request_obj.id)
 
 
-class RDS():
+class RDS(object):
     @staticmethod
     def verify_cli_options(self):
         print("Verifying CLI Options for RDS")
