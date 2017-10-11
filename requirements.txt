@@ -9,3 +9,4 @@ stevedore==1.27.1
 pyparsing
 SQLAlchemy
 six
+flake8

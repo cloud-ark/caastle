@@ -7,9 +7,9 @@ import time
 
 from os.path import expanduser
 
+import fm_logger
 from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import resource as res_db
-import fm_logger
 
 home_dir = expanduser("~")
 
@@ -149,7 +149,6 @@ def read_image_tag(app_info, file_name='container_id.txt'):
 
 
 def read_container_id(app_info, file_name='container_id.txt'):
-    cont_id = ''
     cont_id_list = []
     try:
         app_dir = app_info['app_location']

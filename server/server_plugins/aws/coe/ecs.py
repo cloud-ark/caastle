@@ -24,8 +24,7 @@ fmlogger = fm_logger.Logging()
 
 
 class ECSHandler(coe_base.COEBase):
-    """ECS Handler.
-    """
+    """ECS Handler."""
 
     awshelper = aws_helper.AWSHelper()
 
@@ -97,25 +96,27 @@ class ECSHandler(coe_base.COEBase):
         revision = str(int(round(time.time() * 1000)))
         family_name = family_name + "-" + revision
         try:
-            resp = self.ecs_client.register_task_definition(family=family_name,
-                                                            containerDefinitions=[{'name': cont_name,
-                                                                                   'image': image,
-                                                                                   'memory': memory,
-                                                                                   'portMappings':[{
-                                                                                      'containerPort':container_port,
-                                                                                      'hostPort':80,
-                                                                                      'protocol':'tcp'}]}])
+            resp = self.ecs_client.register_task_definition(
+                family=family_name,
+                containerDefinitions=[{'name': cont_name,
+                                       'image': image,
+                                       'memory': memory,
+                                       'portMappings': [{
+                                           'containerPort': container_port,
+                                           'hostPort': 80,
+                                           'protocol': 'tcp'}]}]
+            )
             task_def_arn = resp['taskDefinition']['taskDefinitionArn']
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to register task definition.")
+            fmlogger.debug("Exception encountered in trying to register task definition:%s" % e)
         fmlogger.debug("Done registering task definition.")
         return task_def_arn, cont_name
     
     def _deregister_task_definition(self, task_def_arn):
         try:
-            resp = self.ecs_client.deregister_task_definition(taskDefinition=task_def_arn)
+            self.ecs_client.deregister_task_definition(taskDefinition=task_def_arn)
         except Exception as e:
-            fmlogger.debug("Exception encountered in deregistering task definition.")
+            fmlogger.debug("Exception encountered in deregistering task definition:%s" % e)
 
     def _get_app_url(self, app_info, cluster_name):
         app_url = ''
@@ -124,7 +125,7 @@ class ECSHandler(coe_base.COEBase):
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
                    "RUN cp -r aws-creds $HOME/.aws \n"
-                   "RUN sudo apt-get install -y curl \n"
+                   "RUN sudo apt-get update && sudo apt-get install -y curl \n"
                    "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \n"
                    "ENTRYPOINT [\"ecs-cli\", \"ps\", \"--cluster\", \"{cluster_name}\"]").format(cluster_name=cluster_name)
@@ -134,7 +135,7 @@ class ECSHandler(coe_base.COEBase):
         cont_name = app_info['app_name'] + "-get-cont-ip"
 
         df_dir = app_dir + "/" + app_folder_name
-        fp = open(df_dir+"/Dockerfile.get-cont-ip", "w")
+        fp = open(df_dir + "/Dockerfile.get-cont-ip", "w")
         fp.write(df)
         fp.close()
 
@@ -173,7 +174,7 @@ class ECSHandler(coe_base.COEBase):
                 if cont_status.lower() == status:
                     status_reached = True
             except Exception as e:
-                fmlogger.debug("Exception encountered in trying to run describe_tasks.")
+                fmlogger.debug("Exception encountered in trying to run describe_tasks:%s" % e)
                 issue_encountered = True
         return task_desc
 
@@ -190,11 +191,11 @@ class ECSHandler(coe_base.COEBase):
         if 'taskArns' in tasks:
             task_arn = tasks['taskArns'][0]  # assuming one task current
             try:
-                resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
+                self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
             except Exception as e:
-                fmlogger.debug("Exception encountered in trying to stop_task")
+                fmlogger.debug("Exception encountered in trying to stop_task:%s" % e)
 
-            task_desc = self._check_task(cluster_name, task_arn, 'stopped')
+            self._check_task(cluster_name, task_arn, 'stopped')
 
             fmlogger.debug("Task stopped:%s" % task_arn)
     
@@ -207,13 +208,15 @@ class ECSHandler(coe_base.COEBase):
             resp = self.ecs_client.run_task(cluster=cluster_name, taskDefinition=family_name)
             task_arn = resp['tasks'][0]['taskArn']
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to run_task")
+            fmlogger.debug("Exception encountered in trying to run_task:%s" % e)
 
         task_desc = self._check_task(cluster_name, task_arn, 'running')
 
         container_ip = task_desc['tasks'][0]['containers'][0]['networkBindings'][0]['bindIP']
         host_port = task_desc['tasks'][0]['containers'][0]['networkBindings'][0]['hostPort']
-        application_url1 = container_ip + ":" + str(host_port)
+
+        fmlogger.debug("Container IP:%s" % container_ip)
+        fmlogger.debug("Container Port:%s" % host_port)
         application_url = self._get_app_url(app_info, cluster_name)
         fmlogger.debug("Completed Running task")
 
@@ -221,7 +224,7 @@ class ECSHandler(coe_base.COEBase):
 
     def _delete_repository(self, repo_name):
         try:
-            resp = self.ecr_client.delete_repository(repositoryName=repo_name, force=True)
+            self.ecr_client.delete_repository(repositoryName=repo_name, force=True)
         except Exception as e:
             fmlogger.debug("Exception encountered in trying to delete repository:%s" % e)
 
@@ -231,7 +234,7 @@ class ECSHandler(coe_base.COEBase):
         password = ''
         repo_name = app_info['app_name']
         try:
-            repo_dict = self.ecr_client.describe_repositories(repositoryNames=[repo_name])
+            self.ecr_client.describe_repositories(repositoryNames=[repo_name])
         except Exception as e:
             fmlogger.debug("Exception encountered in trying to describe repositories:%s" % e)
             create_repo_response = self.ecr_client.create_repository(repositoryName=repo_name)
@@ -253,8 +256,6 @@ class ECSHandler(coe_base.COEBase):
 
     def _build_app_container(self, app_info, repo_name, proxy_endpoint, tag=''):
         app_dir = app_info['app_location']
-        app_name = app_info['app_name']
-        app_version = app_info['app_version']
         app_folder_name = app_info['app_folder_name']
 
         df_dir = app_dir + "/" + app_folder_name
@@ -268,8 +269,6 @@ class ECSHandler(coe_base.COEBase):
 
     def _copy_creds(self, app_info):
         app_dir = app_info['app_location']
-        app_name = app_info['app_name']
-        app_version = app_info['app_version']
         app_folder_name = app_info['app_folder_name']
 
         df_dir = app_dir + "/" + app_folder_name
@@ -279,8 +278,8 @@ class ECSHandler(coe_base.COEBase):
 
     def _update_ecs_app_service(self, app_info, cont_name, task_def_arn, task_desired_count=1):
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        service_available = ECSHandler.awshelper.update_service(app_info['app_name'], cluster_name,
-                                                                task_def_arn, task_desired_count)
+        ECSHandler.awshelper.update_service(app_info['app_name'], cluster_name,
+                                            task_def_arn, task_desired_count)
 
     def _check_if_app_is_ready(self, app_id, app_ip_url, app_url):
         app_status = ''
@@ -293,7 +292,6 @@ class ECSHandler(coe_base.COEBase):
         return app_status
 
     def _create_ecs_app_service(self, app_info, cont_name, task_def_arn):
-        app_status = ''
         env_obj = env_db.Environment().get(app_info['env_id'])
         env_output_config = ast.literal_eval(env_obj.output_config)
         subnet_string = env_output_config['subnets']
@@ -357,7 +355,7 @@ class ECSHandler(coe_base.COEBase):
             fmlogger.error("Error encountered in deleting key pair. %s" % e)
 
         try:
-            response = self.ecs_client.delete_cluster(cluster=cluster_name)
+            self.ecs_client.delete_cluster(cluster=cluster_name)
         except Exception as e:
             fmlogger.error("Error encountered in deleting cluster %s" % e)
 
@@ -385,7 +383,7 @@ class ECSHandler(coe_base.COEBase):
 
         if not os.path.exists(env_store_location):
             os.makedirs(env_store_location)
-            shutil.copytree(home_dir+"/.aws", env_store_location+"/aws-creds")
+            shutil.copytree(home_dir + "/.aws", env_store_location + "/aws-creds")
 
         vpc_details = ECSHandler.awshelper.get_vpc_details()
         vpc_id = vpc_details['vpc_id']
@@ -417,13 +415,16 @@ class ECSHandler(coe_base.COEBase):
         instance_type = 't2.micro'
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
-        entry_point_cmd = ("ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
-                           "\"--security-group\", \"{security_group}\", \"--instance-type\", \"{instance_type}\", \"--cluster\", \"{cluster}\"] \n").format(size=cluster_size,
-                            cluster=cluster_name, vpc_id=vpc_id,
-                            keypair=keypair_name,
-                            security_group=sec_group_id,
-                            subnet_list=subnet_list,
-                            instance_type=instance_type)
+        entry_point_cmd = (
+            "ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
+            "\"--security-group\", \"{security_group}\", \"--instance-type\", \"{instance_type}\", \"--cluster\", \"{cluster}\"] \n").format(
+                size=cluster_size,
+                cluster=cluster_name, vpc_id=vpc_id,
+                keypair=keypair_name,
+                security_group=sec_group_id,
+                subnet_list=subnet_list,
+                instance_type=instance_type
+        )
         fmlogger.debug("Entry point cmd:%s" % entry_point_cmd)
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
@@ -494,8 +495,6 @@ class ECSHandler(coe_base.COEBase):
         return cluster_status
 
     def deploy_application(self, app_id, app_info):
-        app_location = app_info['app_location']
-        cloud = app_info['target']
         self._copy_creds(app_info)
 
         if app_info['env_id']:
@@ -580,7 +579,6 @@ class ECSHandler(coe_base.COEBase):
         app_db.App().update(app_id, app_data)
 
     def redeploy_application(self, app_id, app_info):
-        app_location = app_info['app_location']
         self._copy_creds(app_info)
 
         if app_info['env_id']:
@@ -595,7 +593,6 @@ class ECSHandler(coe_base.COEBase):
         app_dt['output_config'] = str(app_details_obj)
         app_db.App().update(app_id, app_dt)
 
-        memory = ''
         if 'memory' in app_details_obj:
             app_info['memory'] = app_details_obj['memory']
         proxy_endpoint = app_details_obj['proxy_endpoint']

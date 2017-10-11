@@ -1,4 +1,3 @@
-import ast
 import threading
 
 import aws_handler
@@ -84,13 +83,12 @@ class EnvironmentHandler(threading.Thread):
 
     def _delete_environment(self):
         resource_list = res_db.Resource().get_resources_for_env(self.env_id)
-        env_details = ast.literal_eval(self.environment_def)
 
         env_db.Environment().update(self.env_id, {'status': 'deleting'})
         for resource in resource_list:
             type = resource.type
             if type == 'ecs-cluster':
-                status = EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
+                EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
             else:
                 EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id, resource)
 

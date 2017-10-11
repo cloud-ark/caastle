@@ -22,4 +22,4 @@ class EnvironmentDelete(Command):
         force_flag = ''
         # if parsed_args.force:
         #    force_flag = 'true'
-        response = server.TakeAction().delete_environment(env_id, force_flag=force_flag)
+        server.TakeAction().delete_environment(env_id, force_flag=force_flag)

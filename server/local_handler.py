@@ -48,7 +48,7 @@ class LocalHandler(object):
             for line in all_lines:
                 if line.find("HostPort") >= 0:
                     parts = line.split(":")
-                    port = parts[1].replace('"',"").rstrip().lstrip()
+                    port = parts[1].replace('"', "").rstrip().lstrip()
                     if port and port != 'null':
                         break
         except Exception as e:

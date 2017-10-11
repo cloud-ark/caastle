@@ -343,6 +343,7 @@ class EnvironmentRestResource(Resource):
             response.status_code = 404
         return response
 
+
 api.add_resource(AppsRestResource, '/apps')
 api.add_resource(AppRestResource, '/apps/<app_id>')
 

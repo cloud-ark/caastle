@@ -22,22 +22,23 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
         if 'attribute_definitions' in request_obj:
             attribute_definitions = request_obj['attribute_definitions']
         else:
-            attribute_definitions = [{'AttributeName':'PrimaryKey', 'AttributeType':'N'},
-                                     {'AttributeName':'StringData', 'AttributeType':'S'}]
+            attribute_definitions = [{'AttributeName': 'PrimaryKey', 'AttributeType': 'N'},
+                                     {'AttributeName': 'StringData', 'AttributeType': 'S'}]
         key_schema = []
         if 'key_schema' in request_obj:
             key_schema = request_obj['key_schema']
         else:
-            key_schema = [{'AttributeName':'PrimaryKey', 'KeyType': 'HASH'},
-                          {'AttributeName':'StringData', 'KeyType': 'RANGE'}]
+            key_schema = [{'AttributeName': 'PrimaryKey', 'KeyType': 'HASH'},
+                          {'AttributeName': 'StringData', 'KeyType': 'RANGE'}]
 
-        provisioned_throughput = {'ReadCapacityUnits':1,
-                                  'WriteCapacityUnits':1}
+        provisioned_throughput = {'ReadCapacityUnits': 1,
+                                  'WriteCapacityUnits': 1}
         try:
             response = self.client.create_table(AttributeDefinitions=attribute_definitions,
                                                 TableName=table_name,
                                                 KeySchema=key_schema,
                                                 ProvisionedThroughput=provisioned_throughput)
+            fmlogger.debug(response)
         except Exception as e:
             fmlogger.error(e)
         
@@ -59,6 +60,7 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
         table_name = request_obj['name']
         try:
             response = self.client.delete_table(TableName=table_name)
+            fmlogger.debug(response)
         except Exception as e:
             fmlogger.error(e)
             # db_handler.DBHandler().delete_resource(request_obj['resource_id'])
@@ -70,6 +72,7 @@ class DynamoDBResourceHandler(resource_base.ResourceBase):
             try:
                 status_dict = self.client.describe_table(TableName=table_name)
                 status = status_dict['Table']['TableStatus']
+                fmlogger.debug(status)
                 # db_handler.DBHandler().update_resource(request_obj['resource_id'], status)
                 count = count + 1
                 time.sleep(2)

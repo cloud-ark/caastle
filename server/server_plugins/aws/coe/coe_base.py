@@ -5,8 +5,7 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class COEBase(object):
-    """Base class for CloudARK container clusters and containers.
-    """
+    """Base class for CloudARK container clusters and containers."""
 
     @abc.abstractmethod
     def create_cluster(self, env_id, env_info):
@@ -29,7 +28,6 @@ class COEBase(object):
                          Includes: type of resource,
                          resource config defined in env_definition
         :param resource_obj: Resource's ORM object handle.
-        
         """
 
     @abc.abstractmethod

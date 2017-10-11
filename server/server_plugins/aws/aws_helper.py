@@ -55,7 +55,7 @@ class AWSHelper(object):
             response = self.alb_client.create_listener(LoadBalancerArn=load_balancer_arn,
                                                        Protocol='HTTP',
                                                        Port=80,
-                                                       DefaultActions=[{'Type':'forward',
+                                                       DefaultActions=[{'Type': 'forward',
                                                                         'TargetGroupArn': target_group_arn}])
             listener_arn = response['Listeners'][0]['ListenerArn']
         except Exception as e:
@@ -127,7 +127,7 @@ class AWSHelper(object):
 
     def delete_security_group_for_vpc(self, vpc_id, group_id, group_name):
         fmlogger.debug("Deleting security group %s for vpc %s" % (group_name, vpc_id))
-        response = self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
+        self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
     
     def setup_security_group(self, vpc_id, ip_range, sec_group_id, sec_group_name, port_list):
         for ip in ip_range:
@@ -145,12 +145,12 @@ class AWSHelper(object):
         ip_range = rules_dict['ip_range']
 
         try:
-            response = self.ec2_client.authorize_security_group_ingress(GroupId=group_id,
-                                                                        GroupName=group_name,
-                                                                        IpPermissions=[{'FromPort':0,
-                                                                                        'ToPort':to_port,
-                                                                                        'IpRanges':[{'CidrIp':ip_range}],
-                                                                                        'IpProtocol':protocol}])
+            self.ec2_client.authorize_security_group_ingress(GroupId=group_id,
+                                                             GroupName=group_name,
+                                                             IpPermissions=[{'FromPort': 0,
+                                                                             'ToPort': to_port,
+                                                                             'IpRanges': [{'CidrIp': ip_range}],
+                                                                             'IpProtocol': protocol}])
         except Exception as e:
             fmlogger.debug("Encountered exception in adding rule to security group:%s" % e)
         return
@@ -161,15 +161,15 @@ class AWSHelper(object):
             response = self.ecs_client.describe_task_definition(taskDefinition=task_def_arn)
             container_port = response['taskDefinition']['containerDefinitions'][0]['portMappings'][0]['containerPort']
         except Exception as e:
-            fmlogger.error("Encountered exception in describing task definition")
+            fmlogger.error("Encountered exception in describing task definition %s" % e)
         return int(container_port)
 
     def update_service(self, app_name, cluster_name, task_def_arn, task_desired_count):
         try:
-            response = self.ecs_client.update_service(cluster=cluster_name,
-                                                      service=app_name,
-                                                      desiredCount=task_desired_count,
-                                                      taskDefinition=task_def_arn)
+            self.ecs_client.update_service(cluster=cluster_name,
+                                           service=app_name,
+                                           desiredCount=task_desired_count,
+                                           taskDefinition=task_def_arn)
         except Exception as e:
             fmlogger.debug("Exception encountered in updating ECS service for app %s" % e)
 
@@ -184,7 +184,7 @@ class AWSHelper(object):
             if 'taskArns' in tasks and len(tasks['taskArns']) > 0:
                 task_arn = tasks['taskArns'][0]  # assuming one task current
                 try:
-                    resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
+                    self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
                 except Exception as e:
                     fmlogger.debug("Exception encountered in trying to stop_task")
 
@@ -217,15 +217,15 @@ class AWSHelper(object):
         role_arn = role_obj['Role']['Arn']
 
         try:
-            response = self.ecs_client.create_service(cluster=cluster_name,
-                                                      serviceName=app_name,
-                                                      taskDefinition=task_def_arn,
-                                                      loadBalancers=[{'targetGroupArn': target_group_arn,
-                                                                      # 'loadBalancerName': app_name,
-                                                                      'containerName': container_name,
-                                                                      'containerPort': int(app_port)}],
-                                                      desiredCount=desired_count,
-                                                      role=role_arn)
+            self.ecs_client.create_service(cluster=cluster_name,
+                                           serviceName=app_name,
+                                           taskDefinition=task_def_arn,
+                                           loadBalancers=[{'targetGroupArn': target_group_arn,
+                                                           # 'loadBalancerName': app_name,
+                                                           'containerName': container_name,
+                                                           'containerPort': int(app_port)}],
+                                           desiredCount=desired_count,
+                                           role=role_arn)
         except Exception as e:
             fmlogger.debug("Exception encountered in creating ECS service for app %s" % e)
             return

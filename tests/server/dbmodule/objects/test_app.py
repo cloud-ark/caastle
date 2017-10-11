@@ -32,10 +32,10 @@ class TestApp(TestCase):
         app_data['dep_target'] = 'local'
         app_data['env_id'] = 1
         new_app = app.App().insert(app_data)
-
         new_app1 = app.App().insert(app_data)
 
         self.assertIsNone(new_app1.id, "App not inserted properly")
+        self.assertIsNone(new_app.id, "App not inserted properly")
 
     def test_app_delete(self):
         app_data = {}
@@ -66,7 +66,7 @@ class TestApp(TestCase):
         app_data1['location'] = 'location'
         app.App().update(new_app.id, app_data1)
         updated_app = app.App().get(new_app.id)
-        self.assertEqual('version1', app_data1['version'])
+        self.assertEqual('version1', updated_app.version)
 
     def test_app_get_non_existing_app(self):
         app1 = app.App().get(randint(100, 200))
