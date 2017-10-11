@@ -16,8 +16,6 @@ from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
-from server.server_plugins.aws.resource import dynamodb_handler
-from server.server_plugins.aws.resource import rds_handler
 
 home_dir = expanduser("~")
 
@@ -28,9 +26,6 @@ fmlogger = fm_logger.Logging()
 
 class AWSHandler(object):
 
-    registered_resource_handlers = dict()
-    registered_resource_handlers['rds'] = rds_handler.RDSResourceHandler()
-    registered_resource_handlers['dynamodb'] = dynamodb_handler.DynamoDBResourceHandler()
     awshelper = aws_helper.AWSHelper()
 
     mgr = extension.ExtensionManager(
@@ -110,7 +105,9 @@ class AWSHandler(object):
         resource_details = ''
         type = resource.type
         env_db.Environment().update(env_id, {'status':'deleting_' + type})
-        status = AWSHandler.registered_resource_handlers[type].delete(resource)
+        for name, ext in AWSHandler.mgr.items():
+            if name == type:
+                ext.obj.delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
         cluster_name = resource.cloud_resource_id
