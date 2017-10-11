@@ -13,6 +13,8 @@ virtualenv $virtenv >> $install_log
 source $virtenv/bin/activate >> $install_log
 
 pip install -r requirements.txt >> $install_log
+./$virtenv/bin/python server/setup.py install
+
 cd client
 ../$virtenv/bin/python setup.py install >> $install_log
 
