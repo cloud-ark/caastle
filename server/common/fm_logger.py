@@ -4,7 +4,7 @@ import logging
 from server.common import constants
 
 
-class Logging():
+class Logging(object):
     
     def __init__(self):
         logging.basicConfig(filename=constants.LOG_FILE_NAME,

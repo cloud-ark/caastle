@@ -46,7 +46,7 @@ def store_app_contents(app_name, app_tar_name, content, app_version=''):
         os.makedirs(versioned_app_path)
 
     # store file content
-    app_tar_file = ("{versioned_app_path}/{app_tar_name}").format(versioned_app_path=versioned_app_path, 
+    app_tar_file = ("{versioned_app_path}/{app_tar_name}").format(versioned_app_path=versioned_app_path,
                                                                   app_tar_name=app_tar_name)
     app_file = open(app_tar_file, "w")
     app_file.write(content.encode("ISO-8859-1"))
@@ -120,7 +120,7 @@ def is_app_ready(app_url, app_id='', timeout=300):
         count = count + 1
         time.sleep(3)
 
-    #After every 10 counts check if app still exists
+    # After every 10 counts check if app still exists
     if app_id:
         if count % 10 == 0:
             app_obj = app_db.App().get(app_id)

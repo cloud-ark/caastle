@@ -96,7 +96,7 @@ class TakeAction(object):
         app_id_url = apps_endpoint + "/" + app_id
         source_dir = app_path
         k = source_dir.rfind("/")
-        app_name = "app-redeploy-id-" + app_id 
+        app_name = "app-redeploy-id-" + app_id
         tarfile_name = app_name + ".tar"
 
         self._make_tarfile(tarfile_name, source_dir)

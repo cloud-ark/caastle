@@ -10,6 +10,6 @@ def check_env_name(env_name, regex_list):
         if mach:
             match = match or True
         else:
-            match = match or False        
+            match = match or False
     
     return match

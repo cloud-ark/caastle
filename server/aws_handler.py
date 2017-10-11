@@ -6,6 +6,8 @@ from os.path import expanduser
 import shutil
 import time
 
+from stevedore import extension
+
 from common import common_functions
 from common import constants
 from common import docker_lib
@@ -14,8 +16,6 @@ from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 from server.server_plugins.aws import aws_helper
-from server.server_plugins.aws.resource import dynamodb_handler
-from server.server_plugins.aws.resource import rds_handler
 
 home_dir = expanduser("~")
 
@@ -26,10 +26,12 @@ fmlogger = fm_logger.Logging()
 
 class AWSHandler(object):
 
-    registered_resource_handlers = dict()
-    registered_resource_handlers['rds'] = rds_handler.RDSResourceHandler()
-    registered_resource_handlers['dynamodb'] = dynamodb_handler.DynamoDBResourceHandler()
     awshelper = aws_helper.AWSHelper()
+
+    mgr = extension.ExtensionManager(
+        namespace='server.server_plugins.aws.resource',
+        invoke_on_load=True,
+    )
 
     def __init__(self):
         self.ecr_client = boto3.client('ecr')
@@ -45,7 +47,7 @@ class AWSHandler(object):
         config_file_path = aws_creds_path + "/config"
         incorrect_setup = False
         if not os.path.exists(creds_file_path) or \
-            not os.path.exists(config_file_path):
+           not os.path.exists(config_file_path):
             incorrect_setup = True
         else:
             fp = open(aws_creds_path + "/credentials", "r")
@@ -77,7 +79,7 @@ class AWSHandler(object):
                     if parts[1] == '':
                         incorrect_setup = True
                     else:
-                        region = parts[1].lstrip().rstrip()        
+                        region = parts[1].lstrip().rstrip()
         if incorrect_setup:
             raise RuntimeError('AWS creds not setup properly.')
 
@@ -86,19 +88,26 @@ class AWSHandler(object):
     def create_resources(self, env_id, resource_list):
         resource_details = ''
         ret_status_list = []
+
         for resource_defs in resource_list:
             resource_details = resource_defs['resource']
             type = resource_details['type']
             env_db.Environment().update(env_id, {'status':'creating_' + type})
-            status = AWSHandler.registered_resource_handlers[type].create(env_id, resource_details)
-            ret_status_list.append(status)
+
+            for name, ext in AWSHandler.mgr.items():
+                if name == type:
+                    status = ext.obj.create(env_id, resource_details)
+                    if status: ret_status_list.append(status)
+
         return ret_status_list
 
     def delete_resource(self, env_id, resource):
         resource_details = ''
         type = resource.type
         env_db.Environment().update(env_id, {'status':'deleting_' + type})
-        status = AWSHandler.registered_resource_handlers[type].delete(resource)
+        for name, ext in AWSHandler.mgr.items():
+            if name == type:
+                ext.obj.delete(resource)
 
     def delete_cluster(self, env_id, env_info, resource):
         cluster_name = resource.cloud_resource_id
@@ -201,11 +210,11 @@ class AWSHandler(object):
             instance_type = env_details['environment']['app_deployment']['instance_type']
         entry_point_cmd = ("ENTRYPOINT [\"ecs-cli\", \"up\", \"--size\", \"{size}\", \"--keypair\", \"{keypair}\", \"--capability-iam\", \"--vpc\", \"{vpc_id}\", \"--subnets\", \"{subnet_list}\", "
                            "\"--security-group\", \"{security_group}\", \"--instance-type\", \"{instance_type}\", \"--cluster\", \"{cluster}\"] \n").format(size=cluster_size,
-                                                                                                                  cluster=cluster_name, vpc_id=vpc_id,
-                                                                                                                  keypair=keypair_name,
-                                                                                                                  security_group=sec_group_id,
-                                                                                                                  subnet_list=subnet_list,
-                                                                                                                  instance_type=instance_type)
+                            cluster=cluster_name, vpc_id=vpc_id,
+                            keypair=keypair_name,
+                            security_group=sec_group_id,
+                            subnet_list=subnet_list,
+                            instance_type=instance_type)
         fmlogger.debug("Entry point cmd:%s" % entry_point_cmd)
         df = df + ("COPY . /src \n"
                    "WORKDIR /src \n"
@@ -258,7 +267,6 @@ class AWSHandler(object):
                                                                                 key_file=keypair_name)
         os.system(cp_cmd)
 
-
         self.docker_handler.remove_container(cont_id)
         self.docker_handler.remove_container_image(cluster_name)
 
@@ -284,7 +292,7 @@ class AWSHandler(object):
     def _register_task_definition(self, app_info, image, container_port, cont_name=''):
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
-        memory = 500 # Default memory size of 500MB. This is hard limit
+        memory = 500  # Default memory size of 500MB. This is hard limit
         if 'memory' in app_info:
             memory = int(app_info['memory'])
         family_name = app_info['app_name']
@@ -333,7 +341,7 @@ class AWSHandler(object):
         fp.write(df)
         fp.close()
 
-        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile.get-cont-ip", 
+        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile.get-cont-ip",
                                                                 df_context=df_dir)
         app_ip = ''
         if not err:
@@ -379,11 +387,11 @@ class AWSHandler(object):
 
         cluster_name = app_details_obj['cluster_name']
         
-        # TODO: When we support multiple instances of a task then
+        # TODO(devdatta): When we support multiple instances of a task then
         # we should revisit following logic.
         tasks = self.ecs_client.list_tasks(cluster=cluster_name)
         if 'taskArns' in tasks:
-            task_arn = tasks['taskArns'][0] # assuming one task current
+            task_arn = tasks['taskArns'][0]  # assuming one task current
             try:
                 resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
             except Exception as e:
@@ -454,10 +462,10 @@ class AWSHandler(object):
 
         df_dir = app_dir + "/" + app_folder_name
 
-        cont_name = proxy_endpoint[8:] + "/" + repo_name # Removing initial https:// from proxy_endpoint
+        cont_name = proxy_endpoint[8:] + "/" + repo_name  # Removing initial https:// from proxy_endpoint
         fmlogger.debug("Container name that will be used in building:%s" % cont_name)
 
-        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile", 
+        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile",
                                                                 df_context=df_dir, tag=tag)
         return err, output, cont_name
 
@@ -470,11 +478,11 @@ class AWSHandler(object):
         df_dir = app_dir + "/" + app_folder_name
 
         if not os.path.exists(df_dir + "/aws-creds"):
-            shutil.copytree(home_dir +"/.aws", df_dir +"/aws-creds")
+            shutil.copytree(home_dir + "/.aws", df_dir + "/aws-creds")
 
     def _update_ecs_app_service(self, app_info, cont_name, task_def_arn, task_desired_count=1):
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        service_available = AWSHandler.awshelper.update_service(app_info['app_name'], cluster_name, 
+        service_available = AWSHandler.awshelper.update_service(app_info['app_name'], cluster_name,
                                                                 task_def_arn, task_desired_count)
 
     def _check_if_app_is_ready(self, app_id, app_ip_url, app_url):
@@ -719,7 +727,7 @@ class AWSHandler(object):
             fmlogger.error("Exception encountered while deleting ecr repository.")
 
         try:
-            #tagged_image_list = common_functions.read_image_tag(app_info)
+            # tagged_image_list = common_functions.read_image_tag(app_info)
             tagged_image_list = app_details_obj['image_name']
             if tagged_image_list:
                 for tagged_image in tagged_image_list:
@@ -727,7 +735,7 @@ class AWSHandler(object):
         except Exception as e:
             fmlogger.error("Exception encountered while deleting images")
 
-        #image_name = app_details_obj['image_name']
-        #self.docker_handler.remove_container_image(image_name + ":latest")
+        # image_name = app_details_obj['image_name']
+        # self.docker_handler.remove_container_image(image_name + ":latest")
 
         app_db.App().delete(app_id)

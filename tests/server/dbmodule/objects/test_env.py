@@ -7,7 +7,7 @@ class TestEnvironment(TestCase):
 
     @classmethod
     def setUpClass(self):
-        environment.db_base.DBFILE_NAME="test-cld-env.sqlite"
+        environment.db_base.DBFILE_NAME = "test-cld-env.sqlite"
 
     @classmethod
     def tearDownClass(self):

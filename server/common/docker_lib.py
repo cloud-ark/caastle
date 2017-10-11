@@ -1,4 +1,4 @@
-from common import fm_logger
+import fm_logger
 import subprocess
 
 fmlogging = fm_logger.Logging()
@@ -37,13 +37,13 @@ class DockerLib(object):
               "RUN token=`/google-cloud-sdk/bin/gcloud beta auth application-default print-access-token` \n"
               "{cmd_2}"
               "WORKDIR /src \n"
-        )
+              )
         df = df.format(cmd_1=cmd_1, cmd_2=cmd_2)
 
         return df
 
     def get_dockerfile_snippet(self, key):
-        """Return Dockerfile snippet"""
+        """Return Dockerfile snippet."""
         return self.docker_file_snippets[key]
     
     def _execute_cmd(self, cmd):
@@ -58,7 +58,7 @@ class DockerLib(object):
         return err, output
 
     def docker_login(self, username, password, proxy_endpoint):
-        """Set up docker client to connect to a remote repository"""
+        """Set up docker client to connect to a remote repository."""
         login_cmd = ("docker login -u {username} -p {password} "
                      "{proxy_endpoint}").format(username=username,
                                                 password=password,
@@ -68,7 +68,7 @@ class DockerLib(object):
         return err, output
 
     def build_container_image(self, cont_name, docker_file_name, df_context='', tag=''):
-        """Build container image"""
+        """Build container image."""
         if tag:
             build_cmd = ("docker build -t {cont_name}:{tag} -f "
                          "{docker_file_name} "
@@ -85,7 +85,7 @@ class DockerLib(object):
         return err, output
 
     def remove_container_image(self, cont_name, reason_phrase=''):
-        """Remove container image"""
+        """Remove container image."""
         fmlogging.debug("Removing container image %s. Reason: %s" % (cont_name, reason_phrase))
         rm_cmd = ("docker rmi -f {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("rm command:%s" % rm_cmd)
@@ -93,14 +93,14 @@ class DockerLib(object):
         return err, output
 
     def push_container(self, cont_name):
-        """Push container to a registry"""
+        """Push container to a registry."""
         push_cmd = ("docker push {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("Docker push cmd:%s" % push_cmd)
         err, output = self._execute_cmd(push_cmd)
         return err, output
 
     def run_container(self, cont_name):
-        """Run container asynchronously"""
+        """Run container asynchronously."""
         run_cmd = ("docker run -i -d --publish-all=true {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("Docker run cmd:%s" % run_cmd)
         err, output = self._execute_cmd(run_cmd)
@@ -114,7 +114,7 @@ class DockerLib(object):
         return err, output
 
     def stop_container(self, cont_id, reason_phrase=''):
-        """Stop container"""
+        """Stop container."""
         fmlogging.debug("Stopping container %s. Reason: %s" % (cont_id, reason_phrase))
         stop_cmd = ("docker stop {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("stop command:%s" % stop_cmd)
@@ -122,7 +122,7 @@ class DockerLib(object):
         return err, output
 
     def remove_container(self, cont_id, reason_phrase=''):
-        """Remove container"""
+        """Remove container."""
         fmlogging.debug("Removing container %s. Reason: %s" % (cont_id, reason_phrase))
         rm_cmd = ("docker rm -f {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("rm command:%s" % rm_cmd)

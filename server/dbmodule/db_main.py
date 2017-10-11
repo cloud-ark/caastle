@@ -26,5 +26,5 @@ except Exception as e:
 
 
 def delete_db_file(file_name):
-    if os.path.exists(APP_STORE_PATH + "/" + file_name):
-        os.remove(APP_STORE_PATH + "/" + file_name)
+    if os.path.exists(db_base.APP_STORE_PATH + "/" + file_name):
+        os.remove(db_base.APP_STORE_PATH + "/" + file_name)

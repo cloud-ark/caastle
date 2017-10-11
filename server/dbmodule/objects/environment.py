@@ -11,6 +11,7 @@ fmlogger = fm_logger.Logging()
 
 class Environment(db_base.Base):
     __tablename__ = 'environment'
+    __table_args__ = {'extend_existing': True}
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.Text, nullable=False)

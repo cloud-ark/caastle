@@ -30,7 +30,7 @@ class EnvironmentCreate(Command):
         fp = open("/etc/firstmile/firstmile-client.conf", "r")
         lines = fp.readlines()
         for line in lines:
-            if line.find("clients=") >=0:
+            if line.find("clients=") >= 0:
                 pluginList = line.split("=")
                 plugin_list = pluginList[1].split(",")
 
@@ -70,7 +70,7 @@ class EnvironmentCreate(Command):
         environment_def = ''
         try:
             environment_def = yaml.load(fp.read())
-            #TODO: Verify that each resource definition contains the 'type' attribute
+            # TODO(devdatta): Verify that each resource definition contains the 'type' attribute
         except Exception as exp:
             print("Error parsing %s" % file_name)
             print(exp)
@@ -81,5 +81,3 @@ class EnvironmentCreate(Command):
         l = self.dep_track_url.rfind("/")
         env_id = self.dep_track_url[l+1:]
         print("env id:%s" % env_id)
-
-

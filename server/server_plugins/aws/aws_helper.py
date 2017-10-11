@@ -1,7 +1,7 @@
 import boto3
 
-from common import docker_lib
-from common import fm_logger
+from server.common import docker_lib
+from server.common import fm_logger
 
 fmlogger = fm_logger.Logging()
 
@@ -30,7 +30,7 @@ class AWSHelper(object):
         except Exception as e:
             fmlogger.error("Encountered exception in creating application load balancer:%s" % e)
 
-        fmlogger.debug("Application load balancer creation done. LB DNS:%s" % lb_dns)        
+        fmlogger.debug("Application load balancer creation done. LB DNS:%s" % lb_dns)
         return lb_arn, lb_dns
 
     def _create_target_group(self, app_name, app_port, vpc_id):
@@ -67,6 +67,7 @@ class AWSHelper(object):
     def get_vpc_details(self, search_key='default'):
         vpc_id = ''
         response = self.ec2_client.describe_vpcs()
+
         def _search_tags(tags_list, search_key):
             for tag in tags_list:
                 for key, value in tag.iteritems():
@@ -79,7 +80,7 @@ class AWSHelper(object):
         target_vpc = ''
         for vpc in vpc_list:
             default_status = vpc['IsDefault']
-            tags = []  
+            tags = []
             if 'Tags' in vpc:
                 tags = vpc['Tags']
             if search_key == 'default' and default_status:
@@ -181,7 +182,7 @@ class AWSHelper(object):
         if task_desired_count == 0:
             tasks = self.ecs_client.list_tasks(cluster=cluster_name)
             if 'taskArns' in tasks and len(tasks['taskArns']) > 0:
-                task_arn = tasks['taskArns'][0] # assuming one task current
+                task_arn = tasks['taskArns'][0]  # assuming one task current
                 try:
                     resp = self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
                 except Exception as e:
@@ -201,7 +202,7 @@ class AWSHelper(object):
 
         return service_available
 
-    def create_service(self, app_name, app_port, vpc_id, subnet_list, sec_group_id, 
+    def create_service(self, app_name, app_port, vpc_id, subnet_list, sec_group_id,
                        cluster_name, task_def_arn, container_name):
 
         app_url = ''
@@ -210,7 +211,7 @@ class AWSHelper(object):
         lb_arn, lb_dns = self._create_application_lb(app_name, subnet_list, sec_group_list)
         target_group_arn, target_group_name = self._create_target_group(app_name, app_port, vpc_id)
         listener_arn = self._create_lb_listener(lb_arn, target_group_arn)
-        desired_count = 1 # Number of tasks default to 1
+        desired_count = 1  # Number of tasks default to 1
 
         role_obj = self.iam_client.get_role(RoleName='EcsServiceRole')
         role_arn = role_obj['Role']['Arn']
@@ -220,7 +221,7 @@ class AWSHelper(object):
                                                       serviceName=app_name,
                                                       taskDefinition=task_def_arn,
                                                       loadBalancers=[{'targetGroupArn': target_group_arn,
-                                                                      #'loadBalancerName': app_name,
+                                                                      # 'loadBalancerName': app_name,
                                                                       'containerName': container_name,
                                                                       'containerPort': int(app_port)}],
                                                       desiredCount=desired_count,
