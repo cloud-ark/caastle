@@ -15,4 +15,4 @@ class AppDelete(Command):
     def take_action(self, parsed_args):
         app_id = parsed_args.app_id
 
-        response = server.TakeAction().delete_app(app_id)
+        server.TakeAction().delete_app(app_id)

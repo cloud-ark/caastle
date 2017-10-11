@@ -37,7 +37,6 @@ class TakeAction(object):
 
     def deploy_app(self, app_path, app_info):
         source_dir = app_path
-        k = source_dir.rfind("/")
         app_name = app_info['app_name']
         tarfile_name = app_name + ".tar"
 
@@ -95,7 +94,6 @@ class TakeAction(object):
     def redeploy_app(self, app_path, app_info, app_id):
         app_id_url = apps_endpoint + "/" + app_id
         source_dir = app_path
-        k = source_dir.rfind("/")
         app_name = "app-redeploy-id-" + app_id
         tarfile_name = app_name + ".tar"
 
@@ -134,6 +132,7 @@ class TakeAction(object):
             data = response.fp.read()
         except urllib2.HTTPError as e:
             print("Error occurred in querying endpoint %s" % apps_endpoint)
+            print(e)
         return data
 
     # Functions for environment
@@ -185,6 +184,7 @@ class TakeAction(object):
             data = response.fp.read()
         except urllib2.HTTPError as e:
             print("Error occurred in querying endpoint %s" % environments_endpoint)
+            print(e)
         return data
 
     # Functions for Individual resource
@@ -196,6 +196,7 @@ class TakeAction(object):
             data = response.fp.read()
         except urllib2.HTTPError as e:
             print("Error occurred in querying endpoint %s" % resources_endpoint)
+            print(e)
         return data
 
     def get_resources_for_environment(self, env_id):
@@ -206,6 +207,7 @@ class TakeAction(object):
             data = response.fp.read()
         except urllib2.HTTPError as e:
             print("Error occurred in querying endpoint %s" % resources_endpoint)
+            print(e)
         return data
 
     def create_resource(self, resource_obj):
