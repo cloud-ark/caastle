@@ -48,6 +48,9 @@ setup(
             'rds = server.server_plugins.aws.resource.rds_handler:RDSResourceHandler',
             'dynamodb = server.server_plugins.aws.resource.dynamodb_handler:DynamoDBResourceHandler',
         ],
+        'server.server_plugins.aws.coe': [
+            'ecs = server.server_plugins.aws.coe.ecs:ECSHandler',
+        ],
     },
 
     zip_safe=False,
