@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-CloudARK is a command-line non-hosted alternative to PaaS. Using CloudARK
+CloudARK is a non-hosted alternative to PaaS. Using CloudARK
 
 - Build web applications using Docker that depend on cloud-native managed services like Amazon RDS, Google Cloud SQL.
 
@@ -19,7 +19,7 @@ Non-hosted nature of CloudARK has following benefits:
 
 - No indirection to a remote service like self-hosted / public PaaS for cloud deployments
 
-- Integration in your custom DevOps workflows locally or within your CI setup
+- Integration in your custom DevOps workflows (locally or within your CI setup)
 
 
 CloudARK is based on the concept of *Environment-as-Code*.
@@ -35,7 +35,7 @@ An environment of containerized cloud application consists of following componen
    :scale: 100%
    :align: center
 
-CloudARK offers ability to easily define and create such environments
+CloudARK offers ability to easily define and create such environments,
 seamlessly binding the environment components together at runtime.
 
 *Currently Supported: AWS ECS, AWS RDS, AWS DynamoDB and Local deployment through Docker*
