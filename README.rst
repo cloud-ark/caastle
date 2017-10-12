@@ -8,7 +8,9 @@ CloudARK is a non-hosted alternative to PaaS. Using CloudARK
 
 - Deploy to popular container systems like Amazon ECS and Google GKE (coming).
 
-- Get ultimate dev/prod parity between local Docker environment and production cloud environment.
+- Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
+
+.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 - Gain pre-deployment insights into your application and its cloud environment.
 
@@ -50,8 +52,6 @@ Read this_ for more details about CloudARK
 Try CloudARK
 -------------
 
-CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (El Capitan 10.11.4)
-
 1) Clone this repository
 
 2) Install CloudARK:
@@ -65,7 +65,8 @@ CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (El Capitan 
          (b) virtualenv cloudark-env
          (c) source cloudark-env/bin/activate
          (d) pip install -r requirements.txt
-         (e) python server/fmserver.py
+         (e) python server/setup.py install
+         (f) python server/fmserver.py
   
        - Open another terminal and install cloudark client:
          (a) cd <cloudark directory>
@@ -77,7 +78,18 @@ CloudARK has been developed and tested on Ubuntu (14.04) and Mac OS (El Capitan 
 
 4) Choose a sample application and follow the steps in the included README
 
-Note: CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps_.
+
+Supported Platforms/Languages:
+
+1) Ubuntu 14.04, 16.04
+
+2) Mac OS (El Capitan 10.11.4)
+
+3) Docker 1.6 and above
+
+4) Python 2.7
+
+CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps_.
 
 .. _steps: https://docs.docker.com/engine/installation/
 
