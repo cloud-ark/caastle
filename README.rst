@@ -4,11 +4,14 @@ CloudARK
 
 CloudARK is a command-line non-hosted alternative to PaaS. Using CloudARK
 
-- Deploy web applications directly from Docker to popular container systems like Amazon ECS.
+- Build web applications that use cloud-native managed services like Amazon RDS, Google Cloud SQL.
 
-- Simple and predictable way to deploy microservices on cloud.
+- Deploy to popular container systems like Amazon ECS and Google GKE (coming).
 
 - Get ultimate dev/prod parity between local Docker environment and production cloud environment.
+
+- Gain pre-deployment insights into your application and its cloud environment.
+
 
 Non-hosted nature of CloudARK has following benefits:
 
