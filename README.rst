@@ -95,8 +95,8 @@ CloudARK requires Docker to be installed. If you don't have Docker, you can inst
 
 
 
-Deployment to Amazon ECS
--------------------------
+Deploying web applications on Amazon ECS
+-----------------------------------------
 
 CloudARK assumes that you have done AWS setup and uses that during deployment. For example, CloudARK uses ~/.aws directory
 to read aws credentials.  If you don't have this directory then follow these_ steps to do AWS setup.
@@ -104,7 +104,7 @@ to read aws credentials.  If you don't have this directory then follow these_ st
 .. _these: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
-containerized applications on AWS.
+containerized applications on Amazon ECS.
 
 - AmazonEC2FullAccess
 - AmazonEC2ContainerRegistryFullAccess
