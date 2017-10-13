@@ -108,7 +108,7 @@ class ECSHandler(coe_base.COEBase):
             )
             task_def_arn = resp['taskDefinition']['taskDefinitionArn']
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to register task definition:%s" % e)
+            fmlogger.error("Exception encountered in trying to register task definition:%s" % e)
         fmlogger.debug("Done registering task definition.")
         return task_def_arn, cont_name
     
@@ -116,7 +116,7 @@ class ECSHandler(coe_base.COEBase):
         try:
             self.ecs_client.deregister_task_definition(taskDefinition=task_def_arn)
         except Exception as e:
-            fmlogger.debug("Exception encountered in deregistering task definition:%s" % e)
+            fmlogger.error("Exception encountered in deregistering task definition:%s" % e)
 
     def _get_app_url(self, app_info, cluster_name):
         app_url = ''
@@ -143,22 +143,24 @@ class ECSHandler(coe_base.COEBase):
                                                                 df_context=df_dir)
         app_ip = ''
         if not err:
-            run_err, run_output = self.docker_handler.run_container_sync(cont_name)
-        
-            task_name = app_info['app_name']
-            lines = run_output.split("\n")
-            for line in lines:
-                str1 = ' '.join(line.split())
-                parts = str1.split(" ")
-                if parts[3].strip().find(task_name) >= 0:
-                    if parts[1].strip() == 'RUNNING':
-                        app_url_str = parts[2].strip()
-                        app_ip = app_url_str.split("->")[0].strip()
-                        app_url = "http://" + app_ip
-                        break
-            self.docker_handler.stop_container(cont_name)
-            self.docker_handler.remove_container(cont_name)
-            self.docker_handler.remove_container_image(cont_name)
+            run_err, run_output = self.docker_handler.run_container(cont_name)
+            if not run_err:
+                get_ip_cont_id = run_output.strip()
+                logs_err, logs_output = self.docker_handler.get_logs(get_ip_cont_id)
+                if not logs_err:
+                    task_name = app_info['app_name']
+                    lines = logs_output.split("\n")
+                    for line in lines:
+                        str1 = ' '.join(line.split())
+                        parts = str1.split(" ")
+                        if parts[3].strip().find(task_name) >= 0:
+                            if parts[1].strip() == 'RUNNING':
+                                app_url_str = parts[2].strip()
+                                app_ip = app_url_str.split("->")[0].strip()
+                                app_url = "http://" + app_ip
+                                break
+                self.docker_handler.remove_container(get_ip_cont_id)
+        self.docker_handler.remove_container_image(cont_name)
         fmlogger.debug("App URL:%s" % app_url)
         return app_url
     
@@ -174,7 +176,7 @@ class ECSHandler(coe_base.COEBase):
                 if cont_status.lower() == status:
                     status_reached = True
             except Exception as e:
-                fmlogger.debug("Exception encountered in trying to run describe_tasks:%s" % e)
+                fmlogger.error("Exception encountered in trying to run describe_tasks:%s" % e)
                 issue_encountered = True
         return task_desc
 
@@ -193,7 +195,7 @@ class ECSHandler(coe_base.COEBase):
             try:
                 self.ecs_client.stop_task(cluster=cluster_name, task=task_arn)
             except Exception as e:
-                fmlogger.debug("Exception encountered in trying to stop_task:%s" % e)
+                fmlogger.error("Exception encountered in trying to stop_task:%s" % e)
 
             self._check_task(cluster_name, task_arn, 'stopped')
 
@@ -208,7 +210,7 @@ class ECSHandler(coe_base.COEBase):
             resp = self.ecs_client.run_task(cluster=cluster_name, taskDefinition=family_name)
             task_arn = resp['tasks'][0]['taskArn']
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to run_task:%s" % e)
+            fmlogger.error("Exception encountered in trying to run_task:%s" % e)
 
         task_desc = self._check_task(cluster_name, task_arn, 'running')
 
@@ -226,7 +228,7 @@ class ECSHandler(coe_base.COEBase):
         try:
             self.ecr_client.delete_repository(repositoryName=repo_name, force=True)
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to delete repository:%s" % e)
+            fmlogger.error("Exception encountered in trying to delete repository:%s" % e)
 
     def _create_repository(self, app_info):
         proxy_endpoint = ''
@@ -236,7 +238,7 @@ class ECSHandler(coe_base.COEBase):
         try:
             self.ecr_client.describe_repositories(repositoryNames=[repo_name])
         except Exception as e:
-            fmlogger.debug("Exception encountered in trying to describe repositories:%s" % e)
+            fmlogger.error("Exception encountered in trying to describe repositories:%s" % e)
             create_repo_response = self.ecr_client.create_repository(repositoryName=repo_name)
             repository_dict = create_repo_response['repository']
             registryId = repository_dict['registryId']
@@ -477,6 +479,7 @@ class ECSHandler(coe_base.COEBase):
                                                                                 key_file=keypair_name)
         os.system(cp_cmd)
 
+        self.docker_handler.stop_container(cluster_name)
         self.docker_handler.remove_container(cont_id)
         self.docker_handler.remove_container_image(cluster_name)
 
@@ -672,7 +675,7 @@ class ECSHandler(coe_base.COEBase):
             self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
                                            service=app_obj.name)
         except Exception as e:
-            fmlogger.error("Exception encountered in trying to delete ecs service.")
+            fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
 
         try:
             self.alb_client.delete_listener(ListenerArn=app_details_obj['listener_arn'])
@@ -692,7 +695,7 @@ class ECSHandler(coe_base.COEBase):
         try:
             self._delete_repository(app_obj.name)
         except Exception as e:
-            fmlogger.error("Exception encountered while deleting ecr repository.")
+            fmlogger.error("Exception encountered while deleting ecr repository %s" % e)
 
         try:
             # tagged_image_list = common_functions.read_image_tag(app_info)
@@ -701,7 +704,7 @@ class ECSHandler(coe_base.COEBase):
                 for tagged_image in tagged_image_list:
                     self.docker_handler.remove_container_image(tagged_image)
         except Exception as e:
-            fmlogger.error("Exception encountered while deleting images")
+            fmlogger.error("Exception encountered while deleting images %s" % e)
 
         # image_name = app_details_obj['image_name']
         # self.docker_handler.remove_container_image(image_name + ":latest")

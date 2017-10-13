@@ -53,8 +53,7 @@ class DockerLib(object):
             err = chanl[1]
             output = chanl[0]
         except Exception as e:
-            fmlogging.debug(e)
-            raise e
+            fmlogging.error(e)
         return err, output
 
     def docker_login(self, username, password, proxy_endpoint):
@@ -127,4 +126,11 @@ class DockerLib(object):
         rm_cmd = ("docker rm -f {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("rm command:%s" % rm_cmd)
         err, output = self._execute_cmd(rm_cmd)
+        return err, output
+
+    def get_logs(self, cont_id):
+        fmlogging.debug("Retrieving container logs %s " % cont_id)
+        logs_cmd = ("docker logs {cont_id}").format(cont_id=cont_id)
+        fmlogging.debug("logs command:%s" % logs_cmd)
+        err, output = self._execute_cmd(logs_cmd)
         return err, output

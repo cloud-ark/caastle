@@ -77,8 +77,7 @@ class RDSResourceHandler(resource_base.ResourceBase):
                                            VpcSecurityGroupIds=[sec_group_id],
                                            Tags=[{"Key": "Tag1", "Value": "Value1"}])
         except Exception as e:
-            fmlogger.error(e)
-            print(e)
+            fmlogger.error("Exception encountered in creating rds instance %s" % e)
 
         status = constants.CREATION_REQUEST_RECEIVED
         count = 1
@@ -94,17 +93,20 @@ class RDSResourceHandler(resource_base.ResourceBase):
         res_id = res_db.Resource().insert(res_data)
 
         while count < constants.TIMEOUT_COUNT and status.lower() is not 'available':
-            instance_description = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
-            status = instance_description['DBInstances'][0]['DBInstanceStatus']
-            if status.lower() == 'available':
-                break
-            res_data['status'] = status
-            res_data['filtered_description'] = str(filtered_description)
-            res_data['detailed_description'] = str(instance_description)
-            res_db.Resource().update(res_id, res_data)
+            try:
+                instance_description = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
+                status = instance_description['DBInstances'][0]['DBInstanceStatus']
+                if status.lower() == 'available':
+                    break
+                res_data['status'] = status
+                res_data['filtered_description'] = str(filtered_description)
+                res_data['detailed_description'] = str(instance_description)
+                res_db.Resource().update(res_id, res_data)
 
-            count = count + 1
-            time.sleep(2)
+                count = count + 1
+                time.sleep(2)
+            except Exception as e:
+                fmlogger.error("Exception encountered in describing rds instance %s" % e)
 
         # Saving vpc_id here for convenience as when we delete RDS instance we can directly read it
         # from the resource table than querying the env table.

@@ -7,7 +7,7 @@ fmlogger = fm_logger.Logging()
 
 
 class AWSHelper(object):
-    
+
     def __init__(self):
         self.ecr_client = boto3.client('ecr')
         self.ecs_client = boto3.client('ecs')
@@ -66,33 +66,37 @@ class AWSHelper(object):
 
     def get_vpc_details(self, search_key='default'):
         vpc_id = ''
-        response = self.ec2_client.describe_vpcs()
-
-        def _search_tags(tags_list, search_key):
-            for tag in tags_list:
-                for key, value in tag.iteritems():
-                    if key.lower().find(search_key.lower()) >= 0:
-                        return True
-                    if value.lower().find(search_key.lower()) >= 0:
-                        return True
-        
-        vpc_list = response['Vpcs']
-        target_vpc = ''
-        for vpc in vpc_list:
-            default_status = vpc['IsDefault']
-            tags = []
-            if 'Tags' in vpc:
-                tags = vpc['Tags']
-            if search_key == 'default' and default_status:
-                target_vpc = vpc
-            elif _search_tags(tags, search_key):
-                target_vpc = vpc
-        vpc_id = target_vpc['VpcId']
-        cidr_block = target_vpc['CidrBlock']
-        
         vpc_details = {}
-        vpc_details['vpc_id'] = vpc_id
-        vpc_details['cidr_block'] = cidr_block
+
+        try:
+            response = self.ec2_client.describe_vpcs()
+
+            def _search_tags(tags_list, search_key):
+                for tag in tags_list:
+                    for key, value in tag.iteritems():
+                        if key.lower().find(search_key.lower()) >= 0:
+                            return True
+                        if value.lower().find(search_key.lower()) >= 0:
+                            return True
+
+            vpc_list = response['Vpcs']
+            target_vpc = ''
+            for vpc in vpc_list:
+                default_status = vpc['IsDefault']
+                tags = []
+                if 'Tags' in vpc:
+                    tags = vpc['Tags']
+                if search_key == 'default' and default_status:
+                    target_vpc = vpc
+                elif _search_tags(tags, search_key):
+                    target_vpc = vpc
+            vpc_id = target_vpc['VpcId']
+            cidr_block = target_vpc['CidrBlock']
+
+            vpc_details['vpc_id'] = vpc_id
+            vpc_details['cidr_block'] = cidr_block
+        except Exception as e:
+            fmlogger.error("Encountered exception in getting vpc details %s" % e)
 
         return vpc_details
     
@@ -108,27 +112,38 @@ class AWSHelper(object):
         fmlogger.debug("Getting subnet ids for VPC %s" % search_key)
         subnet_ids = []
         
-        response = self.ec2_client.describe_subnets()
-        subnet_list = response['Subnets']
-        for subnet in subnet_list:
-            if subnet['VpcId'] == vpc_id:
-                subnet_ids.append(subnet['SubnetId'])
+        try:
+            response = self.ec2_client.describe_subnets()
+            subnet_list = response['Subnets']
+            for subnet in subnet_list:
+                if subnet['VpcId'] == vpc_id:
+                    subnet_ids.append(subnet['SubnetId'])
+        except Exception as e:
+            fmlogger.error("Encountered exception in getting subnet details %s" % e)
 
         return subnet_ids
     
     def create_security_group_for_vpc(self, vpc_id, group_name):
         fmlogger.debug("Creating security group %s for vpc %s" % (group_name, vpc_id))
-        response = self.ec2_client.create_security_group(Description=group_name,
-                                                         GroupName=group_name,
-                                                         VpcId=vpc_id)
-        
-        security_group_id = response['GroupId']
+        security_group_id = ''
+
+        try:
+            response = self.ec2_client.create_security_group(Description=group_name,
+                                                             GroupName=group_name,
+                                                             VpcId=vpc_id)
+            security_group_id = response['GroupId']
+        except Exception as e:
+            fmlogger.error("Encountered exception in creating security group %s" % e)
+
         return security_group_id
 
     def delete_security_group_for_vpc(self, vpc_id, group_id, group_name):
         fmlogger.debug("Deleting security group %s for vpc %s" % (group_name, vpc_id))
-        self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
-    
+        try:
+            self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
+        except Exception as e:
+            fmlogger.error("Encountered exception in deleting security group %s" % e)
+
     def setup_security_group(self, vpc_id, ip_range, sec_group_id, sec_group_name, port_list):
         for ip in ip_range:
             rules_dict = {}
