@@ -2,7 +2,7 @@ import ast
 import boto3
 import time
 
-import resource_base
+import server.server_plugins.resource_base as resource_base
 from server.common import constants
 from server.common import fm_logger
 from server.dbmodule.objects import environment as env_db

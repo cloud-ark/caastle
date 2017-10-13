@@ -6,7 +6,7 @@ from os.path import expanduser
 import shutil
 import time
 
-import coe_base
+import server.server_plugins.coe_base as coe_base
 from server.common import common_functions
 from server.common import constants
 from server.common import docker_lib
