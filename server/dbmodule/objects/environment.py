@@ -1,7 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError as IntegrityError
-from sqlite3 import dbapi2 as sqlite
 
 from server.common import fm_logger
 from server.dbmodule import db_base
@@ -21,9 +19,7 @@ class Environment(db_base.Base):
     location = sa.Column(sa.Text)
 
     def __init__(self):
-        DBFILE = db_base.APP_STORE_PATH + "/" + db_base.DBFILE_NAME
-        engine = create_engine('sqlite+pysqlite:///' + DBFILE, module=sqlite, echo=True)
-        db_base.Session.configure(bind=engine)
+        pass
 
     @classmethod
     def to_json(self, env):
@@ -39,8 +35,9 @@ class Environment(db_base.Base):
     def get(self, env_id):
         env = ''
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             env = session.query(Environment).filter_by(id=env_id).first()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return env
@@ -48,8 +45,9 @@ class Environment(db_base.Base):
     def get_all(self):
         env_list = ''
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             env_list = session.query(Environment).all()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return env_list
@@ -63,30 +61,33 @@ class Environment(db_base.Base):
         output_config['env_version_stamp'] = env_data['env_version_stamp']
         self.output_config = str(output_config)
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             session.add(self)
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return self.id
 
     def update(self, env_id, env_data):
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             env = session.query(Environment).filter_by(id=env_id).first()
             if 'location' in env_data: env.location = env_data['location']
             if 'status' in env_data: env.status = env_data['status']
             if 'output_config' in env_data: env.output_config = env_data['output_config']
             if 'env_definition' in env_data: env.env_definition = env_data['env_definition']
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
 
     def delete(self, env_id):
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             env = session.query(Environment).filter_by(id=env_id).first()
             session.delete(env)
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)

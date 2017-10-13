@@ -1,7 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError as IntegrityError
-from sqlite3 import dbapi2 as sqlite
 
 from server.common import fm_logger
 from server.dbmodule import db_base
@@ -23,9 +21,7 @@ class App(db_base.Base):
     env_id = sa.Column(sa.Integer)
 
     def __init__(self):
-        DBFILE = db_base.APP_STORE_PATH + "/" + db_base.DBFILE_NAME
-        engine = create_engine('sqlite+pysqlite:///' + DBFILE, module=sqlite, echo=True)
-        db_base.Session.configure(bind=engine)
+        pass
 
     @classmethod
     def to_json(self, app):
@@ -43,8 +39,9 @@ class App(db_base.Base):
     def get(self, app_id):
         app = ''
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             app = session.query(App).filter_by(id=app_id).first()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return app
@@ -52,8 +49,9 @@ class App(db_base.Base):
     def get_all(self):
         app_list = ''
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             app_list = session.query(App).all()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return app_list
@@ -61,8 +59,9 @@ class App(db_base.Base):
     def get_apps_for_env(self, env_id):
         apps = ''
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             apps = session.query(App).filter_by(env_id=env_id).all()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return apps
@@ -76,16 +75,17 @@ class App(db_base.Base):
         self.output_config = ''
         self.env_id = app_data['env_id']
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             session.add(self)
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
         return self.id
 
     def update(self, app_id, app_data):
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             app = session.query(App).filter_by(id=app_id).first()
             if 'location' in app_data: app.location = app_data['location']
             if 'version' in app_data: app.version = app_data['version']
@@ -94,14 +94,16 @@ class App(db_base.Base):
             if 'output_config' in app_data: app.output_config = app_data['output_config']
             if 'env_id' in app_data: app.env_id = app_data['env_id']
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
 
     def delete(self, app_id):
         try:
-            session = db_base.Session()
+            session = db_base.get_session()
             app = session.query(App).filter_by(id=app_id).first()
             session.delete(app)
             session.commit()
+            session.close()
         except IntegrityError as e:
             fmlogger.debug(e)
