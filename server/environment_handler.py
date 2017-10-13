@@ -82,9 +82,9 @@ class EnvironmentHandler(threading.Thread):
             fmlogging.debug("One or more resources in environment failed to provision.")
 
     def _delete_environment(self):
-        resource_list = res_db.Resource().get_resources_for_env(self.env_id)
-
         env_db.Environment().update(self.env_id, {'status': 'deleting'})
+
+        resource_list = res_db.Resource().get_resources_for_env(self.env_id)
         for resource in resource_list:
             type = resource.type
             if type == 'ecs-cluster':
@@ -95,8 +95,9 @@ class EnvironmentHandler(threading.Thread):
         env_db.Environment().delete(self.env_id)
 
     def run(self):
-        fmlogging.debug("Creating environment with id %s " % self.env_id)
         if self.action == 'create':
+            fmlogging.debug("Creating environment with id %s " % self.env_id)
             self._create_environment()
         if self.action == 'delete':
+            fmlogging.debug("Deleting environment with id %s " % self.env_id)
             self._delete_environment()
