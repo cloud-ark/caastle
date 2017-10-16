@@ -88,7 +88,7 @@ class ECSHandler(coe_base.COEBase):
     def _register_task_definition(self, app_info, image, container_port, cont_name=''):
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
-        memory = 500  # Default memory size of 500MB. This is hard limit
+        memory = 250  # Default memory size of 250MB. This is hard limit
         if 'memory' in app_info:
             memory = int(app_info['memory'])
         family_name = app_info['app_name']

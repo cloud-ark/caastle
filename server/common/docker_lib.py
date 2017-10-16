@@ -1,5 +1,6 @@
 import fm_logger
 import subprocess
+import time
 
 fmlogging = fm_logger.Logging()
 
@@ -132,5 +133,17 @@ class DockerLib(object):
         fmlogging.debug("Retrieving container logs %s " % cont_id)
         logs_cmd = ("docker logs {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("logs command:%s" % logs_cmd)
-        err, output = self._execute_cmd(logs_cmd)
+
+        output = ''
+        err = ''
+        count = 3
+
+        i = 0
+        while not output and i < count:
+            err, output = self._execute_cmd(logs_cmd)
+            if output:
+                break
+            else:
+                time.sleep(2)
+                i = i + 1
         return err, output
