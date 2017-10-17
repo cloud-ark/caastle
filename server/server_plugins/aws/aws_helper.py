@@ -1,4 +1,5 @@
 import boto3
+import time
 
 from server.common import docker_lib
 from server.common import fm_logger
@@ -263,3 +264,51 @@ class AWSHelper(object):
                 issue_encountered = True
 
         return app_url, lb_arn, target_group_arn, listener_arn
+
+    def delete_listener(self, app_details_obj):
+        successfully_deleted = False
+        count = 3
+        i = 0
+        while not successfully_deleted and i < count:
+            try:
+                self.alb_client.delete_listener(ListenerArn=app_details_obj['listener_arn'])
+            except Exception as e:
+                fmlogger.error("Exception encountered in deleting listener %s" % e)
+                i = i + 1
+                time.sleep(2)
+            else:
+                successfully_deleted = True
+        if not successfully_deleted:
+            fmlogger.debug("Could not delete ELB listener.")
+
+    def delete_target_group(self, app_details_obj):
+        successfully_deleted = False
+        count = 3
+        i = 0
+        while not successfully_deleted and i < count:
+            try:
+                self.alb_client.delete_target_group(TargetGroupArn=app_details_obj['target_group_arn'])
+            except Exception as e:
+                fmlogger.error("Exception encountered in deleting target group %s" % e)
+                i = i + 1
+                time.sleep(2)
+            else:
+                successfully_deleted = True
+        if not successfully_deleted:
+            fmlogger.debug("Could not delete ELB target group.")
+
+    def delete_load_balancer(self, app_details_obj):
+        successfully_deleted = False
+        count = 3
+        i = 0
+        while not successfully_deleted and i < count:
+            try:
+                self.alb_client.delete_load_balancer(LoadBalancerArn=app_details_obj['lb_arn'])
+            except Exception as e:
+                fmlogger.error("Exception encountered in deleting load balancer %s" % e)
+                i = i + 1
+                time.sleep(2)
+            else:
+                successfully_deleted = True
+        if not successfully_deleted:
+            fmlogger.debug("Could not delete ELB loadbalancer.")

@@ -677,20 +677,11 @@ class ECSHandler(coe_base.COEBase):
         except Exception as e:
             fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
 
-        try:
-            self.alb_client.delete_listener(ListenerArn=app_details_obj['listener_arn'])
-        except Exception as e:
-            fmlogger.error("Exception encountered in deleting listener %s" % e)
+        ECSHandler.awshelper.delete_listener(app_details_obj)
 
-        try:
-            self.alb_client.delete_target_group(TargetGroupArn=app_details_obj['target_group_arn'])
-        except Exception as e:
-            fmlogger.error("Exception encountered in deleting target group %s" % e)
+        ECSHandler.awshelper.delete_target_group(app_details_obj)
 
-        try:
-            self.alb_client.delete_load_balancer(LoadBalancerArn=app_details_obj['lb_arn'])
-        except Exception as e:
-            fmlogger.error("Exception encountered in deleting load balancer %s" % e)
+        ECSHandler.awshelper.delete_load_balancer(app_details_obj)
 
         try:
             self._delete_repository(app_obj.name)
@@ -698,15 +689,11 @@ class ECSHandler(coe_base.COEBase):
             fmlogger.error("Exception encountered while deleting ecr repository %s" % e)
 
         try:
-            # tagged_image_list = common_functions.read_image_tag(app_info)
             tagged_image_list = app_details_obj['image_name']
             if tagged_image_list:
                 for tagged_image in tagged_image_list:
                     self.docker_handler.remove_container_image(tagged_image)
         except Exception as e:
             fmlogger.error("Exception encountered while deleting images %s" % e)
-
-        # image_name = app_details_obj['image_name']
-        # self.docker_handler.remove_container_image(image_name + ":latest")
 
         app_db.App().delete(app_id)
