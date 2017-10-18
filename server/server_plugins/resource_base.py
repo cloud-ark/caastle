@@ -7,8 +7,11 @@ import six
 class ResourceBase(object):
     """Base class for CloudARK resources."""
 
-    def __init__(self, env_definition):
-        self.env_definition = env_definition
+#    def __init__(self, env_definition):
+#        self.env_definition = env_definition
+        
+    def __init__(self):
+        pass
 
     @abc.abstractmethod
     def create(self, env_id, resource_details):

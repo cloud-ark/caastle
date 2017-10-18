@@ -51,6 +51,9 @@ setup(
         'server.server_plugins.aws.coe': [
             'ecs = server.server_plugins.aws.coe.ecs:ECSHandler',
         ],
+        'server.server_plugins.gcloud.resource': [
+            'cloudsql = server.server_plugins.gcloud.resource.cloudsql:CloudSQLResourceHandler',
+        ],
     },
 
     zip_safe=False,
