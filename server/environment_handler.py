@@ -1,6 +1,7 @@
 import threading
 
 import aws_handler
+import gcloud_handler
 from common import fm_logger
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
@@ -12,6 +13,7 @@ class EnvironmentHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
     registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
+    registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
 
     def __init__(self, env_id, environment_def, environment_info, action=''):
         self.env_id = env_id
@@ -65,9 +67,11 @@ class EnvironmentHandler(threading.Thread):
                 resources_list = resources['aws']
                 stat_list = EnvironmentHandler.registered_cloud_handlers['aws'].create_resources(self.env_id, resources_list)
                 status_list.extend(stat_list)
-            if 'google' in resources:
+            if 'gcloud' in resources:
                 fmlogging.debug("Creating Google resources")
-                resources_list = resources['google']
+                resources_list = resources['gcloud']
+                stat_list = EnvironmentHandler.registered_cloud_handlers['gcloud'].create_resources(self.env_id, resources_list)
+                status_list.extend(stat_list)
 
         all_available = True
         for stat in status_list:
@@ -89,8 +93,10 @@ class EnvironmentHandler(threading.Thread):
             type = resource.type
             if type == 'ecs-cluster':
                 EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
-            else:
+            if type in ['rds']:
                 EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id, resource)
+            if type in ['cloudsql']:
+                EnvironmentHandler.registered_cloud_handlers['gcloud'].delete_resource(self.env_id, resource)
 
         env_db.Environment().delete(self.env_id)
 

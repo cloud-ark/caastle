@@ -10,3 +10,5 @@ pyparsing
 SQLAlchemy
 six
 flake8
+google-api-python-client
+entry_point_inspector
