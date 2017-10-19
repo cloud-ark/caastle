@@ -5,6 +5,7 @@ from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
 import server.server_plugins.resource_base as resource_base
+from server.common import constants
 from server.common import fm_logger
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
@@ -22,6 +23,42 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
     def __init(self):
         pass
 
+    def _create_database(self, resource_details, project_name,
+                         instance_id, etag):
+        dbname = 'testdb'
+
+        if 'configuration' in resource_details:
+            if 'dbname' in resource_details['configuration']:
+                dbname = resource_details['configuration']['dbname']
+
+        db_body = {
+            'name': dbname,
+            'project': project_name,
+            'instance': instance_id,
+            'etag': etag
+        }
+
+        insert_db_req = CloudSQLResourceHandler.service.databases().insert(
+            project=project_name,
+            instance=instance_id,
+            body=db_body
+        )
+
+        create_accepted = False
+
+        while not create_accepted:
+            try:
+                insert_db_req.execute()
+                create_accepted = True
+            except Exception as e:
+                fmlogger.error("Encountered exception when creating database %s" % e)
+                time.sleep(2)
+
+        # Allow Google to create the database
+        time.sleep(5)
+
+        return dbname
+
     def create(self, env_id, resource_details):
         fmlogger.debug("CloudSQL create")
 
@@ -34,9 +71,17 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
         instance_id = env_obj.name + "-" + env_version_stamp
 
+        authorizedNetworks = ''
+
+        if 'policy' in resource_details:
+            if resource_details['policy']['access'] == 'open':
+                authorizedNetworks = '0.0.0.0/0'
+
         database_instance_body = {
             'name': instance_id,
-            'settings': {'tier': 'db-n1-standard-1'},
+            'settings': {'tier': 'db-n1-standard-1',
+                         'ipConfiguration': {
+                             'authorizedNetworks': [{'value': authorizedNetworks}]}},
         }
 
         create_request = CloudSQLResourceHandler.service.instances().insert(
@@ -54,11 +99,10 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
             res_data['status'] = 'creating'
 
             detailed_description = {}
-            detailed_description['create_response'] = create_response
+            detailed_description['action_response'] = create_response
             detailed_description['name'] = instance_id
             detailed_description['project'] = project_name
             res_data['detailed_description'] = str(detailed_description)
-            import pdb; pdb.set_trace()
             res_id = res_db.Resource().insert(res_data)
         except Exception as e:
             fmlogger.error("Exception encountered in creating CloudSQL instance %s" % e)
@@ -66,6 +110,10 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         available = False
         timeout = 100
         i = 0
+        etag = ''
+
+        filtered_description = {}
+        get_response = ''
         while not available and i < timeout:
             get_request = CloudSQLResourceHandler.service.instances().get(
                 project=project_name,
@@ -73,8 +121,12 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
             )
             get_response = get_request.execute()
             status = get_response['state']
+            etag = get_response['etag']
 
             res_data['status'] = status
+            detailed_description['etag'] = etag
+            res_data['detailed_description'] = str(detailed_description)
+
             res_db.Resource().update(res_id, res_data)
             if status == 'RUNNABLE':
                 break
@@ -82,12 +134,49 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
                 i = i + 1
                 time.sleep(2)
 
+        detailed_description['action_response'] = get_response
+        filtered_description['Address'] = get_response['ipAddresses'][0]['ipAddress']
+
+        username = constants.DEFAULT_DB_USER
+        if 'username' in resource_details:
+            username = resource_details['username']
+        password = constants.DEFAULT_DB_PASSWORD
+        if 'password' in resource_details:
+            password = resource_details['password']
+
+        user_body = {
+            'name': username,
+            'project': project_name,
+            'instance': instance_id,
+            'password': password,
+            'etag': etag
+        }
+        insert_user_req = CloudSQLResourceHandler.service.users().insert(
+            project=project_name,
+            instance=instance_id,
+            body=user_body
+        )
+
+        insert_user_req.execute()
+
+        # Give some time for Google to create the username/password
+        time.sleep(5)
+
+        dbname = self._create_database(resource_details, project_name, instance_id, etag)
+
+        filtered_description['Username'] = username
+        filtered_description['Password'] = password
+        filtered_description['DBName'] = dbname
+        res_data['filtered_description'] = str(filtered_description)
+        res_data['detailed_description'] = str(detailed_description)
+        res_db.Resource().update(res_id, res_data)
+
         fmlogger.debug("Exiting CloudSQL create call.")
 
     def delete(self, request_obj):
         fmlogger.debug("CloudSQL delete.")
 
-        res_data = {}       
+        res_data = {}
         res_data['status'] = 'deleting'
         res_db.Resource().update(request_obj.id, res_data)
 
@@ -97,22 +186,22 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         project_name = detailed_description['project']
 
         delete_request = CloudSQLResourceHandler.service.instances().delete(
-                project=project_name,
-                instance=name
+            project=project_name,
+            instance=name
         )
 
         delete_request.execute()
 
         gone = False
         while not gone:
-          try:
-            get_request = CloudSQLResourceHandler.service.instances().get(
-                project=project_name,
-                instance=name
-            )
-            get_response = get_request.execute()              
-          except Exception as e:
-              fmlogger.error("Encountered exception in cloudsql delete.")
-              gone = True
+            try:
+                get_request = CloudSQLResourceHandler.service.instances().get(
+                    project=project_name,
+                    instance=name
+                )
+                get_request.execute()
+            except Exception as e:
+                fmlogger.error("Encountered exception in cloudsql delete %s" % e)
+                gone = True
 
         res_db.Resource().delete(request_obj.id)
