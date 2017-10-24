@@ -11,6 +11,7 @@ try:
 except IOError:
     long_description = ''
 
+
 setup(
     name=PROJECT,
     version=VERSION,
@@ -54,6 +55,10 @@ setup(
         'server.server_plugins.gcloud.resource': [
             'cloudsql = server.server_plugins.gcloud.resource.cloudsql:CloudSQLResourceHandler',
         ],
+        'server.server_plugins.gcloud.coe': [
+            'gke = server.server_plugins.gcloud.coe.gke:GKEHandler',
+        ],
+
     },
 
     zip_safe=False,

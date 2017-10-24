@@ -54,8 +54,16 @@ class EnvironmentHandler(threading.Thread):
             app_deployment = env_details['app_deployment']
             if app_deployment['target'] == 'aws':
                 env_db.Environment().update(self.env_id, {'status': 'creating_ecs_cluster'})
-                status = EnvironmentHandler.registered_cloud_handlers['aws'].create_cluster(self.env_id, self.environment_info)
+                status = EnvironmentHandler.registered_cloud_handlers['aws'].create_cluster(self.env_id,
+                                                                                            self.environment_info)
                 status_list.append(status)
+            if app_deployment['target'] == 'gcloud':
+                env_db.Environment().update(self.env_id, {'status': 'creating_gke_cluster'})
+                status = EnvironmentHandler.registered_cloud_handlers['gcloud'].create_cluster(self.env_id,
+                                                                                               self.environment_info)
+                status_list.append(status)
+
+            
 
         # Then create other resources (as we want to set security-groups of other resources to
         # match does of the ECS cluster.
