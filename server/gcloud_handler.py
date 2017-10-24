@@ -1,3 +1,4 @@
+import ast
 from os.path import expanduser
 
 from stevedore import extension
@@ -18,6 +19,19 @@ class GCloudHandler(object):
         namespace='server.server_plugins.gcloud.resource',
         invoke_on_load=True,
     )
+
+    coe_mgr = extension.ExtensionManager(
+        namespace='server.server_plugins.gcloud.coe',
+        invoke_on_load=True,
+    )
+
+    def _get_coe_type(self, env_id):
+        coe_type = ''
+        env_obj = env_db.Environment().get(env_id)
+        env_definition = ast.literal_eval(env_obj.env_definition)
+        env_details = env_definition['environment']
+        coe_type = env_details['app_deployment']['type']
+        return coe_type
 
     def create_resources(self, env_id, resource_list):
         fmlogger.debug("GCloudHandler create_resources")
@@ -43,3 +57,10 @@ class GCloudHandler(object):
         for name, ext in GCloudHandler.res_mgr.items():
             if name == type:
                 ext.obj.delete(resource)
+
+    def create_cluster(self, env_id, env_info):
+        coe_type = self._get_coe_type(env_id)
+        for name, ext in GCloudHandler.coe_mgr.items():
+            if name == coe_type:
+                status = ext.obj.create_cluster(env_id, env_info)
+                return status

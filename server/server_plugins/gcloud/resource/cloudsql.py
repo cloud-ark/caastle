@@ -18,7 +18,8 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
     credentials = GoogleCredentials.get_application_default()
     service = discovery.build('sqladmin', 'v1beta4',
-                              credentials=credentials)
+                              credentials=credentials,
+                              cache_discovery=False)
 
     def __init(self):
         pass
@@ -62,6 +63,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
     def create(self, env_id, resource_details):
         fmlogger.debug("CloudSQL create")
 
+        cloudsql_status = 'unavailable'
         env_obj = env_db.Environment().get(env_id)
         res_type = resource_details['type']
         project_name = resource_details['project']
@@ -76,6 +78,9 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         if 'policy' in resource_details:
             if resource_details['policy']['access'] == 'open':
                 authorizedNetworks = '0.0.0.0/0'
+        if 'cluster_ips' in env_output_config:
+            cluster_ip_list = env_output_config['cluster_ips']
+            authorizedNetworks = ','.join(cluster_ip_list)
 
         database_instance_body = {
             'name': instance_id,
@@ -129,6 +134,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
             res_db.Resource().update(res_id, res_data)
             if status == 'RUNNABLE':
+                cloudsql_status = 'available'
                 break
             else:
                 i = i + 1
@@ -172,6 +178,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         res_db.Resource().update(res_id, res_data)
 
         fmlogger.debug("Exiting CloudSQL create call.")
+        return cloudsql_status
 
     def delete(self, request_obj):
         fmlogger.debug("CloudSQL delete.")
