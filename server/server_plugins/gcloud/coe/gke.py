@@ -1,22 +1,16 @@
 import ast
-import base64
-import boto3
-import os
 from os.path import expanduser
-import shutil
 import time
 
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
-import server.server_plugins.coe_base as coe_base
-from server.common import common_functions
-from server.common import constants
 from server.common import docker_lib
 from server.common import fm_logger
 from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
+import server.server_plugins.coe_base as coe_base
 
 home_dir = expanduser("~")
 
@@ -40,7 +34,6 @@ class GKEHandler(coe_base.COEBase):
         pageToken = None
         list_of_node_objs = []
         list_of_ips = []
-        done = False
 
         resp = self.compute_service.instances().list(
             project=project, zone=zone, orderBy="creationTimestamp desc",
@@ -48,7 +41,7 @@ class GKEHandler(coe_base.COEBase):
 
         for res in resp['items']:
             if res['name'].lower().find(env_name) >= 0:
-                list_of_node_objs.append(res) 
+                list_of_node_objs.append(res)
 
         for res in list_of_node_objs:
             external_ip = res['networkInterfaces'][0]['accessConfigs'][0]['natIP']
@@ -102,13 +95,13 @@ class GKEHandler(coe_base.COEBase):
             return status
 
         resp = self.gke_service.projects().zones().clusters().create(
-                projectId=project,
-                zone=zone,
-                body={"cluster":{"name": cluster_name,
-                                 "initialNodeCount": cluster_size,
-                                 "nodeConfig": {
-                                     "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only"}}}
-            ).execute()
+            projectId=project,
+            zone=zone,
+            body={"cluster": {"name": cluster_name,
+                              "initialNodeCount": cluster_size,
+                              "nodeConfig": {
+                                  "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only"}}}
+        ).execute()
     
         fmlogger.debug(resp)
 
@@ -137,13 +130,51 @@ class GKEHandler(coe_base.COEBase):
         env_data['output_config'] = str(env_output_config)
         env_db.Environment().update(env_id, env_data)
         res_data['status'] = cluster_status
-        res_data['filtered_description'] = str({'cluster_ips': instance_ip_list})
+        filtered_description = {}
+        filtered_description['cluster_name'] = cluster_name
+        filtered_description['cluster_ips'] = instance_ip_list
+        filtered_description['project'] = project
+        filtered_description['zone'] = zone
+        res_data['filtered_description'] = str(filtered_description)
         res_db.Resource().update(res_id, res_data)
         fmlogger.debug("Done creating GKE cluster.")
         return cluster_status
         
     def delete_cluster(self, env_id, env_info, resource_obj):
-        pass
+        fmlogger.debug("Deleting GKE cluster")
+
+        res_db.Resource().update(resource_obj.id, {'status': 'deleting'})
+
+        filtered_description = ast.literal_eval(resource_obj.filtered_description)
+        cluster_name = filtered_description['cluster_name']
+        project = filtered_description['project']
+        zone = filtered_description['zone']
+
+        try:
+            resp = self.gke_service.projects().zones().clusters().delete(
+                projectId=project,
+                zone=zone,
+                clusterId=cluster_name
+            ).execute()
+            fmlogger.debug(resp)
+        except Exception as e:
+            fmlogger.error("Encountered exception when deleting cluster.")
+
+        available = True
+        while available:
+            try:
+                resp = self.gke_service.projects().zones().clusters().get(
+                    projectId=project,
+                    zone=zone,
+                    clusterId=cluster_name).execute()
+            except Exception as e:
+                fmlogger.error("Exception encountered in retrieving cluster. Cluster does not exist.")
+                available = False
+                break
+            time.sleep(3)
+
+        res_db.Resource().delete(resource_obj.id)
+        fmlogger.debug("Done deleting GKE cluster.")
 
     def deploy_application(self, app_id, app_info):
         pass

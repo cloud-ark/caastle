@@ -64,3 +64,9 @@ class GCloudHandler(object):
             if name == coe_type:
                 status = ext.obj.create_cluster(env_id, env_info)
                 return status
+
+    def delete_cluster(self, env_id, env_info, resource):
+        coe_type = self._get_coe_type(env_id)
+        for name, ext in GCloudHandler.coe_mgr.items():
+            if name == coe_type:
+                ext.obj.delete_cluster(env_id, env_info, resource)
