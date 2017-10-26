@@ -2,11 +2,11 @@
 CloudARK
 =================
 
-CloudARK is a non-hosted PaaS. Using CloudARK:
+CloudARK delivers PaaS functionality in a non-hosted manner. Using CloudARK:
 
-- Build web applications using Docker that depend on cloud-native managed services like Amazon RDS, Google Cloud SQL.
+- Build Docker-based applications that use managed services like Amazon RDS, Google Cloud SQL.
 
-- Deploy to popular container systems like Amazon ECS and Google GKE (coming).
+- Deploy to popular container systems like Amazon ECS, Google GKE.
 
 - Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
 
@@ -25,7 +25,7 @@ Non-hosted nature of CloudARK has following benefits:
 
 
 CloudARK is based on the concept of *Platform-as-Code*.
-An environment of containerized cloud application consists of following platform elements:
+An environment of a containerized cloud application is made up of following platform elements:
 
 - Container Orchestration Engine (COE) cluster
 
@@ -38,11 +38,11 @@ An environment of containerized cloud application consists of following platform
    :align: center
 
 CloudARK offers ability to easily define and create such environments,
-seamlessly binding the environment components together at runtime.
+seamlessly binding the platform elements together at runtime.
 
-*Currently Supported: AWS ECS, AWS RDS, AWS DynamoDB and Local deployment through Docker*
+*Supported COEs: Amazon EC2 Container System (ECS), Google Container Engine (Kubernetes-based GKE)*
 
-*Coming soon: GKE, Google Cloud SQL*
+*Supported resources: AWS RDS, Google CloudSQL, AWS DynamoDB*
 
 Read this_ for more details about CloudARK
 
