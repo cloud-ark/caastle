@@ -4,11 +4,11 @@ import time
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
-import server.server_plugins.resource_base as resource_base
 from server.common import constants
 from server.common import fm_logger
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
+import server.server_plugins.resource_base as resource_base
 
 fmlogger = fm_logger.Logging()
 

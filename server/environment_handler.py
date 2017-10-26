@@ -100,11 +100,19 @@ class EnvironmentHandler(threading.Thread):
         for resource in resource_list:
             type = resource.type
             if type == 'ecs-cluster':
-                EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id, self.environment_info, resource)
+                EnvironmentHandler.registered_cloud_handlers['aws'].delete_cluster(self.env_id,
+                                                                                   self.environment_info,
+                                                                                   resource)
+            if type == 'gke-cluster':
+                EnvironmentHandler.registered_cloud_handlers['gcloud'].delete_cluster(self.env_id,
+                                                                                      self.environment_info,
+                                                                                      resource)
             if type in ['rds']:
-                EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id, resource)
+                EnvironmentHandler.registered_cloud_handlers['aws'].delete_resource(self.env_id,
+                                                                                    resource)
             if type in ['cloudsql']:
-                EnvironmentHandler.registered_cloud_handlers['gcloud'].delete_resource(self.env_id, resource)
+                EnvironmentHandler.registered_cloud_handlers['gcloud'].delete_resource(self.env_id,
+                                                                                       resource)
 
         env_db.Environment().delete(self.env_id)
 
