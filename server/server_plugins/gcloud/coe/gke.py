@@ -302,11 +302,14 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug("Deleting GKE app service")
         service_name = app_info['app_name']
         core_v1 = client.CoreV1Api()
-        api_response = core_v1.delete_namespaced_service(
-            name=service_name,
-            namespace="default")
-        fmlogger.debug("GKE app service delete response:%s" % api_response)
-        
+        try:
+            api_response = core_v1.delete_namespaced_service(
+                name=service_name,
+                namespace="default")
+            fmlogger.debug("GKE app service delete response:%s" % api_response)
+        except Exception as e:
+            fmlogger.error(e)
+
     def _delete_deployment(self, app_info):
         fmlogger.debug("Deleting GKE app deployment")
         deployment_name = app_info['app_name']
@@ -314,12 +317,15 @@ class GKEHandler(coe_base.COEBase):
         delete_options = client.V1DeleteOptions()
         delete_options.grace_period_seconds = 0
         delete_options.propagation_policy = 'Foreground'
-        api_response = extensions_v1beta1.delete_namespaced_deployment(
-            name=deployment_name,
-            body=delete_options,
-            grace_period_seconds=0,
-            namespace="default")
-        fmlogger.debug("GKE app deployment delete response:%s" % api_response)
+        try:
+            api_response = extensions_v1beta1.delete_namespaced_deployment(
+                name=deployment_name,
+                body=delete_options,
+                grace_period_seconds=0,
+                namespace="default")
+            fmlogger.debug("GKE app deployment delete response:%s" % api_response)
+        except Exception as e:
+            fmlogger.error(e)
 
     def _delete_app_image_gcr(self, tagged_image, app_info):
         fmlogger.debug("Deleting app image from GCR")
