@@ -22,7 +22,7 @@ class DockerLib(object):
                  "'s/{pat}access_token{pat}.*/{pat}access_token{pat}/' "
                  "credentials \n").format(pat="\\\"")
 
-        cmd_2 = ("RUN sed -i "
+        cmd_2 = (" sed -i "
                  "\"s/{pat}access_token{pat}.*/{pat}access_token{pat}:{pat}$token{pat},/\" "
                  "credentials \n").format(pat="\\\"")
 
@@ -30,13 +30,14 @@ class DockerLib(object):
         fmlogging.debug("Sed pattern 2:%s" % cmd_2)
 
         df = ("FROM lmecld/clis:gcloud \n"
+              "RUN sudo apt-get update && sudo apt-get install -y curl \n"
               "RUN /google-cloud-sdk/bin/gcloud components install beta \n"
               "COPY . /src \n"
               "COPY google-creds/gcloud  /root/.config/gcloud \n"
               "WORKDIR /root/.config/gcloud \n"
               "{cmd_1}"
-              "RUN token=`/google-cloud-sdk/bin/gcloud beta auth application-default print-access-token` \n"
-              "{cmd_2}"
+              "RUN token=`/google-cloud-sdk/bin/gcloud beta auth application-default print-access-token` \ \n"
+              " && {cmd_2}"
               "WORKDIR /src \n"
               )
         df = df.format(cmd_1=cmd_1, cmd_2=cmd_2)

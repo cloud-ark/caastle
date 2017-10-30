@@ -89,6 +89,9 @@ class TakeAction(object):
             print("App with app-id %s not found." % app_id)
         if response.status_code == 202:
             print("Request to delete app with id %s accepted." % app_id)
+        if response.status_code == 303:
+            print("Request to delete app with id %s accepted." % app_id)
+            print("*** Please delete the app image from GCR manually -- automation is not available for that action yet.***")
         return response
     
     def redeploy_app(self, app_path, app_info, app_id):
