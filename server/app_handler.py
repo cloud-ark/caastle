@@ -2,6 +2,7 @@ import threading
 
 import aws_handler
 from common import fm_logger
+import gcloud_handler
 import local_handler
 
 fmlogging = fm_logger.Logging()
@@ -11,6 +12,7 @@ class AppHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
     registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
+    registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
     registered_cloud_handlers['local'] = local_handler.LocalHandler()
 
     def __init__(self, app_id, app_info, action=''):
@@ -26,6 +28,8 @@ class AppHandler(threading.Thread):
         cloud = self.app_info['target']
         if cloud == 'aws':
             AppHandler.registered_cloud_handlers['aws'].deploy_application(self.app_id, self.app_info)
+        elif cloud == 'gcloud':
+            AppHandler.registered_cloud_handlers['gcloud'].deploy_application(self.app_id, self.app_info)
         elif cloud == 'local':
             AppHandler.registered_cloud_handlers['local'].deploy_application(self.app_id, self.app_info)
         else:

@@ -4,6 +4,7 @@ from os.path import expanduser
 from stevedore import extension
 
 from common import fm_logger
+from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
 
 home_dir = expanduser("~")
@@ -31,6 +32,11 @@ class GCloudHandler(object):
         env_definition = ast.literal_eval(env_obj.env_definition)
         env_details = env_definition['environment']
         coe_type = env_details['app_deployment']['type']
+        return coe_type
+
+    def _get_coe_type_for_app(self, app_id):
+        app_obj = app_db.App().get(app_id)
+        coe_type = self._get_coe_type(app_obj.env_id)
         return coe_type
 
     def create_resources(self, env_id, resource_list):
@@ -70,3 +76,9 @@ class GCloudHandler(object):
         for name, ext in GCloudHandler.coe_mgr.items():
             if name == coe_type:
                 ext.obj.delete_cluster(env_id, env_info, resource)
+
+    def deploy_application(self, app_id, app_info):
+        coe_type = self._get_coe_type_for_app(app_id)
+        for name, ext in GCloudHandler.coe_mgr.items():
+            if name == coe_type:
+                ext.obj.deploy_application(app_id, app_info)
