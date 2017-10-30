@@ -200,7 +200,12 @@ class GKEHandler(coe_base.COEBase):
             df_name,
             df_context=df_dir
         )
-        
+
+        if err:
+            error_msg = ("Error encountered in setting up kube config {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+
         err, output = self.docker_handler.run_container(cont_name)
 
         if err:
@@ -292,6 +297,59 @@ class GKEHandler(coe_base.COEBase):
             namespace="default",
             body=v1_service)
         fmlogger.debug(api_response)
+
+    def _delete_service(self, app_info):
+        fmlogger.debug("Deleting GKE app service")
+        service_name = app_info['app_name']
+        core_v1 = client.CoreV1Api()
+        api_response = core_v1.delete_namespaced_service(
+            name=service_name,
+            namespace="default")
+        fmlogger.debug("GKE app service delete response:%s" % api_response)
+        
+    def _delete_deployment(self, app_info):
+        fmlogger.debug("Deleting GKE app deployment")
+        deployment_name = app_info['app_name']
+        extensions_v1beta1 = client.ExtensionsV1beta1Api()
+        delete_options = client.V1DeleteOptions()
+        delete_options.grace_period_seconds = 0
+        delete_options.propagation_policy = 'Foreground'
+        api_response = extensions_v1beta1.delete_namespaced_deployment(
+            name=deployment_name,
+            body=delete_options,
+            grace_period_seconds=0,
+            namespace="default")
+        fmlogger.debug("GKE app deployment delete response:%s" % api_response)
+
+    def _delete_app_image_gcr(self, tagged_image, app_info):
+        fmlogger.debug("Deleting app image from GCR")
+        cluster_name = self._get_cluster_name(app_info['env_id'])
+        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = df + ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} \n"
+                   "RUN /google-cloud-sdk/bin/gcloud beta container images delete {tagged_image}"
+                   ).format(cluster_name=cluster_name,
+                            tagged_image=tagged_image)
+
+        app_dir = app_info['app_location']
+        app_folder_name = app_info['app_folder_name']
+        cont_name = app_info['app_name'] + "-delete-image"
+
+        df_dir = app_dir + "/" + app_folder_name
+        df_name = df_dir + "/Dockerfile.delete-image"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        err, output = self.docker_handler.build_container_image(
+            cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        self.docker_handler.remove_container_image(cont_name)
+        
+    def _delete_app_image_local(self, tagged_image):
+        self.docker_handler.remove_container_image(tagged_image)
 
     def create_cluster(self, env_id, env_info):
         fmlogger.debug("Creating GKE cluster.")
@@ -427,8 +485,10 @@ class GKEHandler(coe_base.COEBase):
         if app_info['env_id']:
             common_functions.resolve_environment(app_id, app_info)
 
+        app_details = {}
         app_data = {}
         app_data['status'] = 'building-application-container'
+
         app_db.App().update(app_id, app_data)
         tag = str(int(round(time.time() * 1000)))
         err, output, image_name = self._build_app_container(app_info, tag=tag)
@@ -437,7 +497,10 @@ class GKEHandler(coe_base.COEBase):
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
             return
 
+        app_details['tagged_image'] = tagged_image
+        app_data['output_config'] = str(app_details)
         app_data['status'] = 'pushing-app-cont-to-gcr-repository'
+        
         app_db.App().update(app_id, app_data)
         try:
             self._push_app_container(app_info, tagged_image)
@@ -476,7 +539,7 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug('Application URL:%s' % app_url)
 
         app_data['status'] = status
-        app_details = {}
+
         app_details['app_url'] = app_url
         app_data['output_config'] = str(app_details)
         app_db.App().update(app_id, app_data)
@@ -487,4 +550,22 @@ class GKEHandler(coe_base.COEBase):
         pass
 
     def delete_application(self, app_id, app_info):
-        pass
+        fmlogger.debug("Deleting application %s" % app_info['app_name'])
+
+        app_obj = app_db.App().get(app_id)
+        app_output_config = ast.literal_eval(app_obj.output_config)
+        tagged_image = app_output_config['tagged_image']
+
+        self._delete_service(app_info)
+        self._delete_deployment(app_info)
+
+        # TODO(devdatta) The gcloud sdk is encountering a failure when trying
+        # to delete the GCR image. So for the time being commenting out below
+        # call. Send a response to the user asking the user to manually delete
+        # the image from Google cloud console.
+        # self._delete_app_image_gcr(tagged_image, app_info)
+
+        self._delete_app_image_local(tagged_image)
+
+        app_db.App().delete(app_id)
+        fmlogger.debug("Done deleting application %s" % app_info['app_name'])

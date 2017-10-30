@@ -244,6 +244,9 @@ class AppRestResource(Resource):
             request_handler_thread = app_handler.AppHandler(app_id, app_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
             response.status_code = 202
+            # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
+            if app_obj.dep_target == 'gcloud':
+                response.status_code = 303
         else:
             response.status_code = 404
         return response

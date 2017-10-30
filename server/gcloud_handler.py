@@ -82,3 +82,9 @@ class GCloudHandler(object):
         for name, ext in GCloudHandler.coe_mgr.items():
             if name == coe_type:
                 ext.obj.deploy_application(app_id, app_info)
+
+    def delete_application(self, app_id, app_info):
+        coe_type = self._get_coe_type_for_app(app_id)
+        for name, ext in GCloudHandler.coe_mgr.items():
+            if name == coe_type:
+                ext.obj.delete_application(app_id, app_info)

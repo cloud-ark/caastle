@@ -54,6 +54,8 @@ class AppHandler(threading.Thread):
         cloud = self.app_info['target']
         if cloud == 'aws':
             AppHandler.registered_cloud_handlers['aws'].delete_application(self.app_id, self.app_info)
+        elif cloud == 'gcloud':
+            AppHandler.registered_cloud_handlers['gcloud'].delete_application(self.app_id, self.app_info)
         elif cloud == 'local':
             AppHandler.registered_cloud_handlers['local'].delete_application(self.app_id, self.app_info)
         else:
