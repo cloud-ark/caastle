@@ -10,9 +10,9 @@ CloudARK delivers PaaS functionality in a non-hosted manner. Using CloudARK:
 
 - Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
 
-.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
-
 - Gain insights into your application and its cloud environment.
+
+.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 
 Non-hosted nature of CloudARK has following benefits:
@@ -92,6 +92,21 @@ Supported Platforms/Languages:
 CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps_.
 
 .. _steps: https://docs.docker.com/engine/installation/
+
+
+
+Deploying web applications on Google GKE
+-----------------------------------------
+
+CloudARK assumes that you have done Google cloud setup and uses that during deployment. For example, CloudARK uses ~/.config/gcloud directory
+to read gcloud credentials.  If you don't have this directory then follow these_ steps to install Google cloud SDK and authorize it using 
+the following command:
+
+.. _these: https://cloud.google.com/sdk/
+
+$ ~/Downloads/google-cloud-sdk/bin/gcloud beta auth application-default login
+
+This command will display a link which you will need to put in your browser and enable SDK access for your chosen google account.
 
 
 
