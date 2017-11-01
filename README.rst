@@ -89,9 +89,9 @@ Supported Platforms/Languages:
 
 4) Python 2.7
 
-CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps_.
+CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps from:
 
-.. _steps: https://docs.docker.com/engine/installation/
+https://docs.docker.com/engine/installation/
 
 
 
@@ -99,10 +99,9 @@ Deploying web applications on Google GKE
 -----------------------------------------
 
 CloudARK assumes that you have done Google cloud setup and uses that during deployment. For example, CloudARK uses ~/.config/gcloud directory
-to read gcloud credentials.  If you don't have this directory then follow these steps_ to install Google cloud SDK and authorize it using
+to read gcloud credentials.  If you don't have this directory then follow steps from  https://cloud.google.com/sdk/
+to install Google cloud SDK and authorize it using
 the following command:
-
-.. _steps: https://cloud.google.com/sdk/
 
 $ ~/Downloads/google-cloud-sdk/bin/gcloud beta auth application-default login
 
@@ -114,9 +113,8 @@ Deploying web applications on Amazon ECS
 -----------------------------------------
 
 CloudARK assumes that you have done AWS setup and uses that during deployment. For example, CloudARK uses ~/.aws directory
-to read aws credentials.  If you don't have this directory then follow these steps_ to do AWS setup.
-
-.. _steps: http://docs.aws.amazon.com/cli/latest/userguide/installing.html
+to read aws credentials.  If you don't have this directory then follow these steps from
+http://docs.aws.amazon.com/cli/latest/userguide/installing.html to do AWS setup.
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on Amazon ECS.
