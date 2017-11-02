@@ -27,7 +27,11 @@ class DockerLib(object):
                 "&& gunzip google-cloud-sdk-178.0.0-linux-x86_64.tar.gz \ \n"
                 "&& tar -xvf google-cloud-sdk-178.0.0-linux-x86_64.tar \n" 
                 "WORKDIR /google-cloud-sdk \n"
-                "RUN ./install.sh \n")
+                "RUN ./install.sh \n"
+                "COPY . /src \n"
+                "COPY google-creds/gcloud  /root/.config/gcloud \n"
+                "WORKDIR /root/.config/gcloud \n"
+                )
 #"""   13  /google-cloud-sdk/bin/gcloud config set account kulkarni.devdatta@gmail.com
 #   14  /google-cloud-sdk/bin/gcloud config set project conf-registration-company-a
 #   15  /google-cloud-sdk/bin/gcloud container clusters get-credentials env-gke-2017-11-01-20-06-28 --zone us-central1-b    

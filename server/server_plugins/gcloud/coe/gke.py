@@ -43,6 +43,26 @@ class GKEHandler(coe_base.COEBase):
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
+    def _get_deployment_details(self, env_id):
+        env_obj = env_db.Environment().get(env_id)
+        env_details = ast.literal_eval(env_obj.env_definition)
+        project = env_details['environment']['app_deployment']['project']
+        zone = env_details['environment']['app_deployment']['zone']
+
+        user_account = ''
+        if not os.path.exists(home_dir + "/.config/gcloud/configurations/config_default"):
+            fmlogger.error("gcloud sdk installation not proper. Did not find ~/.config/gcloud/configurations/config_default file")
+            raise Exception()
+        else:
+            fp = open(home_dir + "/.config/gcloud/configurations/config_default", "r")
+            lines = fp.readlines()
+            for line in lines:
+                if line.find("account") >= 0:
+                    parts = line.split("=")
+                    user_account = parts[1].strip()
+                    break
+        return user_account, project, zone
+
     def _get_cluster_node_ip(self, env_name, project, zone):
         pageToken = None
         list_of_node_objs = []
@@ -179,10 +199,16 @@ class GKEHandler(coe_base.COEBase):
         cluster_name = self._get_cluster_name(app_info['env_id'])
         kubectl = "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 
-        df = df + ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} \n"
+        user_account, project_name, zone_name = self._get_deployment_details(app_info['env_id'])
+        df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
+                   " && /google-cloud-sdk/bin/gcloud config set project {project} \ \n"
+                   "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n"
                    "RUN {kubectl} \ \n"
                    " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods"
-                   ).format(cluster_name=cluster_name,
+                   ).format(account=user_account,
+                            project=project_name,
+                            cluster_name=cluster_name,
+                            zone=zone_name,
                             kubectl=kubectl)
 
         app_dir = app_info['app_location']
