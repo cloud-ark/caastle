@@ -259,6 +259,9 @@ class GKEHandler(coe_base.COEBase):
             df_dir=df_dir,
             home_dir=home_dir
         )
+        home_kube_config_path = ("{home_dir}/.kube/").format(home_dir=home_dir)
+        if not os.path.exists(home_kube_config_path):
+            os.system("mkdir " + home_kube_config_path)
         fmlogger.debug(copy_creds_file)
         os.system(copy_creds_file)
 
