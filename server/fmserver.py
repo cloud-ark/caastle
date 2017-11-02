@@ -28,6 +28,7 @@ try:
     import app_handler
     from common import common_functions
     from common import fm_logger
+    from dbmodule import db_main
     from dbmodule.objects import app as app_db
     from dbmodule.objects import environment as env_db
     from dbmodule.objects import resource as res_db
@@ -362,6 +363,9 @@ if __name__ == '__main__':
             os.makedirs(APP_STORE_PATH)
         fmlogging = fm_logger.Logging()
         fmlogging.info("Starting CloudARK server")
+
+        # Setup tables
+        db_main.setup_tables()
 
         from gevent.wsgi import WSGIServer
         http_server = WSGIServer(('', 5002), app)

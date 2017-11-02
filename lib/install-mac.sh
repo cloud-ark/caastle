@@ -6,6 +6,14 @@ touch install.log
 install_log="install.log"
 echo "Installing CloudARK. Installation logs stored in $install_log" 
 
+curl -O http://python-distribute.org/distribute_setup.py
+python distribute_setup.py
+curl -O https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+python get-pip.py
+
+sudo pip install virtualenv
+
+
 virtenv="cloudark-virtenv"
 virtenvbin=`pwd`/$virtenv/bin
 echo "Creating virtual environment $virtenv" >> $install_log

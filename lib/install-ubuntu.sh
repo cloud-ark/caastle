@@ -5,6 +5,9 @@ truncate -s 0 install.log
 install_log="install.log"
 echo "Installing CloudARK. Installation logs stored in $install_log" 
 
+sudo apt-get update && sudo apt-get install -y python-pip
+sudo pip install virtualenv
+
 virtenv="cloudark-virtenv"
 virtenvbin=`pwd`/$virtenv/bin
 echo "Creating virtual environment $virtenv" &>> $install_log

@@ -362,11 +362,14 @@ class ECSHandler(coe_base.COEBase):
             fmlogger.error("Error encountered in deleting cluster %s" % e)
 
         env_obj = env_db.Environment().get(env_id)
-        env_output_config = ast.literal_eval(env_obj.output_config)
-        sec_group_name = env_output_config['http-and-ssh-group-name']
-        sec_group_id = env_output_config['http-and-ssh-group-id']
-        vpc_id = env_output_config['vpc_id']
-        ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+        try:
+            env_output_config = ast.literal_eval(env_obj.output_config)
+            sec_group_name = env_output_config['http-and-ssh-group-name']
+            sec_group_id = env_output_config['http-and-ssh-group-id']
+            vpc_id = env_output_config['vpc_id']
+            ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+        except Exception as e:
+            fmlogger.error(e)
 
         res_db.Resource().delete(res_id)
 
@@ -515,7 +518,7 @@ class ECSHandler(coe_base.COEBase):
 
         if username and password and proxy_endpoint:
             err, output = self._set_up_docker_client(username, password, proxy_endpoint)
-            if err:
+            if err and err.strip() != 'WARNING! Using --password via the CLI is insecure. Use --password-stdin.':
                 fmlogger.debug("Error encountered in executing docker login command. Not continuing with the request. %s" % err)
                 return
 

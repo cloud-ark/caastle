@@ -101,7 +101,7 @@ class GKEHandler(coe_base.COEBase):
 
     def _get_access_token(self, app_info):
         access_token = ''
-        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = self.docker_handler.get_dockerfile_snippet("google_for_token")
 
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
@@ -126,7 +126,7 @@ class GKEHandler(coe_base.COEBase):
             raise Exception(error_msg)
 
         docker_image_id = output.strip()
-        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials {df_dir}/.").format(
+        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials.db {df_dir}/.").format(
             docker_img=docker_image_id,
             df_dir=df_dir
         )
@@ -134,7 +134,7 @@ class GKEHandler(coe_base.COEBase):
         os.system(copy_creds_file)
 
         access_token = ''
-        fp1 = open(df_dir + "/credentials")
+        fp1 = open(df_dir + "/credentials.db")
         lines = fp1.readlines()
         for line in lines:
             if line.find("access_token") >= 0:

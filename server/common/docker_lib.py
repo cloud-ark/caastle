@@ -11,20 +11,36 @@ class DockerLib(object):
     def __init__(self):
         self.docker_file_snippets = {}
         self.docker_file_snippets['aws'] = self._aws_df_snippet()
+        self.docker_file_snippets['google_for_token'] = self._google_df_snippet_for_token()
         self.docker_file_snippets['google'] = self._google_df_snippet()
 
     def _aws_df_snippet(self):
         df = ("FROM lmecld/clis:awscli\n")
         return df
-
+    
     def _google_df_snippet(self):
+        df_1 = ("FROM lmecld/clis:gcloud \n"
+                "RUN sudo apt-get update && sudo apt-get install -y curl \n"
+                "WORKDIR / \n"
+                "RUN mv google-cloud-sdk google-cloud-sdk.1 \ \n"
+                "&& wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-178.0.0-linux-x86_64.tar.gz \ \n"
+                "&& gunzip google-cloud-sdk-178.0.0-linux-x86_64.tar.gz \ \n"
+                "&& tar -xvf google-cloud-sdk-178.0.0-linux-x86_64.tar \n" 
+                "WORKDIR /google-cloud-sdk \n"
+                "RUN ./install.sh \n")
+#"""   13  /google-cloud-sdk/bin/gcloud config set account kulkarni.devdatta@gmail.com
+#   14  /google-cloud-sdk/bin/gcloud config set project conf-registration-company-a
+#   15  /google-cloud-sdk/bin/gcloud container clusters get-credentials env-gke-2017-11-01-20-06-28 --zone us-central1-b    
+        return df_1
+        
+    def _google_df_snippet_for_token(self):
         cmd_1 = ("RUN sed -i "
                  "'s/{pat}access_token{pat}.*/{pat}access_token{pat}/' "
-                 "credentials \n").format(pat="\\\"")
+                 "credentials.db \n").format(pat="\\\"")
 
         cmd_2 = (" sed -i "
                  "\"s/{pat}access_token{pat}.*/{pat}access_token{pat}:{pat}$token{pat},/\" "
-                 "credentials \n").format(pat="\\\"")
+                 "credentials.db \n").format(pat="\\\"")
 
         fmlogging.debug("Sed pattern 1:%s" % cmd_1)
         fmlogging.debug("Sed pattern 2:%s" % cmd_2)
