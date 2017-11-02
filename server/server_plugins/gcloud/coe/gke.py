@@ -249,12 +249,17 @@ class GKEHandler(coe_base.COEBase):
             docker_img=docker_image_id,
             df_dir=df_dir
         )
+        kube_config_path = ("{df_dir}/kube-config/").format(df_dir=df_dir)
+        if not os.path.exists(kube_config_path):
+            os.system("mkdir " + kube_config_path)
+        fmlogger.debug(retrieve_creds_file)
         os.system(retrieve_creds_file)
 
         copy_creds_file = ("cp {df_dir}/kube-config/config {home_dir}/.kube/config").format(
             df_dir=df_dir,
             home_dir=home_dir
         )
+        fmlogger.debug(copy_creds_file)
         os.system(copy_creds_file)
 
         self.docker_handler.stop_container(docker_image_id)
