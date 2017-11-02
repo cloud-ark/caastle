@@ -201,7 +201,7 @@ class GKEHandler(coe_base.COEBase):
 
         user_account, project_name, zone_name = self._get_deployment_details(app_info['env_id'])
         df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
-                   " && /google-cloud-sdk/bin/gcloud config set project {project} \ \n"
+                   " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
                    "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n"
                    "RUN {kubectl} \ \n"
                    " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods"
