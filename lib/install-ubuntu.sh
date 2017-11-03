@@ -40,8 +40,13 @@ cd ..
 
 echo "Next steps:"
 echo "- Run 'cld --help' to see available commands"
-echo "- Start cloudark server by running ./start.sh"
+echo "- Do cloud setup using: "
+echo "  - cld setup aws - to do aws setup"
+echo "  - cld setup gcloud - to do gcloud setup"
+echo "- Once required cloud setup is done, start CloudARK server"
+echo "  - ./start-cloudark.sh"
 
+#echo "- Start cloudark server by running ./start.sh"
 #echo "Starting server.." &>> $install_log
 #ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill &>> $install_log
 #python server/fmserver.py 1>>cld-server.log 2>&1 &
