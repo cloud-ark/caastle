@@ -31,3 +31,13 @@ echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
 
 cd ..
 python server/fmserver.py 1>>cld.log 2>&1 &
+
+sleep 5s
+
+has_server_started=`ps -eaf | grep fmserver`
+
+if [[ ! -z "${has_server_started}" ]]; then
+    echo "CloudARK server successfully installed."
+    echo "Next steps:"
+    echo "- Try sample programs from cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)"
+fi

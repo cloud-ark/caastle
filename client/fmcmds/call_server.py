@@ -58,14 +58,8 @@ class TakeAction(object):
             app_url = response.headers.get('location')
             print("Request to deploy application accepted.")
         except Exception as e:
-            if e.code == 412:
-                print("App cannot be deployed as Environment is not ready yet.")
-            if e.code == 404:
-                print("Environment with id %s not found" % app_info['env_id'])
-            if e.code == 400:
-                print("App with the name %s already exists. Please use a different name." % app_name)
-            if e.code == 503 or e.code == 500:
-                print(SERVER_ERROR)
+            error = e.read()
+            print(error)
         self._delete_tarfile(tarfile_name, source_dir)
 
         return app_url
@@ -149,8 +143,10 @@ class TakeAction(object):
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
             print("Request to create environment accepted.")
         except Exception as e:
-            if e.code == 503 or e.code == 500:
-                print(SERVER_ERROR)
+            if e.code == 503 or e.code == 500 or e.code == 412:
+                error = e.read()
+                print(error)
+                exit()
         environment_url = response.headers.get('location')
         return environment_url
     
