@@ -74,9 +74,16 @@ Try CloudARK
          (c) cd client
          (d) python setup.py install
 
-3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
+3) Do cloud setup
+   $ cld setup aws -- to do AWS setup
+   $ cld setup gcloud -- to do Gcloud setup
 
-4) Choose a sample application and follow the steps in the included README
+4) Start CloudARK server
+   $ ./start-cloudark.sh
+
+5) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
+
+6) Choose a sample application and follow the steps in the included README
 
 
 Supported Platforms/Languages:
@@ -98,23 +105,20 @@ https://docs.docker.com/engine/installation/
 Deploying web applications on Google GKE
 -----------------------------------------
 
-CloudARK assumes that you have done Google cloud setup and uses that during deployment. For example, CloudARK uses ~/.config/gcloud directory
-to read gcloud credentials.  If you don't have this directory then follow steps from  https://cloud.google.com/sdk/
-to install Google cloud SDK and authorize it using
-the following command:
+$ cld setup gcloud
+  - This will create a gcloud user token and application token which will be used by CloudARK for deployment. Follow the instructions to generate these tokens.
 
-$ ~/Downloads/google-cloud-sdk/bin/gcloud beta auth application-default login
-
-This command will display a link which you will need to put in your browser and enable SDK access for your chosen google account.
-
+$ ./restart-cloudark.sh
 
 
 Deploying web applications on Amazon ECS
 -----------------------------------------
 
-CloudARK assumes that you have done AWS setup and uses that during deployment. For example, CloudARK uses ~/.aws directory
-to read aws credentials.  If you don't have this directory then follow these steps from
-http://docs.aws.amazon.com/cli/latest/userguide/installing.html to do AWS setup.
+$ cld setup aws
+  - This will prompt you to enter AWS access_key_id, secret_access_key, region, output format
+
+$ ./restart-cloudark.sh
+
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on Amazon ECS.
@@ -194,6 +198,10 @@ Commands:
   resource list
 
   resource show
+
+  setup aws
+
+  setup gcloud
 
 
 Screenshots
