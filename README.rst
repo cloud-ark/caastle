@@ -39,13 +39,13 @@ Try CloudARK
 
 Supported Platforms and Languages:
 
-1) Ubuntu 14.04, 16.04
+- Ubuntu 14.04, 16.04
 
-2) Mac OS (El Capitan 10.11.4)
+- Mac OS (El Capitan 10.11.4)
 
-3) Docker 1.6 and above
+- Docker 1.6 and above
 
-4) Python 2.7
+- Python 2.7
 
 CloudARK requires Docker to be installed. If you don't have Docker, you can install it following steps from:
 
@@ -60,10 +60,13 @@ Once you have installed Docker follow these steps:
    $ ./install.sh
 
 3) Do cloud setup
+
    $ cld setup aws
+
    $ cld setup gcloud
 
 4) Start CloudARK server
+
    $ ./start-cloudark.sh
 
 5) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
@@ -75,21 +78,21 @@ Once you have installed Docker follow these steps:
 Deploying on Google GKE
 ------------------------
 
-$ cld setup gcloud
-  - This will create a gcloud user token and application token which will be used by CloudARK for deployment.
-    Follow the instructions to generate these tokens.
+  $ cld setup gcloud
+    - This will create a gcloud user token and application token which will be used by CloudARK for deployment.
+      Follow the instructions to generate these tokens.
 
-$ ./restart-cloudark.sh
+  $ ./restart-cloudark.sh
 
 
 Deploying on Amazon ECS
 ------------------------
 
-$ cld setup aws
-  - This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
-    Follow the prompts and provide 
+  $ cld setup aws
+    - This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
+      Follow the prompts and provide the required input.
 
-$ ./restart-cloudark.sh
+  $ ./restart-cloudark.sh
 
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
