@@ -287,21 +287,21 @@ class GKEHandler(coe_base.COEBase):
             spec=client.V1PodSpec(containers=[container]))
 
         # Create the specification of deployment
-        spec = client.ExtensionsV1beta1DeploymentSpec(
+        spec = client.AppsV1beta1DeploymentSpec(
             replicas=1,
             template=template)
 
         # Instantiate the deployment object
-        deployment = client.ExtensionsV1beta1Deployment(
-            api_version="extensions/v1beta1",
+        deployment = client.AppsV1beta1Deployment(
+            api_version="apps/v1beta1",
             kind="Deployment",
             metadata=client.V1ObjectMeta(name=deployment_name),
             spec=spec)
         return deployment
 
     def _create_deployment(self, deployment):
-        extensions_v1beta1 = client.ExtensionsV1beta1Api()
-        api_response = extensions_v1beta1.create_namespaced_deployment(
+        apps_v1beta1 = client.AppsV1beta1Api()
+        api_response = apps_v1beta1.create_namespaced_deployment(
             body=deployment,
             namespace="default")
         fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
@@ -487,33 +487,36 @@ class GKEHandler(coe_base.COEBase):
 
         res_db.Resource().update(resource_obj.id, {'status': 'deleting'})
 
-        filtered_description = ast.literal_eval(resource_obj.filtered_description)
-        cluster_name = filtered_description['cluster_name']
-        project = filtered_description['project']
-        zone = filtered_description['zone']
-
         try:
-            resp = self.gke_service.projects().zones().clusters().delete(
-                projectId=project,
-                zone=zone,
-                clusterId=cluster_name
-            ).execute()
-            fmlogger.debug(resp)
-        except Exception as e:
-            fmlogger.error("Encountered exception when deleting cluster.")
+            filtered_description = ast.literal_eval(resource_obj.filtered_description)
+            cluster_name = filtered_description['cluster_name']
+            project = filtered_description['project']
+            zone = filtered_description['zone']
 
-        available = True
-        while available:
             try:
-                resp = self.gke_service.projects().zones().clusters().get(
+                resp = self.gke_service.projects().zones().clusters().delete(
                     projectId=project,
                     zone=zone,
-                    clusterId=cluster_name).execute()
+                    clusterId=cluster_name
+                ).execute()
+                fmlogger.debug(resp)
             except Exception as e:
-                fmlogger.error("Exception encountered in retrieving cluster. Cluster does not exist. %s " % e)
-                available = False
-                break
-            time.sleep(3)
+                fmlogger.error("Encountered exception when deleting cluster %s" % e)
+
+            available = True
+            while available:
+                try:
+                    resp = self.gke_service.projects().zones().clusters().get(
+                        projectId=project,
+                        zone=zone,
+                        clusterId=cluster_name).execute()
+                except Exception as e:
+                    fmlogger.error("Exception encountered in retrieving cluster. Cluster does not exist. %s " % e)
+                    available = False
+                    break
+                time.sleep(3)
+        except Exception as e:
+            fmlogger.error(e)
 
         res_db.Resource().delete(resource_obj.id)
         fmlogger.debug("Done deleting GKE cluster.")
@@ -593,19 +596,22 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug("Deleting application %s" % app_info['app_name'])
 
         app_obj = app_db.App().get(app_id)
-        app_output_config = ast.literal_eval(app_obj.output_config)
-        tagged_image = app_output_config['tagged_image']
+        try:
+            app_output_config = ast.literal_eval(app_obj.output_config)
+            tagged_image = app_output_config['tagged_image']
 
-        self._delete_service(app_info)
-        self._delete_deployment(app_info)
+            self._delete_service(app_info)
+            self._delete_deployment(app_info)
 
-        # TODO(devdatta) The gcloud sdk is encountering a failure when trying
-        # to delete the GCR image. So for the time being commenting out below
-        # call. Send a response to the user asking the user to manually delete
-        # the image from Google cloud console.
-        # self._delete_app_image_gcr(tagged_image, app_info)
+            # TODO(devdatta) The gcloud sdk is encountering a failure when trying
+            # to delete the GCR image. So for the time being commenting out below
+            # call. Send a response to the user asking the user to manually delete
+            # the image from Google cloud console.
+            # self._delete_app_image_gcr(tagged_image, app_info)
 
-        self._delete_app_image_local(tagged_image)
+            self._delete_app_image_local(tagged_image)
+        except Exception as e:
+            fmlogger.error(e)
 
         app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application %s" % app_info['app_name'])
