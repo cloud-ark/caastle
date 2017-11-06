@@ -3,7 +3,7 @@
 install_log="install.log"
 touch $install_log
 
-#virtenv="cloudark-virtenv"
+virtenv="cloudark-virtenv"
 #virtenvbin=`pwd`/$virtenv/bin
 #echo "Creating virtual environment $virtenv" >> $install_log
 #virtualenv $virtenv >> $install_log

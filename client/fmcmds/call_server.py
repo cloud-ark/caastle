@@ -35,7 +35,16 @@ class TakeAction(object):
             os.remove(tarfile_name)
         os.chdir(cwd)
 
+    def _check_server(self):
+        try:
+            req = urllib2.Request(apps_endpoint)
+            urllib2.urlopen(req)
+        except Exception as e:
+            print("CloudARK server is not running. Please run ./start-cloudark.sh.")
+            exit()
+
     def deploy_app(self, app_path, app_info):
+        self._check_server()
         source_dir = app_path
         app_name = app_info['app_name']
         tarfile_name = app_name + ".tar"
@@ -65,6 +74,7 @@ class TakeAction(object):
         return app_url
     
     def get_app(self, app_id):
+        self._check_server()
         app_url = apps_endpoint + "/" + app_id
         req = urllib2.Request(app_url)
         app_data = ''
@@ -77,6 +87,7 @@ class TakeAction(object):
         return app_data
 
     def delete_app(self, app_id):
+        self._check_server()
         app_url = apps_endpoint + "/" + app_id
         response = requests.delete(app_url)
         if response.status_code == 404:
@@ -89,6 +100,7 @@ class TakeAction(object):
         return response
     
     def redeploy_app(self, app_path, app_info, app_id):
+        self._check_server()
         app_id_url = apps_endpoint + "/" + app_id
         source_dir = app_path
         app_name = "app-redeploy-id-" + app_id
@@ -122,6 +134,7 @@ class TakeAction(object):
         return app_url
 
     def get_app_list(self):
+        self._check_server()
         req = urllib2.Request(apps_endpoint)
         data = ''
         try:
@@ -134,6 +147,7 @@ class TakeAction(object):
 
     # Functions for environment
     def create_environment(self, env_name, environment_def):
+        self._check_server()
         req = urllib2.Request(environments_endpoint)
         req.add_header('Content-Type', 'application/octet-stream')
 
@@ -151,6 +165,7 @@ class TakeAction(object):
         return environment_url
     
     def get_environment(self, env_id):
+        self._check_server()
         env_url = environments_endpoint + "/" + env_id
         req = urllib2.Request(env_url)
         env_data = ''
@@ -163,6 +178,7 @@ class TakeAction(object):
         return env_data
 
     def delete_environment(self, env_id, force_flag=''):
+        self._check_server()
         env_url = environments_endpoint + "/" + env_id
         if force_flag:
             env_url = environments_endpoint + "/" + env_id + "?force=" + force_flag
@@ -176,6 +192,7 @@ class TakeAction(object):
         return response
 
     def get_environment_list(self):
+        self._check_server()
         req = urllib2.Request(environments_endpoint)
         data = ''
         try:
@@ -188,6 +205,7 @@ class TakeAction(object):
 
     # Functions for Individual resource
     def get_resources(self):
+        self._check_server()
         req = urllib2.Request(resources_endpoint)
         data = ''
         try:
@@ -199,6 +217,7 @@ class TakeAction(object):
         return data
 
     def get_resources_for_environment(self, env_id):
+        self._check_server()
         req = urllib2.Request(resources_endpoint + "?env_id=%s" % env_id)
         data = ''
         try:
@@ -210,6 +229,7 @@ class TakeAction(object):
         return data
 
     def create_resource(self, resource_obj):
+        self._check_server()
         req = urllib2.Request(resources_endpoint)
         req.add_header('Content-Type', 'application/octet-stream')
 
@@ -224,6 +244,7 @@ class TakeAction(object):
         return resource_endpoint
 
     def get_resource(self, resource_id):
+        self._check_server()
         resource_endpoint = resources_endpoint + "/" + resource_id
         req = urllib2.Request(resource_endpoint)
         resource_data = ''
@@ -236,6 +257,7 @@ class TakeAction(object):
         return resource_data
 
     def delete_resource(self, resource_id):
+        self._check_server()
         resource_endpoint = resources_endpoint + "/" + resource_id
         response = requests.delete(resource_endpoint)
         if response.status_code == 404:
