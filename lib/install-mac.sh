@@ -1,5 +1,9 @@
 #!/bin/bash
 
+brew update
+brew install openssl
+brew install python --with-brewed-openssl
+
 # define installation log file
 rm -rf install.log
 touch install.log
@@ -17,11 +21,11 @@ sudo pip install virtualenv
 virtenv="cloudark-virtenv"
 virtenvbin=`pwd`/$virtenv/bin
 echo "Creating virtual environment $virtenv" >> $install_log
-virtualenv $virtenv >> $install_log
+virtualenv -p /usr/local/Cellar/python/2.7.14/bin/python2 $virtenv >> $install_log
 source $virtenv/bin/activate >> $install_log
 
 pip install -r requirements.txt >> $install_log
-./$virtenv/bin/python server/setup.py install
+#./$virtenv/bin/python server/setup.py install
 
 cd client
 ../$virtenv/bin/python setup.py install >> $install_log
@@ -43,19 +47,17 @@ echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
 echo "Installing cloudark client done." >> $install_log
 
 cd ..
-echo "Starting server.." >> $install_log
-ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill >> $install_log
-python server/fmserver.py 1>>cld-server.log 2>&1 &
+#echo "Starting server.." >> $install_log
+#ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill >> $install_log
+#python server/fmserver.py 1>>cld-server.log 2>&1 &
 
-has_server_started=`ps -eaf | grep fmserver` 
-
-if [[ ! -z "${has_server_started}" ]]; then
-    echo "CloudARK successfully installed."
-    echo "Next steps:"
-    echo "- Quick test: Run 'cld --help'"
-    echo "- Try sample programs from cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)"
-fi
-
+echo "Next steps:"
+echo "- Run 'cld --help' to see available commands"
+echo "- Do cloud setup using: "
+echo "  - cld setup aws - to do aws setup"
+echo "  - cld setup gcloud - to do gcloud setup"
+echo "- Once required cloud setup is done, start CloudARK server"
+echo "  - ./start-cloudark.sh"
 
 # Activate virtual environment
 /bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"

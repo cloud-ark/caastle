@@ -271,7 +271,7 @@ class GKEHandler(coe_base.COEBase):
 
         config.load_kube_config()
 
-    def _create_deployment_object(self, app_info, tagged_image):
+    def _create_deployment_object(self, app_info, tagged_image, alternate_api=False):
         deployment_name = app_info['app_name']
         container_port = int(app_info['app_port'])
 
@@ -286,25 +286,46 @@ class GKEHandler(coe_base.COEBase):
             metadata=client.V1ObjectMeta(labels={"app": deployment_name}),
             spec=client.V1PodSpec(containers=[container]))
 
-        # Create the specification of deployment
-        spec = client.AppsV1beta1DeploymentSpec(
-            replicas=1,
-            template=template)
+        deployment = ''
+        if not alternate_api:
+            # Create the specification of deployment
+            spec = client.AppsV1beta1DeploymentSpec(
+                replicas=1,
+                template=template)
 
-        # Instantiate the deployment object
-        deployment = client.AppsV1beta1Deployment(
-            api_version="apps/v1beta1",
-            kind="Deployment",
-            metadata=client.V1ObjectMeta(name=deployment_name),
-            spec=spec)
+            # Instantiate the deployment object
+            deployment = client.AppsV1beta1Deployment(
+                api_version="apps/v1beta1",
+                kind="Deployment",
+                metadata=client.V1ObjectMeta(name=deployment_name),
+                spec=spec)
+        else:
+            # Create the specification of deployment
+            spec = client.ExtensionsV1beta1DeploymentSpec(
+                replicas=1,
+                template=template)
+
+            # Instantiate the deployment object
+            deployment = client.ExtensionsV1beta1Deployment(
+                api_version="extensions/v1beta1",
+                kind="Deployment",
+                metadata=client.V1ObjectMeta(name=deployment_name),
+                spec=spec)
         return deployment
 
-    def _create_deployment(self, deployment):
-        apps_v1beta1 = client.AppsV1beta1Api()
-        api_response = apps_v1beta1.create_namespaced_deployment(
-            body=deployment,
-            namespace="default")
-        fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
+    def _create_deployment(self, deployment, alternate_api=False):
+        if not alternate_api:
+            apps_v1beta1 = client.AppsV1beta1Api()
+            api_response = apps_v1beta1.create_namespaced_deployment(
+                body=deployment,
+                namespace="default")
+            fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
+        else:
+            extensions_v1beta1 = client.ExtensionsV1beta1Api()
+            api_response = extensions_v1beta1.create_namespaced_deployment(
+                body=deployment,
+                namespace="default")
+            fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
 
     def _create_service(self, app_info):
         deployment_name = app_info['app_name']
@@ -564,7 +585,20 @@ class GKEHandler(coe_base.COEBase):
 
         app_data['status'] = 'creating-kubernetes-deployment'
         app_db.App().update(app_id, app_data)
-        self._create_deployment(deployment_obj)
+
+        try:
+            self._create_deployment(deployment_obj)
+        except Exception as e:
+            fmlogger.error(e)
+            deployment_obj = self._create_deployment_object(app_info,
+                                                            tagged_image,
+                                                            alternate_api=True)
+            try:
+                self._create_deployment(deployment_obj, alternate_api=True)
+            except Exception as e:
+                fmlogger(e)
+                app_data['status'] = 'deployment-error' + str(e)
+                app_db.App().update(app_id, app_data)
 
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
