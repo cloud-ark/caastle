@@ -6,7 +6,6 @@ from stevedore import extension
 from common import fm_logger
 from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
-from server.server_plugins.aws import aws_helper
 
 home_dir = expanduser("~")
 
@@ -16,8 +15,6 @@ fmlogger = fm_logger.Logging()
 
 
 class AWSHandler(object):
-
-    awshelper = aws_helper.AWSHelper()
 
     res_mgr = extension.ExtensionManager(
         namespace='server.server_plugins.aws.resource',

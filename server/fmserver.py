@@ -20,22 +20,20 @@ home_dir = expanduser("~")
 APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 ENV_STORE_PATH = APP_STORE_PATH
 
-if not os.path.exists(home_dir + "/.aws/credentials") or not os.path.exists(home_dir + "/.aws/config"):
-    print(constants.AWS_SETUP_INCORRECT)
-    exit()
 
-try:
-    import app_handler
-    from common import common_functions
-    from common import fm_logger
-    from dbmodule.objects import app as app_db
-    from dbmodule.objects import environment as env_db
-    from dbmodule.objects import resource as res_db
-    import environment_handler
-except Exception as e:
-    if e.message == "You must specify a region.":
-        print(constants.AWS_SETUP_INCORRECT)
-        exit()
+#try:
+import app_handler
+from common import common_functions
+from common import fm_logger
+from dbmodule import db_main
+from dbmodule.objects import app as app_db
+from dbmodule.objects import environment as env_db
+from dbmodule.objects import resource as res_db
+import environment_handler
+#except Exception as e:
+#    if e.message == "You must specify a region.":
+#        print(constants.AWS_SETUP_INCORRECT)
+#        exit()
 
 
 def start_thread(request_handler_thread):
@@ -116,19 +114,28 @@ class AppsRestResource(Resource):
                     app_id = app_db.App().insert(app_data)
                 except Exception as e:
                     fmlogging.debug(e)
-                    message = ("App with name {app_name} already exists. Will not proceed.").format(app_name=app_name)
+                    raise e
+                if not app_id:
+                    message = ("App with name {app_name} already exists. Choose different name.").format(app_name=app_name)
                     fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
                     response.status_code = 400
-                    response.status_message = message
                     return response
                 env_obj = env_db.Environment().get(app_info['env_id'])
                 if not env_obj:
+                    message = ('Environment with id {env_id} not found.').format(env_id=app_info['env_id'])
+                    fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
                     response.status_code = 404
-                    response.status_message = 'Environment not found.'
                     return response
                 if not env_obj.status or env_obj.status != 'available':
+                    message = 'Environment not ready.'
+                    fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
                     response.status_code = 412
-                    response.status_message = 'Environment not ready.'
                     return response
                 app_tar_name = app_info['app_tar_name']
                 content = app_info['app_content']
@@ -154,6 +161,8 @@ class AppsRestResource(Resource):
         except Exception as e:
             fmlogging.error(e)
             # Send back Internal Server Error
+            resp_data = {'error': str(e)}
+            response = jsonify(**resp_data)
             response.status_code = 500
 
         return response
@@ -263,6 +272,16 @@ class EnvironmentsRestResource(Resource):
 
         args_dict = dict(args)
 
+        cloud_setup_done = common_functions.get_cloud_setup()
+        if len(cloud_setup_done) == 0:
+            resp_data = {}
+            err_msg = 'No cloud setup found.'
+            err_msg = err_msg + ' Run "cld setup aws" or "cld setup gcloud". Then restart cloudark server using the start.sh script.'
+            resp_data['error'] = err_msg
+            response = jsonify(**resp_data)
+            response.status_code = 412
+            return response
+
         try:
             if 'environment_def' not in args_dict:
                 response.status_code = 400
@@ -362,6 +381,9 @@ if __name__ == '__main__':
             os.makedirs(APP_STORE_PATH)
         fmlogging = fm_logger.Logging()
         fmlogging.info("Starting CloudARK server")
+
+        # Setup tables
+        db_main.setup_tables()
 
         from gevent.wsgi import WSGIServer
         http_server = WSGIServer(('', 5002), app)

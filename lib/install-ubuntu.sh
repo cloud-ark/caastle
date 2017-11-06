@@ -5,6 +5,9 @@ truncate -s 0 install.log
 install_log="install.log"
 echo "Installing CloudARK. Installation logs stored in $install_log" 
 
+sudo apt-get update && sudo apt-get install -y python-pip
+sudo pip install virtualenv
+
 virtenv="cloudark-virtenv"
 virtenvbin=`pwd`/$virtenv/bin
 echo "Creating virtual environment $virtenv" &>> $install_log
@@ -12,7 +15,7 @@ virtualenv $virtenv &>> $install_log
 source $virtenv/bin/activate &>> $install_log
 
 pip install -r requirements.txt &>> $install_log
-./$virtenv/bin/python server/setup.py install
+#./$virtenv/bin/python server/setup.py install
 
 cd client
 ../$virtenv/bin/python setup.py install &>> $install_log
@@ -34,19 +37,19 @@ echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
 echo "Installing cloudark client done." &>> $install_log
 
 cd ..
-echo "Starting server.." &>> $install_log
-ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill &>> $install_log
-python server/fmserver.py 1>>cld-server.log 2>&1 &
 
-has_server_started=`ps -eaf | grep fmserver` 
+echo "Next steps:"
+echo "- Run 'cld --help' to see available commands"
+echo "- Do cloud setup using: "
+echo "  - cld setup aws - to do aws setup"
+echo "  - cld setup gcloud - to do gcloud setup"
+echo "- Once required cloud setup is done, start CloudARK server"
+echo "  - ./start-cloudark.sh"
 
-if [[ ! -z "${has_server_started}" ]]; then
-    echo "CloudARK successfully installed."
-    echo "Next steps:"
-    echo "- Quick test: Run 'cld --help'"
-    echo "- Try sample programs from cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)"
-fi
-
+#echo "- Start cloudark server by running ./start.sh"
+#echo "Starting server.." &>> $install_log
+#ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill &>> $install_log
+#python server/fmserver.py 1>>cld-server.log 2>&1 &
 
 # Activate virtual environment
 /bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"

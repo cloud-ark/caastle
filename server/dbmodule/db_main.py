@@ -6,10 +6,10 @@ from server.common import fm_logger
 
 fmlogger = fm_logger.Logging()
 
-
-try:
-    app.App.__table__.create(bind=db_base.engine)
-    environment.Environment.__table__.create(bind=db_base.engine)
-    resource.Resource.__table__.create(bind=db_base.engine)
-except Exception as e:
-    fmlogger.debug(e)
+def setup_tables():
+    try:
+        app.App.__table__.create(bind=db_base.engine)
+        environment.Environment.__table__.create(bind=db_base.engine)
+        resource.Resource.__table__.create(bind=db_base.engine)
+    except Exception as e:
+        fmlogger.debug(e)

@@ -2,30 +2,22 @@
 CloudARK
 =================
 
-CloudARK delivers PaaS functionality in a non-hosted manner. Using CloudARK:
+CloudARK enables full-stack deployment of microservices on Google GKE and Amazon ECS container platforms. Using CloudARK:
 
-- Build Docker-based applications that use managed services like Amazon RDS, Google Cloud SQL.
-
-- Deploy to popular container systems like Amazon ECS, Google GKE.
+- Build and deploy microservices that use managed cloud services like Amazon RDS, Google Cloud SQL.
 
 - Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
+
+- Easily share application deployment plans with team members.
 
 - Gain insights into your application and its cloud environment.
 
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 
-Non-hosted nature of CloudARK has following benefits:
-
-- Easy setup alongside Docker
-
-- No indirection to a remote service like self-hosted / public PaaS for cloud deployments
-
-- Integration in your custom DevOps workflows (locally or within your CI setup)
-
-
-CloudARK is based on the concept of *Platform-as-Code*.
-An environment of a containerized cloud application is made up of following platform elements:
+CloudARK is based on the concept of *Platform-as-Code (PaC)*.
+PaC enables defining and creating micro services using a declarative definition of
+of its platform elements, consisting of:
 
 - Container Orchestration Engine (COE) cluster
 
@@ -37,13 +29,6 @@ An environment of a containerized cloud application is made up of following plat
    :scale: 100%
    :align: center
 
-CloudARK offers ability to easily define and create such environments,
-seamlessly binding the platform elements together at runtime.
-
-*Supported COEs: Amazon EC2 Container System (ECS), Google Container Engine (Kubernetes-based GKE)*
-
-*Supported resources: AWS RDS, Google CloudSQL, AWS DynamoDB*
-
 Read this_ for more details about CloudARK
 
 .. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
@@ -52,34 +37,7 @@ Read this_ for more details about CloudARK
 Try CloudARK
 -------------
 
-1) Clone this repository
-
-2) Install CloudARK:
-
-     ./install.sh
-
-     - If above fails for some reason follow these steps:
-       
-       - Open a terminal and start the cloudark server process:
-         (a) cd <cloudark directory>
-         (b) virtualenv cloudark-env
-         (c) source cloudark-env/bin/activate
-         (d) pip install -r requirements.txt
-         (e) python server/setup.py install
-         (f) python server/fmserver.py
-  
-       - Open another terminal and install cloudark client:
-         (a) cd <cloudark directory>
-	 (b) source cloudark-env/bin/activate
-         (c) cd client
-         (d) python setup.py install
-
-3) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
-
-4) Choose a sample application and follow the steps in the included README
-
-
-Supported Platforms/Languages:
+Supported Platforms and Languages:
 
 1) Ubuntu 14.04, 16.04
 
@@ -89,32 +47,50 @@ Supported Platforms/Languages:
 
 4) Python 2.7
 
-CloudARK requires Docker to be installed. If you don't have Docker, you can install it following these steps from:
+CloudARK requires Docker to be installed. If you don't have Docker, you can install it following steps from:
 
 https://docs.docker.com/engine/installation/
 
+Once you have installed Docker follow these steps:
 
 
-Deploying web applications on Google GKE
------------------------------------------
+1) Clone this repository
 
-CloudARK assumes that you have done Google cloud setup and uses that during deployment. For example, CloudARK uses ~/.config/gcloud directory
-to read gcloud credentials.  If you don't have this directory then follow steps from  https://cloud.google.com/sdk/
-to install Google cloud SDK and authorize it using
-the following command:
+2) Install CloudARK
+   $ ./install.sh
 
-$ ~/Downloads/google-cloud-sdk/bin/gcloud beta auth application-default login
+3) Do cloud setup
+   $ cld setup aws
+   $ cld setup gcloud
 
-This command will display a link which you will need to put in your browser and enable SDK access for your chosen google account.
+4) Start CloudARK server
+   $ ./start-cloudark.sh
+
+5) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
+
+6) Choose a sample application and follow the steps in the included README
 
 
 
-Deploying web applications on Amazon ECS
------------------------------------------
+Deploying on Google GKE
+------------------------
 
-CloudARK assumes that you have done AWS setup and uses that during deployment. For example, CloudARK uses ~/.aws directory
-to read aws credentials.  If you don't have this directory then follow these steps from
-http://docs.aws.amazon.com/cli/latest/userguide/installing.html to do AWS setup.
+$ cld setup gcloud
+  - This will create a gcloud user token and application token which will be used by CloudARK for deployment.
+    Follow the instructions to generate these tokens.
+
+$ ./restart-cloudark.sh
+
+
+Deploying on Amazon ECS
+------------------------
+
+$ cld setup aws
+  - This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
+    Follow the prompts and provide 
+
+$ ./restart-cloudark.sh
+
 
 Your AWS user will need to have following managed policies in order to use CloudARK to deploy
 containerized applications on Amazon ECS.
@@ -194,6 +170,10 @@ Commands:
   resource list
 
   resource show
+
+  setup aws
+
+  setup gcloud
 
 
 Screenshots

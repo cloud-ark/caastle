@@ -76,6 +76,17 @@ class EnvironmentCreate(Command):
             print(exp)
             exit()
 
+        cloud_list = common.parse_clouds(environment_def)
+
+        setup_not_done = False
+        for cloud in cloud_list:
+            if not common.cloud_setup(cloud):
+                setup_not_done = True
+                print("Setup not done for cloud %s. Run cld setup to do the setup." % cloud)
+
+        if setup_not_done:
+            exit()
+
         self.dep_track_url = server.TakeAction().create_environment(env_name, environment_def)
 
         l = self.dep_track_url.rfind("/")

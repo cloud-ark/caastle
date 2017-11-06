@@ -43,6 +43,26 @@ class GKEHandler(coe_base.COEBase):
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
+    def _get_deployment_details(self, env_id):
+        env_obj = env_db.Environment().get(env_id)
+        env_details = ast.literal_eval(env_obj.env_definition)
+        project = env_details['environment']['app_deployment']['project']
+        zone = env_details['environment']['app_deployment']['zone']
+
+        user_account = ''
+        if not os.path.exists(home_dir + "/.config/gcloud/configurations/config_default"):
+            fmlogger.error("gcloud sdk installation not proper. Did not find ~/.config/gcloud/configurations/config_default file")
+            raise Exception()
+        else:
+            fp = open(home_dir + "/.config/gcloud/configurations/config_default", "r")
+            lines = fp.readlines()
+            for line in lines:
+                if line.find("account") >= 0:
+                    parts = line.split("=")
+                    user_account = parts[1].strip()
+                    break
+        return user_account, project, zone
+
     def _get_cluster_node_ip(self, env_name, project, zone):
         pageToken = None
         list_of_node_objs = []
@@ -101,7 +121,7 @@ class GKEHandler(coe_base.COEBase):
 
     def _get_access_token(self, app_info):
         access_token = ''
-        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = self.docker_handler.get_dockerfile_snippet("google_for_token")
 
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
@@ -126,7 +146,7 @@ class GKEHandler(coe_base.COEBase):
             raise Exception(error_msg)
 
         docker_image_id = output.strip()
-        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials {df_dir}/.").format(
+        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials.db {df_dir}/.").format(
             docker_img=docker_image_id,
             df_dir=df_dir
         )
@@ -134,7 +154,7 @@ class GKEHandler(coe_base.COEBase):
         os.system(copy_creds_file)
 
         access_token = ''
-        fp1 = open(df_dir + "/credentials")
+        fp1 = open(df_dir + "/credentials.db")
         lines = fp1.readlines()
         for line in lines:
             if line.find("access_token") >= 0:
@@ -179,10 +199,16 @@ class GKEHandler(coe_base.COEBase):
         cluster_name = self._get_cluster_name(app_info['env_id'])
         kubectl = "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 
-        df = df + ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} \n"
+        user_account, project_name, zone_name = self._get_deployment_details(app_info['env_id'])
+        df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
+                   " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
+                   "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n"
                    "RUN {kubectl} \ \n"
                    " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods"
-                   ).format(cluster_name=cluster_name,
+                   ).format(account=user_account,
+                            project=project_name,
+                            cluster_name=cluster_name,
+                            zone=zone_name,
                             kubectl=kubectl)
 
         app_dir = app_info['app_location']
@@ -223,12 +249,20 @@ class GKEHandler(coe_base.COEBase):
             docker_img=docker_image_id,
             df_dir=df_dir
         )
+        kube_config_path = ("{df_dir}/kube-config/").format(df_dir=df_dir)
+        if not os.path.exists(kube_config_path):
+            os.system("mkdir " + kube_config_path)
+        fmlogger.debug(retrieve_creds_file)
         os.system(retrieve_creds_file)
 
         copy_creds_file = ("cp {df_dir}/kube-config/config {home_dir}/.kube/config").format(
             df_dir=df_dir,
             home_dir=home_dir
         )
+        home_kube_config_path = ("{home_dir}/.kube/").format(home_dir=home_dir)
+        if not os.path.exists(home_kube_config_path):
+            os.system("mkdir " + home_kube_config_path)
+        fmlogger.debug(copy_creds_file)
         os.system(copy_creds_file)
 
         self.docker_handler.stop_container(docker_image_id)
@@ -237,7 +271,7 @@ class GKEHandler(coe_base.COEBase):
 
         config.load_kube_config()
 
-    def _create_deployment_object(self, app_info, tagged_image):
+    def _create_deployment_object(self, app_info, tagged_image, alternate_api=False):
         deployment_name = app_info['app_name']
         container_port = int(app_info['app_port'])
 
@@ -252,25 +286,46 @@ class GKEHandler(coe_base.COEBase):
             metadata=client.V1ObjectMeta(labels={"app": deployment_name}),
             spec=client.V1PodSpec(containers=[container]))
 
-        # Create the specification of deployment
-        spec = client.ExtensionsV1beta1DeploymentSpec(
-            replicas=1,
-            template=template)
+        deployment = ''
+        if not alternate_api:
+            # Create the specification of deployment
+            spec = client.AppsV1beta1DeploymentSpec(
+                replicas=1,
+                template=template)
 
-        # Instantiate the deployment object
-        deployment = client.ExtensionsV1beta1Deployment(
-            api_version="extensions/v1beta1",
-            kind="Deployment",
-            metadata=client.V1ObjectMeta(name=deployment_name),
-            spec=spec)
+            # Instantiate the deployment object
+            deployment = client.AppsV1beta1Deployment(
+                api_version="apps/v1beta1",
+                kind="Deployment",
+                metadata=client.V1ObjectMeta(name=deployment_name),
+                spec=spec)
+        else:
+            # Create the specification of deployment
+            spec = client.ExtensionsV1beta1DeploymentSpec(
+                replicas=1,
+                template=template)
+
+            # Instantiate the deployment object
+            deployment = client.ExtensionsV1beta1Deployment(
+                api_version="extensions/v1beta1",
+                kind="Deployment",
+                metadata=client.V1ObjectMeta(name=deployment_name),
+                spec=spec)
         return deployment
 
-    def _create_deployment(self, deployment):
-        extensions_v1beta1 = client.ExtensionsV1beta1Api()
-        api_response = extensions_v1beta1.create_namespaced_deployment(
-            body=deployment,
-            namespace="default")
-        fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
+    def _create_deployment(self, deployment, alternate_api=False):
+        if not alternate_api:
+            apps_v1beta1 = client.AppsV1beta1Api()
+            api_response = apps_v1beta1.create_namespaced_deployment(
+                body=deployment,
+                namespace="default")
+            fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
+        else:
+            extensions_v1beta1 = client.ExtensionsV1beta1Api()
+            api_response = extensions_v1beta1.create_namespaced_deployment(
+                body=deployment,
+                namespace="default")
+            fmlogger.debug("Deployment created. status='%s'" % str(api_response.status))
 
     def _create_service(self, app_info):
         deployment_name = app_info['app_name']
@@ -453,33 +508,36 @@ class GKEHandler(coe_base.COEBase):
 
         res_db.Resource().update(resource_obj.id, {'status': 'deleting'})
 
-        filtered_description = ast.literal_eval(resource_obj.filtered_description)
-        cluster_name = filtered_description['cluster_name']
-        project = filtered_description['project']
-        zone = filtered_description['zone']
-
         try:
-            resp = self.gke_service.projects().zones().clusters().delete(
-                projectId=project,
-                zone=zone,
-                clusterId=cluster_name
-            ).execute()
-            fmlogger.debug(resp)
-        except Exception as e:
-            fmlogger.error("Encountered exception when deleting cluster.")
+            filtered_description = ast.literal_eval(resource_obj.filtered_description)
+            cluster_name = filtered_description['cluster_name']
+            project = filtered_description['project']
+            zone = filtered_description['zone']
 
-        available = True
-        while available:
             try:
-                resp = self.gke_service.projects().zones().clusters().get(
+                resp = self.gke_service.projects().zones().clusters().delete(
                     projectId=project,
                     zone=zone,
-                    clusterId=cluster_name).execute()
+                    clusterId=cluster_name
+                ).execute()
+                fmlogger.debug(resp)
             except Exception as e:
-                fmlogger.error("Exception encountered in retrieving cluster. Cluster does not exist. %s " % e)
-                available = False
-                break
-            time.sleep(3)
+                fmlogger.error("Encountered exception when deleting cluster %s" % e)
+
+            available = True
+            while available:
+                try:
+                    resp = self.gke_service.projects().zones().clusters().get(
+                        projectId=project,
+                        zone=zone,
+                        clusterId=cluster_name).execute()
+                except Exception as e:
+                    fmlogger.error("Exception encountered in retrieving cluster. Cluster does not exist. %s " % e)
+                    available = False
+                    break
+                time.sleep(3)
+        except Exception as e:
+            fmlogger.error(e)
 
         res_db.Resource().delete(resource_obj.id)
         fmlogger.debug("Done deleting GKE cluster.")
@@ -527,7 +585,20 @@ class GKEHandler(coe_base.COEBase):
 
         app_data['status'] = 'creating-kubernetes-deployment'
         app_db.App().update(app_id, app_data)
-        self._create_deployment(deployment_obj)
+
+        try:
+            self._create_deployment(deployment_obj)
+        except Exception as e:
+            fmlogger.error(e)
+            deployment_obj = self._create_deployment_object(app_info,
+                                                            tagged_image,
+                                                            alternate_api=True)
+            try:
+                self._create_deployment(deployment_obj, alternate_api=True)
+            except Exception as e:
+                fmlogger(e)
+                app_data['status'] = 'deployment-error' + str(e)
+                app_db.App().update(app_id, app_data)
 
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
@@ -559,19 +630,22 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug("Deleting application %s" % app_info['app_name'])
 
         app_obj = app_db.App().get(app_id)
-        app_output_config = ast.literal_eval(app_obj.output_config)
-        tagged_image = app_output_config['tagged_image']
+        try:
+            app_output_config = ast.literal_eval(app_obj.output_config)
+            tagged_image = app_output_config['tagged_image']
 
-        self._delete_service(app_info)
-        self._delete_deployment(app_info)
+            self._delete_service(app_info)
+            self._delete_deployment(app_info)
 
-        # TODO(devdatta) The gcloud sdk is encountering a failure when trying
-        # to delete the GCR image. So for the time being commenting out below
-        # call. Send a response to the user asking the user to manually delete
-        # the image from Google cloud console.
-        # self._delete_app_image_gcr(tagged_image, app_info)
+            # TODO(devdatta) The gcloud sdk is encountering a failure when trying
+            # to delete the GCR image. So for the time being commenting out below
+            # call. Send a response to the user asking the user to manually delete
+            # the image from Google cloud console.
+            # self._delete_app_image_gcr(tagged_image, app_info)
 
-        self._delete_app_image_local(tagged_image)
+            self._delete_app_image_local(tagged_image)
+        except Exception as e:
+            fmlogger.error(e)
 
         app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application %s" % app_info['app_name'])

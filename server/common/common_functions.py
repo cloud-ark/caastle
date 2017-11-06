@@ -157,3 +157,12 @@ def read_container_id(app_info, file_name='container_id.txt'):
     except Exception as e:
         fmlogging.error("Error encountered in reading container_id: %s" % e)
     return cont_id_list
+
+
+def get_cloud_setup():
+    cloud_setup = []
+    if os.path.exists(home_dir + "/.aws/credentials") and os.path.exists(home_dir + "/.aws/config"):
+        cloud_setup.append("aws")
+    if os.path.exists(home_dir + "/.config/gcloud"):
+        cloud_setup.append("gcloud")
+    return cloud_setup
