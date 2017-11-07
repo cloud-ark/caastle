@@ -16,8 +16,8 @@ CloudARK enables full-stack deployment of microservices on Google GKE and Amazon
 
 
 CloudARK is based on the concept of *Platform-as-Code (PaC)*.
-PaC enables defining and creating micro services using a declarative definition of
-of its platform elements, consisting of:
+PaC enables defining and creating microservices using declarative definition
+of their platform elements consisting of:
 
 - Container Orchestration Engine (COE) cluster
 
@@ -37,17 +37,19 @@ Read this_ for more details about CloudARK
 Try CloudARK
 -------------
 
-Supported Platforms and Languages:
+Tested on:
 
 - Ubuntu 14.04, 16.04
 
 - Mac OS (El Capitan 10.11.4)
 
+Requires:
+
 - Docker 1.6 and above
 
 - Python 2.7
 
-CloudARK requires Docker to be installed. If you don't have Docker, you can install it following steps from:
+CloudARK requires Docker to be installed. If you do not have Docker, you can install it following steps from:
 
 https://docs.docker.com/engine/installation/
 
@@ -57,6 +59,7 @@ Once you have installed Docker follow these steps:
 1) Clone this repository
 
 2) Install CloudARK
+
    $ ./install.sh
 
 3) Do cloud setup
@@ -79,8 +82,8 @@ Deploying on Google GKE
 ------------------------
 
   $ cld setup gcloud
-    - This will create a gcloud user token and application token which will be used by CloudARK for deployment.
-      Follow the instructions to generate these tokens.
+    - This will create a gcloud user token and an application token which will be used by CloudARK during deployments.
+      Follow the prompts and provide the required input.
 
   $ ./restart-cloudark.sh
 
@@ -95,8 +98,7 @@ Deploying on Amazon ECS
   $ ./restart-cloudark.sh
 
 
-Your AWS user will need to have following managed policies in order to use CloudARK to deploy
-containerized applications on Amazon ECS.
+Your AWS user will need to have following managed policies in order to do deployments using CloudARK.
 
 - AmazonEC2FullAccess
 - AmazonEC2ContainerRegistryFullAccess
@@ -112,7 +114,7 @@ Your AWS user will need to have the EC2 Container Service Role. Use these steps 
 
 You will also need to add IAM policy shown below which will grant permissions to the
 ECS agent running on your ECS cluster instances to perform IAM actions
-such as create a ECS instance profile role and assume that role.
+such as creating a ECS instance profile role and assuming that role.
 These permissions are required for the ECS agent to communicate with the ECS service.
 
 Use these steps to create it:
