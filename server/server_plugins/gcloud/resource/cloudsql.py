@@ -26,7 +26,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
     def _create_database(self, resource_details, project_name,
                          instance_id, etag):
-        dbname = 'testdb'
+        dbname = constants.DEFAULT_DB_NAME
 
         if 'configuration' in resource_details:
             if 'dbname' in resource_details['configuration']:
@@ -46,14 +46,18 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         )
 
         create_accepted = False
-
-        while not create_accepted:
+        count = 1
+        while not create_accepted and count < constant.TIMEOUT_COUNT:
             try:
                 insert_db_req.execute()
                 create_accepted = True
             except Exception as e:
                 fmlogger.error("Encountered exception when creating database %s" % e)
                 time.sleep(2)
+                count = count + 1
+
+        if not create_accepted:
+            raise Exception("DB create action encountered exception.")
 
         # Allow Google to create the database
         time.sleep(5)
@@ -96,21 +100,25 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
         res_id = ''
         res_data = {}
+        res_data['env_id'] = env_id
+        res_data['cloud_resource_id'] = instance_id
+        res_data['type'] = res_type
+        res_data['status'] = 'creating'
+        res_id = res_db.Resource().insert(res_data)
+
         try:
             create_response = create_request.execute()
-            res_data['env_id'] = env_id
-            res_data['cloud_resource_id'] = instance_id
-            res_data['type'] = res_type
-            res_data['status'] = 'creating'
-
             detailed_description = {}
             detailed_description['action_response'] = create_response
             detailed_description['name'] = instance_id
             detailed_description['project'] = project_name
             res_data['detailed_description'] = str(detailed_description)
-            res_id = res_db.Resource().insert(res_data)
+            res_db.Resource().update(res_id, res_data)
         except Exception as e:
             fmlogger.error("Exception encountered in creating CloudSQL instance %s" % e)
+            res_data['status'] = 'Error: ' + str(e)
+            res_db.Resource().update(res_id, res_data)
+            return cloudsql_status
 
         available = False
         timeout = 100
@@ -124,7 +132,15 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
                 project=project_name,
                 instance=instance_id
             )
-            get_response = get_request.execute()
+            get_response = ''
+            try:
+                get_response = get_request.execute()
+            except Exception as e:
+                fmlogger.error(e)
+                res_data['status'] = str(e)
+                res_db.Resource().update(res_id, res_data)
+                return cloudsql_status
+
             status = get_response['state']
             etag = get_response['etag']
 
@@ -168,7 +184,13 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         # Give some time for Google to create the username/password
         time.sleep(5)
 
-        dbname = self._create_database(resource_details, project_name, instance_id, etag)
+        dbname = ''
+        try:
+            dbname = self._create_database(resource_details, project_name, instance_id, etag)
+        except Exception as e:
+            fmlogger.error(e)
+            res_data['status'] = str(e)
+            cloudsql_status = 'unavailable'
 
         filtered_description['Username'] = username
         filtered_description['Password'] = password
@@ -187,28 +209,31 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         res_data['status'] = 'deleting'
         res_db.Resource().update(request_obj.id, res_data)
 
-        detailed_description = ast.literal_eval(request_obj.detailed_description)
+        try:
+            detailed_description = ast.literal_eval(request_obj.detailed_description)
 
-        name = detailed_description['name']
-        project_name = detailed_description['project']
+            name = detailed_description['name']
+            project_name = detailed_description['project']
 
-        delete_request = CloudSQLResourceHandler.service.instances().delete(
-            project=project_name,
-            instance=name
-        )
+            delete_request = CloudSQLResourceHandler.service.instances().delete(
+                project=project_name,
+                instance=name
+            )
 
-        delete_request.execute()
+            delete_request.execute()
 
-        gone = False
-        while not gone:
-            try:
-                get_request = CloudSQLResourceHandler.service.instances().get(
-                    project=project_name,
-                    instance=name
-                )
-                get_request.execute()
-            except Exception as e:
-                fmlogger.error("Encountered exception in cloudsql delete %s" % e)
-                gone = True
+            gone = False
+            while not gone:
+                try:
+                    get_request = CloudSQLResourceHandler.service.instances().get(
+                        project=project_name,
+                        instance=name
+                    )
+                    get_request.execute()
+                except Exception as e:
+                    fmlogger.error("Encountered exception in cloudsql delete %s" % e)
+                    gone = True
+        except Exception as e:
+            fmlogger.error(e)
 
         res_db.Resource().delete(request_obj.id)
