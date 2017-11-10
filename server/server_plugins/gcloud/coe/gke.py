@@ -9,6 +9,7 @@ from kubernetes import client, config
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
+from server.common import constants
 from server.common import common_functions
 from server.common import docker_lib
 from server.common import fm_logger
@@ -68,18 +69,23 @@ class GKEHandler(coe_base.COEBase):
         list_of_node_objs = []
         list_of_ips = []
 
-        resp = self.compute_service.instances().list(
-            project=project, zone=zone, orderBy="creationTimestamp desc",
-            pageToken=pageToken).execute()
+        try:
+            resp = self.compute_service.instances().list(
+                project=project, zone=zone, orderBy="creationTimestamp desc",
+                pageToken=pageToken).execute()
 
-        for res in resp['items']:
-            if res['name'].lower().find(env_name) >= 0:
-                list_of_node_objs.append(res)
+            for res in resp['items']:
+                if res['name'].lower().find(env_name) >= 0:
+                    list_of_node_objs.append(res)
 
-        for res in list_of_node_objs:
-            external_ip = res['networkInterfaces'][0]['accessConfigs'][0]['natIP']
-            print(res)
-            list_of_ips.append(external_ip.strip())
+            for res in list_of_node_objs:
+                external_ip = res['networkInterfaces'][0]['accessConfigs'][0]['natIP']
+                print(res)
+                list_of_ips.append(external_ip.strip())
+        except Exception as e:
+            fmlogger.error(e)
+            raise e
+
         return list_of_ips
 
     def _check_if_app_is_ready(self, app_id, app_info):
@@ -364,6 +370,7 @@ class GKEHandler(coe_base.COEBase):
             fmlogger.debug("GKE app service delete response:%s" % api_response)
         except Exception as e:
             fmlogger.error(e)
+            raise e
 
     def _delete_deployment(self, app_info):
         fmlogger.debug("Deleting GKE app deployment")
@@ -381,6 +388,7 @@ class GKEHandler(coe_base.COEBase):
             fmlogger.debug("GKE app deployment delete response:%s" % api_response)
         except Exception as e:
             fmlogger.error(e)
+            raise e
 
     def _delete_app_image_gcr(self, tagged_image, app_info):
         fmlogger.debug("Deleting app image from GCR")
@@ -468,8 +476,9 @@ class GKEHandler(coe_base.COEBase):
     
         fmlogger.debug(resp)
 
+        count = 1
         available = False
-        while not available:
+        while not available and count < constants.TIMEOUT_COUNT:
             resp = self.gke_service.projects().zones().clusters().get(
                 projectId=project,
                 zone=zone,
@@ -481,13 +490,18 @@ class GKEHandler(coe_base.COEBase):
                 available = True
                 break
             else:
+                count = count + 1
                 time.sleep(3)
 
-        instance_ip_list = self._get_cluster_node_ip(env_name,
-                                                     project,
-                                                     zone)
-
-        cluster_status = 'available'
+        instance_ip_list = ''
+        try:
+            instance_ip_list = self._get_cluster_node_ip(env_name,
+                                                         project,
+                                                         zone)
+        except Exception as e:
+            cluster_status = 'unavailable ' + str(e)
+        else:
+            cluster_status = 'available'
         env_output_config['cluster_ips'] = instance_ip_list
         env_data = {}
         env_data['output_config'] = str(env_output_config)
@@ -559,6 +573,8 @@ class GKEHandler(coe_base.COEBase):
         tagged_image = image_name + ":" + tag
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
+            app_data['status'] = 'Error encountered in building and tagging image.' + str(err)
+            app_db.App().update(app_id, app_data)
             return
 
         app_details['tagged_image'] = tagged_image
@@ -570,13 +586,17 @@ class GKEHandler(coe_base.COEBase):
             self._push_app_container(app_info, tagged_image)
         except Exception as e:
             fmlogger.error("Exception encountered in pushing app container to gcr %s" % e)
-            app_data['status'] = 'error-in-application-push-to-gcr'
+            app_data['status'] = 'error-in-application-push-to-gcr:' + str(e)
             app_db.App().update(app_id, app_data)
             return
 
         app_data['status'] = 'setting-up-kubernetes-config'
         app_db.App().update(app_id, app_data)
-        self._setup_kube_config(app_info)
+        try:
+            self._setup_kube_config(app_info)
+        except Exception as e:
+            fmlogger.error("Exception encountered in obtaining kube config %s" % e)
+            app_db.App().update(app_id, {'status': str(e)})
 
         app_data['status'] = 'creating-deployment-object'
         app_db.App().update(app_id, app_data)
@@ -596,13 +616,16 @@ class GKEHandler(coe_base.COEBase):
             try:
                 self._create_deployment(deployment_obj, alternate_api=True)
             except Exception as e:
-                fmlogger(e)
+                fmlogger.error(e)
                 app_data['status'] = 'deployment-error' + str(e)
                 app_db.App().update(app_id, app_data)
 
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
-        self._create_service(app_info)
+        try:
+            self._create_service(app_info)
+        except Exception as e:
+            fmlogger.error(e)
 
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
@@ -642,7 +665,6 @@ class GKEHandler(coe_base.COEBase):
             # call. Send a response to the user asking the user to manually delete
             # the image from Google cloud console.
             # self._delete_app_image_gcr(tagged_image, app_info)
-
             self._delete_app_image_local(tagged_image)
         except Exception as e:
             fmlogger.error(e)
