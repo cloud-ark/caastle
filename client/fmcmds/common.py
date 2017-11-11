@@ -4,6 +4,11 @@ import re
 
 home_dir = expanduser("~")
 
+def get_app_folder_name(app_location):
+    last_slash_index = app_location.rfind("/")
+    app_folder_name = app_location[last_slash_index+1:]
+    return app_folder_name
+
 def check_env_name(env_name, regex_list):
 
     match = False

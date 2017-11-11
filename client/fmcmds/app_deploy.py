@@ -3,14 +3,10 @@ import os
 from cliff.command import Command
 
 import call_server as server
+import common
 
 
 class AppDeploy(Command):
-
-    def _get_app_folder_name(self, app_location):
-        last_slash_index = app_location.rfind("/")
-        app_folder_name = app_location[last_slash_index+1:]
-        return app_folder_name
 
     def get_parser(self, prog_name):
         parser = super(AppDeploy, self).get_parser(prog_name)
@@ -49,7 +45,7 @@ class AppDeploy(Command):
             app_info['memory'] = parsed_args.memory
 
         app_location = os.getcwd()
-        app_folder_name = self._get_app_folder_name(app_location)
+        app_folder_name = common.get_app_folder_name(app_location)
         app_info['app_folder_name'] = app_folder_name
         self.dep_track_url = server.TakeAction().deploy_app(app_location, app_info)
 

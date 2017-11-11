@@ -17,6 +17,7 @@ from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
 import server.server_plugins.coe_base as coe_base
+from server.server_plugins.gcloud import gcloud_helper
 
 home_dir = expanduser("~")
 
@@ -29,6 +30,8 @@ GCR = "us.gcr.io"
 
 class GKEHandler(coe_base.COEBase):
     """GKE Handler."""
+
+    gcloudhelper = gcloud_helper.GCloudHelper()
     
     def __init__(self):
         credentials = GoogleCredentials.get_application_default()
@@ -134,70 +137,10 @@ class GKEHandler(coe_base.COEBase):
         cont_name = app_info['app_name'] + "-get-access-token"
 
         df_dir = app_dir + "/" + app_folder_name
-        fp = open(df_dir + "/Dockerfile.get-access-token", "w")
-        fp.write(df)
-        fp.close()
 
-        err, output = self.docker_handler.build_container_image(
-            cont_name,
-            df_dir + "/Dockerfile.get-access-token",
-            df_context=df_dir
-        )
+        access_token = GKEHandler.gcloudhelper.get_access_token(df_dir, cont_name)
         
-        err, output = self.docker_handler.run_container(cont_name)
-
-        if err:
-            error_msg = ("Error encountered in obtaining gcloud access token {e}").format(e=err)
-            fmlogger.error(error_msg)
-            raise Exception(error_msg)
-
-        docker_image_id = output.strip()
-        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials.db {df_dir}/.").format(
-            docker_img=docker_image_id,
-            df_dir=df_dir
-        )
-
-        os.system(copy_creds_file)
-
-        access_token = ''
-        fp1 = open(df_dir + "/credentials.db")
-        lines = fp1.readlines()
-        for line in lines:
-            if line.find("access_token") >= 0:
-                line_contents = line.split(":")
-                access_token = line_contents[1].strip().replace("\"", "").replace(",", "")
-                fmlogger.debug("Access token:%s" % access_token)
-
-        self.docker_handler.stop_container(docker_image_id)
-        self.docker_handler.remove_container(docker_image_id)
-        self.docker_handler.remove_container_image(cont_name)
         return access_token
-
-    def _build_app_container(self, app_info, tag=''):
-        app_dir = app_info['app_location']
-        app_folder_name = app_info['app_folder_name']
-
-        df_dir = app_dir + "/" + app_folder_name
-
-        env_obj = env_db.Environment().get(app_info['env_id'])
-        env_details = ast.literal_eval(env_obj.env_definition)
-
-        project = project = env_details['environment']['app_deployment']['project']
-        app_name = app_info['app_name']
-        cont_name = GCR + "/" + project + "/" + app_name
-        fmlogger.debug("Container name that will be used in building:%s" % cont_name)
-
-        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile",
-                                                                df_context=df_dir, tag=tag)
-        return err, output, cont_name
-
-    def _push_app_container(self, app_info, tagged_image):
-        access_token = self._get_access_token(app_info)
-
-        self.docker_handler.docker_login("oauth2accesstoken",
-                                         access_token, "https://" + GCR)
-
-        self.docker_handler.push_container(tagged_image)
 
     def _setup_kube_config(self, app_info):
         df = self.docker_handler.get_dockerfile_snippet("google")
@@ -565,30 +508,6 @@ class GKEHandler(coe_base.COEBase):
 
         app_details = {}
         app_data = {}
-        app_data['status'] = 'building-application-container'
-
-        app_db.App().update(app_id, app_data)
-        tag = str(int(round(time.time() * 1000)))
-        err, output, image_name = self._build_app_container(app_info, tag=tag)
-        tagged_image = image_name + ":" + tag
-        if err:
-            fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
-            app_data['status'] = 'Error encountered in building and tagging image.' + str(err)
-            app_db.App().update(app_id, app_data)
-            return
-
-        app_details['tagged_image'] = tagged_image
-        app_data['output_config'] = str(app_details)
-        app_data['status'] = 'pushing-app-cont-to-gcr-repository'
-        
-        app_db.App().update(app_id, app_data)
-        try:
-            self._push_app_container(app_info, tagged_image)
-        except Exception as e:
-            fmlogger.error("Exception encountered in pushing app container to gcr %s" % e)
-            app_data['status'] = 'error-in-application-push-to-gcr:' + str(e)
-            app_db.App().update(app_id, app_data)
-            return
 
         app_data['status'] = 'setting-up-kubernetes-config'
         app_db.App().update(app_id, app_data)

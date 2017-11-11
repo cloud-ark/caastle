@@ -9,6 +9,7 @@ resources_endpoint = "http://localhost:5002/resources"
 resource_stacks_endpoint = "http://localhost:5002/resource_stacks"
 environments_endpoint = "http://localhost:5002/environments"
 apps_endpoint = "http://localhost:5002/apps"
+containers_endpoint = "http://localhost:5002/containers"
 
 SERVER_ERROR = "Something caused error in cloudark. Please submit bug report on cloudark github repo. "
 SERVER_ERROR = SERVER_ERROR + "Attach logs from cld.log which is available in cloudark directory."
@@ -42,6 +43,45 @@ class TakeAction(object):
         except Exception as e:
             print("CloudARK server is not running. Please run ./start-cloudark.sh.")
             exit()
+
+    def create_container(self, source_dir, cont_info):
+        self._check_server()
+
+        req = urllib2.Request(containers_endpoint)
+        req.add_header('Content-Type', 'application/octet-stream')
+
+        cont_name = cont_info['cont_name']
+        tarfile_name = cont_name + ".tar"
+
+        self._make_tarfile(tarfile_name, source_dir)
+        tarfile_content = self._read_tarfile(tarfile_name)
+
+        cont_info['cont_tar_name'] = tarfile_name
+        cont_info['content'] = tarfile_content
+
+        cont_url = ''
+        try:
+            data = {'cont_info': cont_info}
+            response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+            cont_url = response.headers.get('location')
+            print("Request to create container accepted.")
+        except Exception as e:
+            error = e.read()
+            print(error)
+        self._delete_tarfile(tarfile_name, source_dir)
+
+    def get_container(self, container_name):
+        self._check_server()
+        cont_url = containers_endpoint + "/" + container_name
+        req = urllib2.Request(cont_url)
+        cont_data = ''
+        try:
+            response = urllib2.urlopen(req)
+            cont_data = response.fp.read()
+        except urllib2.HTTPError as e:
+            if e.getcode() == 404:
+                print("Container with name %s not found." % container_name)
+        return cont_data
 
     def deploy_app(self, app_path, app_info):
         self._check_server()

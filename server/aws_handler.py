@@ -92,3 +92,15 @@ class AWSHandler(object):
         for name, ext in AWSHandler.coe_mgr.items():
             if name == coe_type:
                 ext.obj.delete_application(app_id, app_info)
+
+    def create_container(self, cont_name, cont_info):
+        repo_type = cont_info['dep_target']
+        for name, ext in AWSHandler.res_mgr.items():
+            if name == repo_type:
+                ext.obj.create(cont_name, cont_info)
+
+    def delete_container(self, cont_name, cont_info):
+        repo_type = cont_info['dep_target']
+        for name, ext in AWSHandler.res_mgr.items():
+            if name == repo_type:
+                ext.obj.delete(cont_name, cont_info)

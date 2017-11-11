@@ -15,6 +15,8 @@ home_dir = expanduser("~")
 
 APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 
+CONT_STORE_PATH = ("{home_dir}/.cld/data/deployments/containers").format(home_dir=home_dir)
+
 fmlogging = fm_logger.Logging()
 
 
@@ -31,6 +33,24 @@ def get_version_stamp():
     version_stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
     return version_stamp
 
+def store_container_df(cont_name, cont_tar_name, content):
+    cont_store_path = ("{CONT_STORE_PATH}/{cont_name}").format(CONT_STORE_PATH=CONT_STORE_PATH,
+                                                               cont_name=cont_name)
+    if not os.path.exists(cont_store_path):
+        os.makedirs(cont_store_path)
+
+    cont_tar_file = ("{cont_store_path}/{cont_tar_name}").format(cont_store_path=cont_store_path,
+                                                                 cont_tar_name=cont_tar_name)
+    df_file = open(cont_tar_file, "w")
+    df_file.write(content.encode("ISO-8859-1"))
+    df_file.flush()
+    df_file.close()
+
+    # expand the directory
+    untar_the_app(cont_tar_file, versioned_app_path)
+    return versioned_app_path, app_version
+
+    return cont_store_path
 
 def store_app_contents(app_name, app_tar_name, content, app_version=''):
     # create directory
