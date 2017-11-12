@@ -120,7 +120,9 @@ def resolve_environment(app_id, app_info):
     resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
 
     app_yaml_def = read_app_yaml(app_info)
-    env_vars = app_yaml_def['app']['env']
+    env_vars = ''
+    if 'env' in app_yaml_def['app']:
+        env_vars = app_yaml_def['app']['env']
     new_env_var = dict()
     for key, value in env_vars.iteritems():
         if value.find("$CLOUDARK_") >= 0:

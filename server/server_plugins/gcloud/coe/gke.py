@@ -222,15 +222,21 @@ class GKEHandler(coe_base.COEBase):
 
         config.load_kube_config()
 
-    def _create_deployment_object(self, app_info, tagged_image, alternate_api=False):
+    def _create_deployment_object(self, app_info, tagged_image, env_vars_dict, alternate_api=False):
         deployment_name = app_info['app_name']
         container_port = int(common_functions.get_app_port(app_info))
+
+        env_list = []
+        for key, value in env_vars_dict.iteritems():
+            v1_envvar = client.V1EnvVar(name=key, value=value)
+            env_list.append(v1_envvar)
 
         # Configure Pod template container
         container = client.V1Container(
             name=deployment_name,
             image=tagged_image,
-            ports=[client.V1ContainerPort(container_port=container_port)])
+            ports=[client.V1ContainerPort(container_port=container_port)],
+            env=env_list)
 
         # Create and configurate a spec section
         template = client.V1PodTemplateSpec(
@@ -505,8 +511,8 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug("Deploying application %s" % app_info['app_name'])
         self._copy_creds(app_info)
 
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
+        #if app_info['env_id']:
+        env_vars = common_functions.resolve_environment(app_id, app_info)
 
         app_details = {}
         app_data = {}
@@ -525,7 +531,8 @@ class GKEHandler(coe_base.COEBase):
         tagged_image = common_functions.get_image_uri(app_info)
 
         deployment_obj = self._create_deployment_object(app_info,
-                                                        tagged_image)
+                                                        tagged_image,
+                                                        env_vars)
 
         app_data['status'] = 'creating-kubernetes-deployment'
         app_db.App().update(app_id, app_data)
@@ -536,6 +543,7 @@ class GKEHandler(coe_base.COEBase):
             fmlogger.error(e)
             deployment_obj = self._create_deployment_object(app_info,
                                                             tagged_image,
+                                                            env_vars,
                                                             alternate_api=True)
             try:
                 self._create_deployment(deployment_obj, alternate_api=True)
