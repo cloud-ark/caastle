@@ -33,21 +33,16 @@ class GCRHandler(resource_base.ResourceBase):
     def __init__(self):
         self.docker_handler = docker_lib.DockerLib()
 
-    def _get_df_dir(self, cont_info):
-        df_dir = cont_info['cont_store_path']
-        df_dir = df_dir + "/" + cont_info['cont_df_folder_name']
-        return df_dir
-
     def _get_access_token(self, cont_info):
         access_token = ''
         df = self.docker_handler.get_dockerfile_snippet("google_for_token")
-        df_dir = self._get_df_dir(cont_info)
+        df_dir = common_functions.get_df_dir(cont_info)
         cont_name = cont_info['cont_name'] + "-get-access-token"
         access_token = GCRHandler.gcloudhelper.get_access_token(df_dir, df, cont_name)
         return access_token
 
     def _build_container(self, cont_info, tag=''):
-        df_dir = self._get_df_dir(cont_info)
+        df_dir = common_functions.get_df_dir(cont_info)
         project = cont_info['project']
         cont_name = cont_info['cont_name']
         fq_cont_name = GCR + "/" + project + "/" + cont_name
@@ -66,7 +61,7 @@ class GCRHandler(resource_base.ResourceBase):
         self.docker_handler.push_container(tagged_image)
 
     def create(self, cont_name, cont_info):
-        df_dir = self._get_df_dir(cont_info)
+        df_dir = common_functions.get_df_dir(cont_info)
         if not os.path.exists(df_dir + "/google-creds"):
             shutil.copytree(home_dir + "/.config/gcloud", df_dir + "/google-creds/gcloud")
 

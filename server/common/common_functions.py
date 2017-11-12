@@ -4,6 +4,7 @@ import os
 import requests
 import tarfile
 import time
+import yaml
 
 from os.path import expanduser
 
@@ -33,6 +34,7 @@ def get_version_stamp():
     version_stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
     return version_stamp
 
+
 def store_container_df(cont_name, cont_tar_name, content):
     cont_store_path = ("{CONT_STORE_PATH}/{cont_name}").format(CONT_STORE_PATH=CONT_STORE_PATH,
                                                                cont_name=cont_name)
@@ -51,6 +53,7 @@ def store_container_df(cont_name, cont_tar_name, content):
     return versioned_app_path, app_version
 
     return cont_store_path
+
 
 def store_app_contents(app_name, app_tar_name, content, app_version=''):
     # create directory
@@ -186,3 +189,52 @@ def get_cloud_setup():
     if os.path.exists(home_dir + "/.config/gcloud"):
         cloud_setup.append("gcloud")
     return cloud_setup
+
+
+def get_df_dir(cont_info):
+    df_dir = cont_info['cont_store_path']
+    df_dir = df_dir + "/" + cont_info['cont_df_folder_name']
+    return df_dir
+
+
+def read_app_yaml(app_info):
+    app_dir = app_info['app_location']
+    app_folder_name = app_info['app_folder_name']
+    df_dir = app_dir + "/" + app_folder_name
+    app_yaml = app_info['app_yaml']
+    try:
+        fp = open(df_dir + "/" + app_yaml, "r")
+    except Exception as e:
+        print(e)
+        exit()
+
+    try:
+        app_yaml_def = yaml.load(fp.read())
+    except Exception as exp:
+        print("Error parsing %s" % app_yaml)
+        print(exp)
+        exit()
+    return app_yaml_def
+
+
+def get_image_uri(app_info):
+    image_uri = ''
+    app_yaml_def = read_app_yaml(app_info)
+    image_uri = app_yaml_def['app']['image']
+    return image_uri
+
+
+def get_app_port(app_info):
+    app_port = ''
+    app_yaml_def = read_app_yaml(app_info)
+    if 'port' in app_yaml_def['app']:
+        app_port = app_yaml_def['app']['port']
+    return app_port
+
+
+def get_app_memory(app_info):
+    app_memory = ''
+    app_yaml_def = read_app_yaml(app_info)
+    if 'memory' in app_yaml_def['app']:
+        app_memory = app_yaml_def['app']['memory']
+    return app_memory

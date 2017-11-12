@@ -3,7 +3,6 @@ import os
 from os.path import expanduser
 import shutil
 import time
-import yaml
 
 from kubernetes import client, config
 
@@ -44,38 +43,6 @@ class GKEHandler(coe_base.COEBase):
         self.docker_handler = docker_lib.DockerLib()
 
         self.app_yaml_def = ''
-
-    def _read_app_yaml(self, app_info):
-        app_dir = app_info['app_location']
-        app_folder_name = app_info['app_folder_name']
-        df_dir = app_dir + "/" + app_folder_name
-        app_yaml = app_info['app_yaml']
-        try:
-            fp = open(df_dir + "/" + app_yaml, "r")
-        except Exception as e:
-            print(e)
-            exit()
-
-        try:
-            self.app_yaml_def = yaml.load(fp.read())
-        except Exception as exp:
-            print("Error parsing %s" % app_yaml)
-            print(exp)
-            exit()
-
-    def _get_image_uri(self, app_info):
-        image_uri = ''
-        if not self.app_yaml_def:
-            self._read_app_yaml(app_info)
-        image_uri = self.app_yaml_def['app']['image']
-        return image_uri
-
-    def _get_app_port(self, app_info):
-        app_port = ''
-        if not self.app_yaml_def:
-            self._read_app_yaml(app_info)
-        app_port = self.app_yaml_def['app']['port']
-        return app_port
 
     def _get_cluster_name(self, env_id):
         resource_obj = res_db.Resource().get_resource_for_env(env_id, 'gke-cluster')
@@ -257,7 +224,7 @@ class GKEHandler(coe_base.COEBase):
 
     def _create_deployment_object(self, app_info, tagged_image, alternate_api=False):
         deployment_name = app_info['app_name']
-        container_port = int(self._get_app_port(app_info))
+        container_port = int(common_functions.get_app_port(app_info))
 
         # Configure Pod template container
         container = client.V1Container(
@@ -313,7 +280,7 @@ class GKEHandler(coe_base.COEBase):
 
     def _create_service(self, app_info):
         deployment_name = app_info['app_name']
-        container_port = int(self._get_app_port(app_info))
+        container_port = int(common_functions.get_app_port(app_info))
 
         v1_object_meta = client.V1ObjectMeta()
         v1_object_meta.name = deployment_name
@@ -537,7 +504,7 @@ class GKEHandler(coe_base.COEBase):
     def deploy_application(self, app_id, app_info):
         fmlogger.debug("Deploying application %s" % app_info['app_name'])
         self._copy_creds(app_info)
-        
+
         if app_info['env_id']:
             common_functions.resolve_environment(app_id, app_info)
 
@@ -555,7 +522,7 @@ class GKEHandler(coe_base.COEBase):
         app_data['status'] = 'creating-deployment-object'
         app_db.App().update(app_id, app_data)
 
-        tagged_image = self._get_image_uri(app_info)
+        tagged_image = common_functions.get_image_uri(app_info)
 
         deployment_obj = self._create_deployment_object(app_info,
                                                         tagged_image)
