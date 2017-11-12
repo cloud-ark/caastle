@@ -96,32 +96,66 @@ def _get_env_value(resource_list, placeholder_env_value):
     return env_value
 
 
-def resolve_environment(app_id, app_info):
-    resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
+def read_app_yaml(app_info):
     app_dir = app_info['app_location']
     app_folder_name = app_info['app_folder_name']
     df_dir = app_dir + "/" + app_folder_name
-    os.rename(df_dir + "/Dockerfile", df_dir + "/Dockerfile.orig")
-    fp = open(df_dir + "/Dockerfile", "w")
-    fp1 = open(df_dir + "/Dockerfile.orig", "r")
-    lines = fp1.readlines()
+    app_yaml = app_info['app_yaml']
+    try:
+        fp = open(df_dir + "/" + app_yaml, "r")
+    except Exception as e:
+        print(e)
+        exit()
 
-    for line in lines:
-        line_to_write = line
-        if line.find("$CLOUDARK_") >= 0:
-            new_line_parts = []
-            parts = line.split(" ")
-            for part in parts:
-                if part.find("$CLOUDARK_") >= 0:
-                    translated_env_value = _get_env_value(resource_list, part)
-                    new_line_parts.append(translated_env_value)
-                else:
-                    new_line_parts.append(part)
-            line_to_write = " ".join(new_line_parts)
-        fp.write(line_to_write)
-        fp.write("\n")
-    fp.close()
-    fp1.close()
+    try:
+        app_yaml_def = yaml.load(fp.read())
+    except Exception as exp:
+        print("Error parsing %s" % app_yaml)
+        print(exp)
+        exit()
+    return app_yaml_def
+
+
+def resolve_environment(app_id, app_info):
+    resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
+
+    app_yaml_def = read_app_yaml(app_info)
+    env_vars = app_yaml_def['app']['env']
+    new_env_var = dict()
+    for key, value in env_vars.iteritems():
+        if value.find("$CLOUDARK_") >= 0:
+            value = _get_env_value(resource_list, value)
+        new_env_var[key] = value
+
+    return new_env_var
+
+#     app_dir = app_info['app_location']
+#     app_folder_name = app_info['app_folder_name']
+#     df_dir = app_dir + "/" + app_folder_name
+#
+#     app_yaml = app_info['app_yaml']
+#     os.rename(df_dir + "/" + app_yaml, df_dir + "/" + app_yaml + ".orig")
+#     fp = open(df_dir + "/" + app_yaml, "w")
+#     fp1 = open(df_dir + "/" + app_yaml + ".orig", "r")
+#
+#     lines = fp1.readlines()
+#
+#     for line in lines:
+#         line_to_write = line
+#         if line.find("$CLOUDARK_") >= 0:
+#             new_line_parts = []
+#             parts = line.split(" ")
+#             for part in parts:
+#                 if part.find("$CLOUDARK_") >= 0:
+#                     translated_env_value = _get_env_value(resource_list, part)
+#                     new_line_parts.append(translated_env_value)
+#                 else:
+#                     new_line_parts.append(part)
+#             line_to_write = " ".join(new_line_parts)
+#         fp.write(line_to_write)
+#         fp.write("\n")
+#     fp.close()
+#     fp1.close()
 
 
 def is_app_ready(app_url, app_id='', timeout=300):
@@ -195,26 +229,6 @@ def get_df_dir(cont_info):
     df_dir = cont_info['cont_store_path']
     df_dir = df_dir + "/" + cont_info['cont_df_folder_name']
     return df_dir
-
-
-def read_app_yaml(app_info):
-    app_dir = app_info['app_location']
-    app_folder_name = app_info['app_folder_name']
-    df_dir = app_dir + "/" + app_folder_name
-    app_yaml = app_info['app_yaml']
-    try:
-        fp = open(df_dir + "/" + app_yaml, "r")
-    except Exception as e:
-        print(e)
-        exit()
-
-    try:
-        app_yaml_def = yaml.load(fp.read())
-    except Exception as exp:
-        print("Error parsing %s" % app_yaml)
-        print(exp)
-        exit()
-    return app_yaml_def
 
 
 def get_image_uri(app_info):

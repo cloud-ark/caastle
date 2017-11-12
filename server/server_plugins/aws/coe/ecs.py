@@ -84,7 +84,8 @@ class ECSHandler(coe_base.COEBase):
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
-    def _register_task_definition(self, app_info, image, container_port, cont_name=''):
+    def _register_task_definition(self, app_info, image, container_port, env_vars_dict, cont_name=''):
+
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
         memory = 250  # Default memory size of 250MB. This is hard limit
@@ -94,6 +95,14 @@ class ECSHandler(coe_base.COEBase):
         task_def_arn = ''
         revision = str(int(round(time.time() * 1000)))
         family_name = family_name + "-" + revision
+
+        env_list = []
+        for key, value in env_vars_dict.iteritems():
+            environment_dict = {}
+            environment_dict['name'] = key
+            environment_dict['value'] = value
+            env_list.append(environment_dict)
+
         try:
             resp = self.ecs_client.register_task_definition(
                 family=family_name,
@@ -103,7 +112,8 @@ class ECSHandler(coe_base.COEBase):
                                        'portMappings': [{
                                            'containerPort': container_port,
                                            'hostPort': 80,
-                                           'protocol': 'tcp'}]}]
+                                           'protocol': 'tcp'}],
+                                        'environment': env_list}]
             )
             task_def_arn = resp['taskDefinition']['taskDefinitionArn']
         except Exception as e:
@@ -458,8 +468,8 @@ class ECSHandler(coe_base.COEBase):
     def deploy_application(self, app_id, app_info):
         self._copy_creds(app_info)
 
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
+        env_vars = common_functions.resolve_environment(app_id, app_info)
+        #if app_info['env_id']:
 
         app_details = {}
         app_data = {}
@@ -471,7 +481,8 @@ class ECSHandler(coe_base.COEBase):
         tagged_image = common_functions.get_image_uri(app_info)
 
         container_port = int(common_functions.get_app_port(app_info))
-        task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
+        task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
+                                                                 container_port, env_vars)
         app_details['task_def_arn'] = [task_def_arn]
         app_details['cont_name'] = cont_name
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
@@ -510,8 +521,8 @@ class ECSHandler(coe_base.COEBase):
     def redeploy_application(self, app_id, app_info):
         self._copy_creds(app_info)
 
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
+        #if app_info['env_id']:
+        env_vars = common_functions.resolve_environment(app_id, app_info)
 
         app_obj = app_db.App().get(app_id)
         app_details = app_obj.output_config
@@ -562,7 +573,7 @@ class ECSHandler(coe_base.COEBase):
         app_dt['status'] = 'registering-new-task-ecs-app-service'
         app_db.App().update(app_id, app_dt)
         new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
-                                                                     container_port, cont_name=orig_cont_name)
+                                                                     container_port, env_vars, cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
         app_details_obj['task_def_arn'].append(new_task_def_arn)
@@ -582,38 +593,43 @@ class ECSHandler(coe_base.COEBase):
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
         app_obj = app_db.App().get(app_id)
-        app_details = app_obj.output_config
-        app_details_obj = ast.literal_eval(app_details)
-        app_details_obj['app_url'] = ''
-
-        app_dt = {}
-        app_dt['status'] = 'deleting'
-        app_dt['output_config'] = str(app_details_obj)
-        app_db.App().update(app_id, app_dt)
 
         try:
-            task_def_arn_list = app_details_obj['task_def_arn']
-            latest_task_def_arn = task_def_arn_list[-1]
-            cont_name = app_details_obj['cont_name']
-            self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
-            for task_def_arn in task_def_arn_list:
-                self._deregister_task_definition(task_def_arn)
-            self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
-                                           service=app_obj.name)
-        except Exception as e:
-            fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
+            app_details = app_obj.output_config
+            app_details_obj = ast.literal_eval(app_details)
+            app_details_obj['app_url'] = ''
 
-        ECSHandler.awshelper.delete_listener(app_details_obj)
+            app_dt = {}
+            app_dt['status'] = 'deleting'
+            app_dt['output_config'] = str(app_details_obj)
+            app_db.App().update(app_id, app_dt)
 
-        ECSHandler.awshelper.delete_target_group(app_details_obj)
+            try:
+                task_def_arn_list = app_details_obj['task_def_arn']
+                latest_task_def_arn = task_def_arn_list[-1]
+                cont_name = app_details_obj['cont_name']
+                self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
+                for task_def_arn in task_def_arn_list:
+                    self._deregister_task_definition(task_def_arn)
+                self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
+                                               service=app_obj.name)
+            except Exception as e:
+                fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
 
-        ECSHandler.awshelper.delete_load_balancer(app_details_obj)
+            ECSHandler.awshelper.delete_listener(app_details_obj)
 
-        try:
-            tagged_image_list = app_details_obj['image_name']
-            if tagged_image_list:
-                for tagged_image in tagged_image_list:
-                    self.docker_handler.remove_container_image(tagged_image)
+            ECSHandler.awshelper.delete_target_group(app_details_obj)
+
+            ECSHandler.awshelper.delete_load_balancer(app_details_obj)
+
+            try:
+                tagged_image_list = app_details_obj['image_name']
+                if tagged_image_list:
+                    for tagged_image in tagged_image_list:
+                        self.docker_handler.remove_container_image(tagged_image)
+            except Exception as e:
+                fmlogger.error("Exception encountered while deleting images %s" % e)
+
         except Exception as e:
             fmlogger.error("Exception encountered while deleting images %s" % e)
 
