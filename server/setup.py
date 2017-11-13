@@ -60,6 +60,9 @@ setup(
         'server.server_plugins.gcloud.coe': [
             'gke = server.server_plugins.gcloud.coe.gke:GKEHandler',
         ],
+        'server.server_plugins.local.resource': [
+            'mysql = server.server_plugins.local.resource.mysql:MySQLResourceHandler',
+        ],
         'server.server_plugins.local.coe': [
             'local-docker = server.server_plugins.local.coe.native_docker:NativeDockerHandler',
         ],

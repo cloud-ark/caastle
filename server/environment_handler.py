@@ -80,6 +80,11 @@ class EnvironmentHandler(threading.Thread):
                 resources_list = resources['gcloud']
                 stat_list = EnvironmentHandler.registered_cloud_handlers['gcloud'].create_resources(self.env_id, resources_list)
                 status_list.extend(stat_list)
+            if 'local' in resources:
+                fmlogging.debug("Creating local resource containers")
+                resources_list = resources['local']
+                stat_list = EnvironmentHandler.registered_cloud_handlers['local'].create_resources(self.env_id, resources_list)
+                status_list.extend(stat_list)
 
         all_available = True
         for stat in status_list:
@@ -113,7 +118,9 @@ class EnvironmentHandler(threading.Thread):
             if type in ['cloudsql']:
                 EnvironmentHandler.registered_cloud_handlers['gcloud'].delete_resource(self.env_id,
                                                                                        resource)
-
+            if type in ['mysql']:
+                EnvironmentHandler.registered_cloud_handlers['local'].delete_resource(self.env_id,
+                                                                                      resource)
         env_db.Environment().delete(self.env_id)
 
     def run(self):

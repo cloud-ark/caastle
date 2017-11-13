@@ -10,6 +10,7 @@ from common import docker_lib
 from common import fm_logger
 from dbmodule.objects import app as app_db
 from server.dbmodule.objects import container as cont_db
+from dbmodule.objects import environment as env_db
 
 fmlogger = fm_logger.Logging()
 
@@ -51,6 +52,31 @@ class LocalHandler(object):
         cont_db.Container().update(cont_name, cont_data)
 
         return err, output, tagged_image
+    
+    def create_resources(self, env_id, resource_list):
+        fmlogger.debug("Local create_resources")
+        resource_details = ''
+        ret_status_list = []
+
+        for resource_defs in resource_list:
+            resource_details = resource_defs['resource']
+            type = resource_details['type']
+            env_db.Environment().update(env_id, {'status': 'creating_' + type})
+
+            for name, ext in LocalHandler.res_mgr.items():
+                if name == type:
+                    status = ext.obj.create(env_id, resource_details)
+                    if status: ret_status_list.append(status)
+
+        return ret_status_list
+
+    def delete_resource(self, env_id, resource):
+        fmlogger.debug("LocalHandler delete_resource")
+        type = resource.type
+        env_db.Environment().update(env_id, {'status': 'deleting_' + type})
+        for name, ext in LocalHandler.res_mgr.items():
+            if name == type:
+                ext.obj.delete(resource)
 
     def create_container(self, cont_name, cont_info):
         df_dir = common_functions.get_df_dir(cont_info)
