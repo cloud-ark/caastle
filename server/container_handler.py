@@ -13,7 +13,8 @@ class ContainerHandler(threading.Thread):
     registered_cloud_handlers = dict()
     registered_cloud_handlers['ecr'] = aws_handler.AWSHandler()
     registered_cloud_handlers['gcr'] = gcloud_handler.GCloudHandler()
-    
+    registered_cloud_handlers['local'] = local_handler.LocalHandler()
+
     def __init__(self, cont_name, cont_info, action=''):
         self.cont_name = cont_name
         self.cont_info = cont_info

@@ -10,6 +10,7 @@ from os.path import expanduser
 
 import fm_logger
 from server.dbmodule.objects import app as app_db
+from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
 
 home_dir = expanduser("~")
@@ -121,13 +122,13 @@ def resolve_environment(app_id, app_info):
 
     app_yaml_def = read_app_yaml(app_info)
     env_vars = ''
+    new_env_var = dict()
     if 'env' in app_yaml_def['app']:
         env_vars = app_yaml_def['app']['env']
-    new_env_var = dict()
-    for key, value in env_vars.iteritems():
-        if value.find("$CLOUDARK_") >= 0:
-            value = _get_env_value(resource_list, value)
-        new_env_var[key] = value
+        for key, value in env_vars.iteritems():
+            if value.find("$CLOUDARK_") >= 0:
+                value = _get_env_value(resource_list, value)
+            new_env_var[key] = value
 
     return new_env_var
 
@@ -254,3 +255,18 @@ def get_app_memory(app_info):
     if 'memory' in app_yaml_def['app']:
         app_memory = app_yaml_def['app']['memory']
     return app_memory
+
+
+def get_coe_type(env_id):
+    coe_type = ''
+    env_obj = env_db.Environment().get(env_id)
+    env_definition = ast.literal_eval(env_obj.env_definition)
+    env_details = env_definition['environment']
+    coe_type = env_details['app_deployment']['type']
+    return coe_type
+
+
+def get_coe_type_for_app(app_id):
+    app_obj = app_db.App().get(app_id)
+    coe_type = get_coe_type(app_obj.env_id)
+    return coe_type

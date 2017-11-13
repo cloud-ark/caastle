@@ -587,8 +587,6 @@ class GKEHandler(coe_base.COEBase):
         app_obj = app_db.App().get(app_id)
         try:
             app_output_config = ast.literal_eval(app_obj.output_config)
-            tagged_image = app_output_config['tagged_image']
-
             self._delete_service(app_info)
             self._delete_deployment(app_info)
 
@@ -597,7 +595,9 @@ class GKEHandler(coe_base.COEBase):
             # call. Send a response to the user asking the user to manually delete
             # the image from Google cloud console.
             # self._delete_app_image_gcr(tagged_image, app_info)
-            self._delete_app_image_local(tagged_image)
+
+            #tagged_image = app_output_config['tagged_image']
+            #self._delete_app_image_local(tagged_image)
         except Exception as e:
             fmlogger.error(e)
 

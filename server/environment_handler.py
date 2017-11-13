@@ -2,6 +2,7 @@ import threading
 
 import aws_handler
 import gcloud_handler
+import local_handler
 from common import fm_logger
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
@@ -14,6 +15,7 @@ class EnvironmentHandler(threading.Thread):
     registered_cloud_handlers = dict()
     registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
     registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
+    registered_cloud_handlers['local'] = local_handler.LocalHandler()
 
     def __init__(self, env_id, environment_def, environment_info, action=''):
         self.env_id = env_id
@@ -62,8 +64,6 @@ class EnvironmentHandler(threading.Thread):
                 status = EnvironmentHandler.registered_cloud_handlers['gcloud'].create_cluster(self.env_id,
                                                                                                self.environment_info)
                 status_list.append(status)
-
-            
 
         # Then create other resources (as we want to set security-groups of other resources to
         # match does of the ECS cluster.

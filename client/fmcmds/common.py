@@ -26,6 +26,10 @@ def cloud_setup(cloud):
 
     setup_done = False
 
+    if cloud == 'local':
+        #TODO - Check if Docker is installed or not
+        setup_done = True
+
     if cloud == 'gcloud':
         if os.path.exists(home_dir + "/.config/gcloud"):
             setup_done = True
@@ -45,6 +49,8 @@ def parse_clouds(environment_def):
             cloud_list.append('gcloud')
         if 'aws' in resource_list:
             cloud_list.append('aws')
+        if 'local-docker' in resource_list:
+            cloud_list.append('local')
 
     if 'app_deployment' in environment_def['environment']:
         app_deployment = environment_def['environment']['app_deployment']
