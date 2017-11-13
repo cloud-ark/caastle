@@ -42,6 +42,16 @@ class Container(db_base.Base):
             fmlogger.debug(e)
         return cont
 
+    def get_all(self):
+        cont_list = ''
+        try:
+            session = db_base.get_session()
+            cont_list = session.query(Container).all()
+            session.close()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return cont_list
+
     def insert(self, cont_data):
         self.name = cont_data['cont_name']
         self.dep_target = cont_data['dep_target']

@@ -83,6 +83,18 @@ class TakeAction(object):
                 print("Container with name %s not found." % container_name)
         return cont_data
 
+    def get_container_list(self):
+        self._check_server()
+        req = urllib2.Request(containers_endpoint)
+        data = ''
+        try:
+            response = urllib2.urlopen(req)
+            data = response.fp.read()
+        except urllib2.HTTPError as e:
+            print("Error occurred in querying endpoint %s" % containers_endpoint)
+            print(e)
+        return data
+
     def deploy_app(self, app_path, app_info):
         self._check_server()
         source_dir = app_path

@@ -84,6 +84,17 @@ class ResourceRestResource(Resource):
 
 class ContainersRestResource(Resource):
 
+    def get(self):
+        fmlogging.debug("Received GET request for all containers.")
+        resp_data = {}
+
+        all_containers = cont_db.Container().get_all()
+        resp_data['data'] = [cont_db.Container.to_json(res) for res in all_containers]
+
+        response = jsonify(**resp_data)
+        response.status_code = 200
+        return response
+
     def post(self):
         fmlogging.debug("Received POST request to create container")
         args = request.get_json(force=True)
