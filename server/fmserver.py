@@ -141,6 +141,30 @@ class ContainerRestResource(Resource):
 
         return response
 
+    def delete(self, cont_name):
+        fmlogging.debug("Received DELETE request for container %s" % cont_name)
+        resp_data = {}
+
+        response = jsonify(**resp_data)
+        cont_info = {}
+
+        cont_obj = cont_db.Container().get(cont_name)
+        if cont_obj:
+            output_config = ast.literal_eval(cont_obj.output_config)
+            tagged_image = output_config['tagged_image']
+            cont_info['dep_target'] = cont_obj.dep_target
+            cont_info['cont_name'] = cont_name
+            cont_info['cont_store_path'] = cont_obj.cont_store_path
+
+            request_handler_thread = container_handler.ContainerHandler(tagged_image, cont_info, action='delete')
+            thread.start_new_thread(start_thread, (request_handler_thread, ))
+            response.status_code = 202
+            # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
+            if cont_obj.dep_target == 'gcr':
+                response.status_code = 303
+        else:
+            response.status_code = 404
+        return response
 
 
 class AppsRestResource(Resource):

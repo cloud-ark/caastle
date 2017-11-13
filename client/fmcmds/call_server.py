@@ -95,6 +95,19 @@ class TakeAction(object):
             print(e)
         return data
 
+    def delete_container(self, cont_name):
+        self._check_server()
+        cont_url = containers_endpoint + "/" + cont_name
+        response = requests.delete(cont_url)
+        if response.status_code == 404:
+            print("Container with name %s not found." % cont_name)
+        if response.status_code == 202:
+            print("Request to delete container with name %s accepted." % cont_name)
+        if response.status_code == 303:
+            print("Request to delete container with name %s accepted." % cont_name)
+            print("*** Please delete the container image from GCR manually -- automation is not available for that yet.***")
+        return response
+
     def deploy_app(self, app_path, app_info):
         self._check_server()
         source_dir = app_path

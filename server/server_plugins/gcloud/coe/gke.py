@@ -341,36 +341,6 @@ class GKEHandler(coe_base.COEBase):
             fmlogger.error(e)
             raise e
 
-    def _delete_app_image_gcr(self, tagged_image, app_info):
-        fmlogger.debug("Deleting app image from GCR")
-        cluster_name = self._get_cluster_name(app_info['env_id'])
-        df = self.docker_handler.get_dockerfile_snippet("google")
-        df = df + ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} \n"
-                   "RUN /google-cloud-sdk/bin/gcloud beta container images delete {tagged_image}"
-                   ).format(cluster_name=cluster_name,
-                            tagged_image=tagged_image)
-
-        app_dir = app_info['app_location']
-        app_folder_name = app_info['app_folder_name']
-        cont_name = app_info['app_name'] + "-delete-image"
-
-        df_dir = app_dir + "/" + app_folder_name
-        df_name = df_dir + "/Dockerfile.delete-image"
-        fp = open(df_name, "w")
-        fp.write(df)
-        fp.close()
-
-        err, output = self.docker_handler.build_container_image(
-            cont_name,
-            df_name,
-            df_context=df_dir
-        )
-
-        self.docker_handler.remove_container_image(cont_name)
-        
-    def _delete_app_image_local(self, tagged_image):
-        self.docker_handler.remove_container_image(tagged_image)
-
     def create_cluster(self, env_id, env_info):
         fmlogger.debug("Creating GKE cluster.")
 

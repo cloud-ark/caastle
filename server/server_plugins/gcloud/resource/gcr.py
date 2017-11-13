@@ -60,6 +60,41 @@ class GCRHandler(resource_base.ResourceBase):
 
         self.docker_handler.push_container(tagged_image)
 
+    def _delete_container(self, tagged_image, cont_info):
+        err, output = self.docker_handler.remove_container_image(tagged_image)
+        if err:
+            fmlogger.error(err)
+            cont_db.Container().update(cont_info['cont_name'], {'status': str(err)})
+        else:
+            cont_db.Container().delete(cont_info['cont_name'])
+
+    def _delete_app_image_gcr(self, tagged_image, app_info):
+        fmlogger.debug("Deleting app image from GCR")
+        cluster_name = self._get_cluster_name(app_info['env_id'])
+        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = df + ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} \n"
+                   "RUN /google-cloud-sdk/bin/gcloud beta container images delete {tagged_image}"
+                   ).format(cluster_name=cluster_name,
+                            tagged_image=tagged_image)
+
+        app_dir = app_info['app_location']
+        app_folder_name = app_info['app_folder_name']
+        cont_name = app_info['app_name'] + "-delete-image"
+
+        df_dir = app_dir + "/" + app_folder_name
+        df_name = df_dir + "/Dockerfile.delete-image"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        err, output = self.docker_handler.build_container_image(
+            cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        self.docker_handler.remove_container_image(cont_name)
+
     def create(self, cont_name, cont_info):
         df_dir = common_functions.get_df_dir(cont_info)
         if not os.path.exists(df_dir + "/google-creds"):
@@ -94,6 +129,5 @@ class GCRHandler(resource_base.ResourceBase):
         cont_data['status'] = 'container-ready'
         cont_db.Container().update(cont_name, cont_data)
 
-    def delete(self, cont_name, cont_info):
-        pass
-
+    def delete(self, tagged_image, cont_info):
+        self._delete_container(tagged_image, cont_info)

@@ -119,8 +119,18 @@ class ECRHandler(resource_base.ResourceBase):
         cont_data['status'] = 'container-ready'
         cont_db.Container().update(cont_name, cont_data)
 
-    def delete(self, cont_name, cont_info):
+    def delete(self, tagged_name, cont_info):
         try:
-            self._delete_repository(cont_name)
+            self._delete_repository(cont_info['cont_name'])
         except Exception as e:
             fmlogger.error("Exception encountered while deleting ecr repository %s" % e)
+            cont_db.Container().update(cont_info['cont_name'], {'status': str(e)})
+        else:    
+            err, output = self.docker_handler.remove_container_image(tagged_name)
+            if err:
+                fmlogger.error(err)
+                cont_db.Container().update(cont_info['cont_name'], {'status': str(err)})
+            else:
+                cont_db.Container().delete(cont_info['cont_name'])
+
+

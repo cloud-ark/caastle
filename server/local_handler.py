@@ -64,12 +64,13 @@ class LocalHandler(object):
             fmlogger.debug("Encountered error in building application container:%s. Returning." % cont_name)
             return
 
-    def delete_container(self, cont_name, cont_info):
-        #tagged_image_list = common_functions.read_image_tag(app_info, file_name=tagged_images_file)
-        #if tagged_image_list:
-        #    for tagged_image in tagged_image_list:
-                #self.docker_handler.remove_container_image(tagged_image)
-        self.docker_handler.remove_container_image(cont_image_name)
+    def delete_container(self, tagged_name, cont_info):
+        err, output = self.docker_handler.remove_container_image(tagged_name)
+        if err:
+            fmlogger.error(err)
+            cont_db.Container().update(cont_info['cont_name'], {'status': str(err)})
+        else:
+            cont_db.Container().delete(cont_info['cont_name'])
 
     def create_cluster(self, env_id, env_info):
         coe_type = common_functions.get_coe_type(env_id)

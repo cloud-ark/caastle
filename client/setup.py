@@ -53,6 +53,7 @@ setup(
         ],
         'cld.cmds': [
             'container create = fmcmds.container_create:ContainerCreate',
+            'container delete = fmcmds.container_delete:ContainerDelete',
             'container show = fmcmds.container_show:ContainerShow',
             'container list = fmcmds.container_list:ContainerList',
             'app delete = fmcmds.app_delete:AppDelete',

@@ -141,7 +141,6 @@ class DockerLib(object):
         err, output = self._execute_cmd(run_cmd)
         return err, output
 
-
     def run_container_sync(self, cont_name):
         """Run container in synchronous manner."""
         run_cmd = ("docker run {cont_name}").format(cont_name=cont_name)
