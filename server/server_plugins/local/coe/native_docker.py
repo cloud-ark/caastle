@@ -39,7 +39,7 @@ class NativeDockerHandler(coe_base.COEBase):
     def _deploy_app_container(self, cont_name, env_vars, app_info):
         app_url = ''
         app_status = ''
-        import pdb; pdb.set_trace()
+
         err, cont_id = self.docker_handler.run_container_with_env(cont_name, env_vars)
 
         if err:
@@ -70,7 +70,6 @@ class NativeDockerHandler(coe_base.COEBase):
         res_db.Resource().delete(resource_obj.id)
 
     def deploy_application(self, app_id, app_info):
-        import pdb; pdb.set_trace()
         fmlogger.debug("Deploying application %s %s" % (app_id, app_info['app_name']))
 
         env_vars = common_functions.resolve_environment(app_id, app_info)
