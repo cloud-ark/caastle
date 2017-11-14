@@ -130,7 +130,7 @@ class TakeAction(object):
         try:
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
             app_url = response.headers.get('location')
-            print("Request to deploy application accepted.")
+            print("Request to deploy %s application accepted." % app_name)
         except Exception as e:
             error = e.read()
             print(error)
@@ -138,9 +138,9 @@ class TakeAction(object):
 
         return app_url
     
-    def get_app(self, app_id):
+    def get_app(self, app_name):
         self._check_server()
-        app_url = apps_endpoint + "/" + app_id
+        app_url = apps_endpoint + "/" + app_name
         req = urllib2.Request(app_url)
         app_data = ''
         try:
@@ -148,27 +148,26 @@ class TakeAction(object):
             app_data = response.fp.read()
         except urllib2.HTTPError as e:
             if e.getcode() == 404:
-                print("App with app-id %s not found." % app_id)
+                print("App with name %s not found." % app_name)
         return app_data
 
-    def delete_app(self, app_id):
+    def delete_app(self, app_name):
         self._check_server()
-        app_url = apps_endpoint + "/" + app_id
+        app_url = apps_endpoint + "/" + app_name
         response = requests.delete(app_url)
         if response.status_code == 404:
-            print("App with app-id %s not found." % app_id)
+            print("App with name %s not found." % app_name)
         if response.status_code == 202:
-            print("Request to delete app with id %s accepted." % app_id)
+            print("Request to delete app with name %s accepted." % app_name)
         if response.status_code == 303:
-            print("Request to delete app with id %s accepted." % app_id)
-            print("*** Please delete the app image from GCR manually -- automation is not available for that action yet.***")
+            print("Request to delete app with name %s accepted." % app_name)
         return response
     
-    def redeploy_app(self, app_path, app_info, app_id):
+    def redeploy_app(self, app_path, app_info, app_name):
         self._check_server()
-        app_id_url = apps_endpoint + "/" + app_id
+        app_id_url = apps_endpoint + "/" + app_name
         source_dir = app_path
-        app_name = "app-redeploy-id-" + app_id
+        app_name = "app-redeploy-id-" + app_name
         tarfile_name = app_name + ".tar"
 
         self._make_tarfile(tarfile_name, source_dir)
@@ -186,11 +185,11 @@ class TakeAction(object):
         try:
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
             if response.code == 202:
-                print("Request to redeploy app with id %s accepted." % app_id)
+                print("Request to redeploy app with name %s accepted." % app_name)
             app_url = response.headers.get('location')
         except Exception as e:
             if e.msg == 'NOT FOUND':
-                print("App with app-id %s not found." % app_id)
+                print("App with name %s not found." % app_name)
             if e.msg == 'INTERNAL SERVER ERROR':
                 print(SERVER_ERROR)
                 return
@@ -220,7 +219,7 @@ class TakeAction(object):
                 'environment_name': env_name}
         try:
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
-            print("Request to create environment accepted.")
+            print("Request to create environment %s accepted." % env_name)
         except Exception as e:
             if e.code == 503 or e.code == 500 or e.code == 412:
                 error = e.read()
@@ -229,9 +228,9 @@ class TakeAction(object):
         environment_url = response.headers.get('location')
         return environment_url
     
-    def get_environment(self, env_id):
+    def get_environment(self, env_name):
         self._check_server()
-        env_url = environments_endpoint + "/" + env_id
+        env_url = environments_endpoint + "/" + env_name
         req = urllib2.Request(env_url)
         env_data = ''
         try:
@@ -239,19 +238,19 @@ class TakeAction(object):
             env_data = response.fp.read()
         except urllib2.HTTPError as e:
             if e.getcode() == 404:
-                print("Environment with env-id %s not found." % env_id)
+                print("Environment with name %s not found." % env_name)
         return env_data
 
-    def delete_environment(self, env_id, force_flag=''):
+    def delete_environment(self, env_name, force_flag=''):
         self._check_server()
-        env_url = environments_endpoint + "/" + env_id
+        env_url = environments_endpoint + "/" + env_name
         if force_flag:
-            env_url = environments_endpoint + "/" + env_id + "?force=" + force_flag
+            env_url = environments_endpoint + "/" + env_name + "?force=" + force_flag
         response = requests.delete(env_url)
         if response.status_code == 404:
-            print("Environment with env-id %s not found." % env_id)
+            print("Environment with name %s not found." % env_name)
         if response.status_code == 202:
-            print("Request to delete env with id %s accepted." % env_id)
+            print("Request to delete env with name %s accepted." % env_name)
         if response.status_code == 412:
             print("Environment cannot be deleted as there are applications still running on it.")
         return response
@@ -277,20 +276,19 @@ class TakeAction(object):
             response = urllib2.urlopen(req)
             data = response.fp.read()
         except urllib2.HTTPError as e:
-            print("Error occurred in querying endpoint %s" % resources_endpoint)
             print(e)
         return data
 
-    def get_resources_for_environment(self, env_id):
+    def get_resources_for_environment(self, env_name):
         self._check_server()
-        req = urllib2.Request(resources_endpoint + "?env_id=%s" % env_id)
+        req = urllib2.Request(resources_endpoint + "?env_name=%s" % env_name)
         data = ''
         try:
             response = urllib2.urlopen(req)
             data = response.fp.read()
         except urllib2.HTTPError as e:
-            print("Error occurred in querying endpoint %s" % resources_endpoint)
-            print(e)
+            if e.getcode() == 404:
+                print("Environment with name %s not found." % env_name)
         return data
 
     def create_resource(self, resource_obj):

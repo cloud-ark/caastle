@@ -15,16 +15,14 @@ class AppRedeploy(Command):
     def get_parser(self, prog_name):
         parser = super(AppRedeploy, self).get_parser(prog_name)
 
-        parser.add_argument('app_id')
+        parser.add_argument('app_name')
         return parser
 
     def take_action(self, parsed_args):
-        app_id = parsed_args.app_id
+        app_name = parsed_args.app_name
 
-        if not app_id:
-            app_id = raw_input("Enter app id>")
         app_info = {}
         app_location = os.getcwd()
         app_folder_name = self._get_app_folder_name(app_location)
         app_info['app_folder_name'] = app_folder_name
-        server.TakeAction().redeploy_app(app_location, app_info, app_id)
+        server.TakeAction().redeploy_app(app_location, app_info, app_names)

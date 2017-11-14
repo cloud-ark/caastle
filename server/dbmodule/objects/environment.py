@@ -24,13 +24,22 @@ class Environment(db_base.Base):
     @classmethod
     def to_json(self, env):
         env_json = {}
-        env_json['id'] = env.id
         env_json['name'] = env.name
         env_json['status'] = env.status
         env_json['env_definition'] = str(env.env_definition)
         env_json['output_config'] = str(env.output_config)
         env_json['location'] = env.location
         return env_json
+
+    def get_by_name(self, env_name):
+        env = ''
+        try:
+            session = db_base.get_session()
+            env = session.query(Environment).filter_by(name=env_name).first()
+            session.close()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return env
 
     def get(self, env_id):
         env = ''

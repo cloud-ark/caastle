@@ -26,7 +26,6 @@ class App(db_base.Base):
     @classmethod
     def to_json(self, app):
         app_json = {}
-        app_json['id'] = app.id
         app_json['name'] = app.name
         app_json['location'] = app.location
         app_json['version'] = app.version
@@ -35,6 +34,16 @@ class App(db_base.Base):
         app_json['output_config'] = str(app.output_config)
         app_json['env_id'] = app.env_id
         return app_json
+
+    def get_by_name(self, app_name):
+        app = ''
+        try:
+            session = db_base.get_session()
+            app = session.query(App).filter_by(name=app_name).first()
+            session.close()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+        return app
 
     def get(self, app_id):
         app = ''

@@ -26,7 +26,7 @@ class Resource(db_base.Base):
     @classmethod
     def to_json(self, res):
         res_json = {}
-        res_json['id'] = res.id
+        #res_json['id'] = res.id
         res_json['env_id'] = res.env_id
         res_json['cloud_resource_id'] = res.cloud_resource_id
         res_json['type'] = res.type

@@ -18,12 +18,10 @@ class MySQLResourceHandler(resource_base.ResourceBase):
     """MySQL Resource handler."""
     
     def __init__(self):
-        import pdb; pdb.set_trace()
         self.docker_client = Client(base_url='unix://var/run/docker.sock', version='1.18')
         self.docker_handler = docker_lib.DockerLib()
 
     def create(self, env_id, resource_details):
-        import pdb; pdb.set_trace()
         fmlogger.debug("MySQL container create")
 
         res_data = {}
@@ -56,8 +54,7 @@ class MySQLResourceHandler(resource_base.ResourceBase):
         self.docker_client.start(serv_cont)
 
         cont_data = self.docker_client.inspect_container(serv_cont)
-        
-        import pdb; pdb.set_trace()
+
         service_ip_addr = cont_data['NetworkSettings']['IPAddress']
         container_id = cont_data['Id']
         fmlogger.debug("MySQL Service IP Address:%s" % service_ip_addr)
@@ -79,7 +76,6 @@ class MySQLResourceHandler(resource_base.ResourceBase):
         return res_data['status']
 
     def delete(self, request_obj):
-        import pdb; pdb.set_trace()
         fmlogger.debug("CloudSQL delete.")
 
         res_data = {}

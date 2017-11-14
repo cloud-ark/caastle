@@ -50,19 +50,30 @@ class ResourcesRestResource(Resource):
     def get(self):
         fmlogging.debug("Received GET request for all resources.")
         resp_data = {}
-        
-        env_id = request.args.get('env_id')
+
+        env_name = request.args.get('env_name')
         all_resources = ''
-        if env_id:
-            all_resources = res_db.Resource().get_resources_for_env(env_id)
+        if env_name:
+            env_obj = env_db.Environment().get_by_name(env_name)
+            if env_obj:
+                all_resources = res_db.Resource().get_resources_for_env(env_obj.id)
+                resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
+                response = jsonify(**resp_data)
+                response.status_code = 200
+                return response
+            else:
+                message = ("Environment with name {env_name} does not exist").format(env_name=env_name)
+                fmlogging.debug(message)
+                resp_data = {'error': message}
+                response = jsonify(**resp_data)
+                response.status_code = 404
+                return response
         else:
             all_resources = res_db.Resource().get_all()
-        resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
-
-        response = jsonify(**resp_data)
-        response.status_code = 200
-        return response
-
+            resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
+            response = jsonify(**resp_data)
+            response.status_code = 200
+            return response
 
 class ResourceRestResource(Resource):
 
@@ -183,9 +194,16 @@ class AppsRestResource(Resource):
                 response.status_code = 400
             else:
                 app_info = args_dict['app_info']
-
                 app_name = app_info['app_name']
-                env_id = app_info['env_id']
+                env_name = app_info['env_name']
+                env_obj = env_db.Environment().get_by_name(env_name)
+                if not env_obj:
+                    message = ("Environment with name {env_name} does not exist").format(env_name=env_name)
+                    fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
+                    response.status_code = 400
+                    return response
                 app_id = ''
                 app_location = ''
                 app_version = ''
@@ -196,7 +214,7 @@ class AppsRestResource(Resource):
                     app_data['location'] = app_location
                     app_data['version'] = app_version
                     app_data['dep_target'] = cloud
-                    app_data['env_id'] = env_id
+                    app_data['env_id'] = env_obj.id
                     app_id = app_db.App().insert(app_data)
                 except Exception as e:
                     fmlogging.debug(e)
@@ -207,14 +225,6 @@ class AppsRestResource(Resource):
                     resp_data = {'error': message}
                     response = jsonify(**resp_data)
                     response.status_code = 400
-                    return response
-                env_obj = env_db.Environment().get(app_info['env_id'])
-                if not env_obj:
-                    message = ('Environment with id {env_id} not found.').format(env_id=app_info['env_id'])
-                    fmlogging.debug(message)
-                    resp_data = {'error': message}
-                    response = jsonify(**resp_data)
-                    response.status_code = 404
                     return response
                 if not env_obj.status or env_obj.status != 'available':
                     message = 'Environment not ready.'
@@ -235,6 +245,7 @@ class AppsRestResource(Resource):
                 app_location, app_version = common_functions.store_app_contents(app_name, app_tar_name, content)
                 app_info['app_location'] = app_location
                 app_info['app_version'] = app_version
+                app_info['env_id'] = env_obj.id
 
                 app_data['location'] = app_location
                 app_data['version'] = app_version
@@ -243,7 +254,7 @@ class AppsRestResource(Resource):
 
                 request_handler_thread = app_handler.AppHandler(app_id, app_info, action='deploy')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
-                response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
+                response.headers['location'] = ('/apps/{app_name}').format(app_name=app_name)
         except Exception as e:
             fmlogging.error(e)
             # Send back Internal Server Error
@@ -264,10 +275,10 @@ class AppsRestResource(Resource):
 
 
 class AppRestResource(Resource):
-    def get(self, app_id):
+    def get(self, app_name):
         resp_data = {}
         response = jsonify(**resp_data)
-        app = app_db.App().get(app_id)
+        app = app_db.App().get_by_name(app_name)
         if app:
             resp_data['data'] = app_db.App.to_json(app)
             response = jsonify(**resp_data)
@@ -277,7 +288,7 @@ class AppRestResource(Resource):
 
         return response
 
-    def put(self, app_id):
+    def put(self, app_name):
         fmlogging.debug("Received PUT request to redeploy app")
 
         args = request.get_json(force=True)
@@ -286,7 +297,7 @@ class AppRestResource(Resource):
         response.status_code = 202
 
         args_dict = dict(args)
-        app_obj = app_db.App().get(app_id)
+        app_obj = app_db.App().get_by_name(app_name)
         try:
             if 'app_info' not in args_dict:
                 response.status_code = 400
@@ -309,9 +320,9 @@ class AppRestResource(Resource):
                                                                           app_version=app_version)
                     app_info['app_location'] = app_location
                     app_info['app_version'] = app_version
-                    request_handler_thread = app_handler.AppHandler(app_id, app_info, action='redeploy')
+                    request_handler_thread = app_handler.AppHandler(app_obj.id, app_info, action='redeploy')
                     thread.start_new_thread(start_thread, (request_handler_thread, ))
-                    response.headers['location'] = ('/apps/{app_id}').format(app_id=app_id)
+                    response.headers['location'] = ('/apps/{app_name}').format(app_name=app_name)
                 else:
                     response.status_code = 404
         except Exception as e:
@@ -321,14 +332,14 @@ class AppRestResource(Resource):
 
         return response
 
-    def delete(self, app_id):
-        fmlogging.debug("Received DELETE request for app %s" % app_id)
+    def delete(self, app_name):
+        fmlogging.debug("Received DELETE request for app %s" % app_name)
         resp_data = {}
 
         response = jsonify(**resp_data)
         app_info = {}
 
-        app_obj = app_db.App().get(app_id)
+        app_obj = app_db.App().get_by_name(app_name)
         if app_obj:
             app_info['target'] = app_obj.dep_target
             app_info['app_name'] = app_obj.name
@@ -336,7 +347,7 @@ class AppRestResource(Resource):
             app_info['app_version'] = app_obj.version
             app_info['env_id'] = app_obj.env_id
 
-            request_handler_thread = app_handler.AppHandler(app_id, app_info, action='delete')
+            request_handler_thread = app_handler.AppHandler(app_obj.id, app_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
             response.status_code = 202
             # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
@@ -390,7 +401,7 @@ class EnvironmentsRestResource(Resource):
                 request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='create')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
 
-                response.headers['location'] = ('/environments/{env_id}').format(env_id=env_id)
+                response.headers['location'] = ('/environments/{env_name}').format(env_name=environment_name)
         except OSError as oe:
             fmlogging.error(oe)
             response.status_code = 503
@@ -411,10 +422,10 @@ class EnvironmentsRestResource(Resource):
 
 class EnvironmentRestResource(Resource):
 
-    def get(self, env_id):
+    def get(self, env_name):
         resp_data = {}
         response = jsonify(**resp_data)
-        env = env_db.Environment().get(env_id)
+        env = env_db.Environment().get_by_name(env_name)
         if env:
             resp_data['data'] = env_db.Environment.to_json(env)
             response = jsonify(**resp_data)
@@ -423,17 +434,17 @@ class EnvironmentRestResource(Resource):
             response.status_code = 404
         return response
 
-    def delete(self, env_id):
+    def delete(self, env_name):
         fmlogging.debug("Received DELETE request for environment %s" % env_id)
         resp_data = {}
 
         response = jsonify(**resp_data)
         environment_info = {}
 
-        env = env_db.Environment().get(env_id)
+        env = env_db.Environment().get_by_name(env_name)
         if env:
             if not request.args.get("force"):
-                app_list = app_db.App().get_apps_for_env(env_id)
+                app_list = app_db.App().get_apps_for_env(env.id)
                 if app_list and len(app_list) > 0:
                     response.status_code = 412
                     response.status_message = 'Environment cannot be deleted as there are applications still running on it.'
@@ -442,10 +453,10 @@ class EnvironmentRestResource(Resource):
             environment_def = env.env_definition
             environment_info['name'] = environment_name
             environment_info['location'] = env.location
-            request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='delete')
+            request_handler_thread = environment_handler.EnvironmentHandler(env.id, environment_def, environment_info, action='delete')
             thread.start_new_thread(start_thread, (request_handler_thread, ))
 
-            response.headers['location'] = ('/environments/{env_id}').format(env_id=env_id)
+            response.headers['location'] = ('/environments/{env_name}').format(env_name=environment_name)
             response.status_code = 202
         else:
             response.status_code = 404
@@ -453,13 +464,13 @@ class EnvironmentRestResource(Resource):
 
 
 api.add_resource(AppsRestResource, '/apps')
-api.add_resource(AppRestResource, '/apps/<app_id>')
+api.add_resource(AppRestResource, '/apps/<app_name>')
 
 api.add_resource(ContainersRestResource, '/containers')
 api.add_resource(ContainerRestResource, '/containers/<cont_name>')
 
 api.add_resource(EnvironmentsRestResource, '/environments')
-api.add_resource(EnvironmentRestResource, '/environments/<env_id>')
+api.add_resource(EnvironmentRestResource, '/environments/<env_name>')
 
 api.add_resource(ResourcesRestResource, '/resources')
 api.add_resource(ResourceRestResource, '/resources/<resource_id>')
