@@ -50,19 +50,30 @@ class ResourcesRestResource(Resource):
     def get(self):
         fmlogging.debug("Received GET request for all resources.")
         resp_data = {}
-        
-        env_id = request.args.get('env_id')
+
+        env_name = request.args.get('env_name')
         all_resources = ''
-        if env_id:
-            all_resources = res_db.Resource().get_resources_for_env(env_id)
+        if env_name:
+            env_obj = env_db.Environment().get_by_name(env_name)
+            if env_obj:
+                all_resources = res_db.Resource().get_resources_for_env(env_obj.id)
+                resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
+                response = jsonify(**resp_data)
+                response.status_code = 200
+                return response
+            else:
+                message = ("Environment with name {env_name} does not exist").format(env_name=env_name)
+                fmlogging.debug(message)
+                resp_data = {'error': message}
+                response = jsonify(**resp_data)
+                response.status_code = 404
+                return response
         else:
             all_resources = res_db.Resource().get_all()
-        resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
-
-        response = jsonify(**resp_data)
-        response.status_code = 200
-        return response
-
+            resp_data['data'] = [res_db.Resource.to_json(res) for res in all_resources]
+            response = jsonify(**resp_data)
+            response.status_code = 200
+            return response
 
 class ResourceRestResource(Resource):
 

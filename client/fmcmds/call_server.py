@@ -276,20 +276,19 @@ class TakeAction(object):
             response = urllib2.urlopen(req)
             data = response.fp.read()
         except urllib2.HTTPError as e:
-            print("Error occurred in querying endpoint %s" % resources_endpoint)
             print(e)
         return data
 
-    def get_resources_for_environment(self, env_id):
+    def get_resources_for_environment(self, env_name):
         self._check_server()
-        req = urllib2.Request(resources_endpoint + "?env_id=%s" % env_id)
+        req = urllib2.Request(resources_endpoint + "?env_name=%s" % env_name)
         data = ''
         try:
             response = urllib2.urlopen(req)
             data = response.fp.read()
         except urllib2.HTTPError as e:
-            print("Error occurred in querying endpoint %s" % resources_endpoint)
-            print(e)
+            if e.getcode() == 404:
+                print("Environment with name %s not found." % env_name)
         return data
 
     def create_resource(self, resource_obj):
