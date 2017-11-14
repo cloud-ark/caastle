@@ -153,14 +153,17 @@ class RDSResourceHandler(resource_base.ResourceBase):
                 fmlogger.error(e)
                 deleted = True
 
-        filtered_description = ast.literal_eval(db_obj.filtered_description)
-        sec_group_name = filtered_description['sql-security-group-name']
-        sec_group_id = filtered_description['sql-security-group-id']
-        vpc_id = filtered_description['vpc_id']
         try:
-            RDSResourceHandler.awshelper.delete_security_group_for_vpc(vpc_id,
-                                                                       sec_group_id,
-                                                                       sec_group_name)
+            filtered_description = ast.literal_eval(db_obj.filtered_description)
+            sec_group_name = filtered_description['sql-security-group-name']
+            sec_group_id = filtered_description['sql-security-group-id']
+            vpc_id = filtered_description['vpc_id']
+            try:
+                RDSResourceHandler.awshelper.delete_security_group_for_vpc(vpc_id,
+                                                                           sec_group_id,
+                                                                           sec_group_name)
+            except Exception as e:
+                fmlogger.error(e)
         except Exception as e:
             fmlogger.error(e)
 

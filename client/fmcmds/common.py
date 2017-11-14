@@ -4,6 +4,11 @@ import re
 
 home_dir = expanduser("~")
 
+def get_app_folder_name(app_location):
+    last_slash_index = app_location.rfind("/")
+    app_folder_name = app_location[last_slash_index+1:]
+    return app_folder_name
+
 def check_env_name(env_name, regex_list):
 
     match = False
@@ -20,6 +25,10 @@ def check_env_name(env_name, regex_list):
 def cloud_setup(cloud):
 
     setup_done = False
+
+    if cloud == 'local':
+        #TODO - Check if Docker is installed or not
+        setup_done = True
 
     if cloud == 'gcloud':
         if os.path.exists(home_dir + "/.config/gcloud"):
@@ -40,6 +49,8 @@ def parse_clouds(environment_def):
             cloud_list.append('gcloud')
         if 'aws' in resource_list:
             cloud_list.append('aws')
+        if 'local-docker' in resource_list:
+            cloud_list.append('local')
 
     if 'app_deployment' in environment_def['environment']:
         app_deployment = environment_def['environment']['app_deployment']

@@ -29,7 +29,6 @@ class ECSHandler(coe_base.COEBase):
     awshelper = aws_helper.AWSHelper()
 
     def __init__(self):
-        self.ecr_client = boto3.client('ecr')
         self.ecs_client = boto3.client('ecs')
         self.alb_client = boto3.client('elbv2')
         self.docker_handler = docker_lib.DockerLib()
@@ -85,7 +84,8 @@ class ECSHandler(coe_base.COEBase):
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
-    def _register_task_definition(self, app_info, image, container_port, cont_name=''):
+    def _register_task_definition(self, app_info, image, container_port, env_vars_dict, cont_name=''):
+
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
         memory = 250  # Default memory size of 250MB. This is hard limit
@@ -95,6 +95,14 @@ class ECSHandler(coe_base.COEBase):
         task_def_arn = ''
         revision = str(int(round(time.time() * 1000)))
         family_name = family_name + "-" + revision
+
+        env_list = []
+        for key, value in env_vars_dict.iteritems():
+            environment_dict = {}
+            environment_dict['name'] = key
+            environment_dict['value'] = value
+            env_list.append(environment_dict)
+
         try:
             resp = self.ecs_client.register_task_definition(
                 family=family_name,
@@ -104,7 +112,8 @@ class ECSHandler(coe_base.COEBase):
                                        'portMappings': [{
                                            'containerPort': container_port,
                                            'hostPort': 80,
-                                           'protocol': 'tcp'}]}]
+                                           'protocol': 'tcp'}],
+                                        'environment': env_list}]
             )
             task_def_arn = resp['taskDefinition']['taskDefinitionArn']
         except Exception as e:
@@ -224,51 +233,6 @@ class ECSHandler(coe_base.COEBase):
 
         return application_url, task_arn, cluster_name
 
-    def _delete_repository(self, repo_name):
-        try:
-            self.ecr_client.delete_repository(repositoryName=repo_name, force=True)
-        except Exception as e:
-            fmlogger.error("Exception encountered in trying to delete repository:%s" % e)
-
-    def _create_repository(self, app_info):
-        proxy_endpoint = ''
-        username = ''
-        password = ''
-        repo_name = app_info['app_name']
-        try:
-            self.ecr_client.describe_repositories(repositoryNames=[repo_name])
-        except Exception as e:
-            fmlogger.error("Exception encountered in trying to describe repositories:%s" % e)
-            create_repo_response = self.ecr_client.create_repository(repositoryName=repo_name)
-            repository_dict = create_repo_response['repository']
-            registryId = repository_dict['registryId']
-            token_response = self.ecr_client.get_authorization_token(registryIds=[registryId])
-            auth_token = token_response['authorizationData'][0]['authorizationToken']
-            decoded_auth_token = base64.b64decode(auth_token)
-            parts = decoded_auth_token.split(":")
-            username = parts[0]
-            password = parts[1]
-            proxy_endpoint = token_response['authorizationData'][0]['proxyEndpoint']
-            fmlogger.debug("Done creating repository.")
-        return repo_name, proxy_endpoint, username, password
-
-    def _set_up_docker_client(self, username, password, proxy_endpoint):
-        err, output = self.docker_handler.docker_login(username, password, proxy_endpoint)
-        return err, output
-
-    def _build_app_container(self, app_info, repo_name, proxy_endpoint, tag=''):
-        app_dir = app_info['app_location']
-        app_folder_name = app_info['app_folder_name']
-
-        df_dir = app_dir + "/" + app_folder_name
-
-        cont_name = proxy_endpoint[8:] + "/" + repo_name  # Removing initial https:// from proxy_endpoint
-        fmlogger.debug("Container name that will be used in building:%s" % cont_name)
-
-        err, output = self.docker_handler.build_container_image(cont_name, df_dir + "/Dockerfile",
-                                                                df_context=df_dir, tag=tag)
-        return err, output, cont_name
-
     def _copy_creds(self, app_info):
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
@@ -301,7 +265,8 @@ class ECSHandler(coe_base.COEBase):
         sec_group_id = env_output_config['http-and-ssh-group-id']
         vpc_id = env_output_config['vpc_id']
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        app_url, lb_arn, target_group_arn, listener_arn = ECSHandler.awshelper.create_service(app_info['app_name'], app_info['app_port'], vpc_id,
+        app_port = common_functions.get_app_port(app_info)
+        app_url, lb_arn, target_group_arn, listener_arn = ECSHandler.awshelper.create_service(app_info['app_name'], app_port, vpc_id,
                                                                                               subnet_list, sec_group_id, cluster_name,
                                                                                               task_def_arn, cont_name)
         app_ip_url = self._get_app_url(app_info, cluster_name)
@@ -503,57 +468,26 @@ class ECSHandler(coe_base.COEBase):
     def deploy_application(self, app_id, app_info):
         self._copy_creds(app_info)
 
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
+        env_vars = common_functions.resolve_environment(app_id, app_info)
+        #if app_info['env_id']:
 
         app_details = {}
         app_data = {}
-        app_data['status'] = 'creating-ecr-repository'
-        app_data['output_config'] = str(app_details)
-        app_db.App().update(app_id, app_data)
-        repo_name, proxy_endpoint, username, password = self._create_repository(app_info)
-        app_details['repo_name'] = repo_name
-        app_details['proxy_endpoint'] = proxy_endpoint
         app_details['task-familyName'] = app_info['app_name']
-
-        if username and password and proxy_endpoint:
-            err, output = self._set_up_docker_client(username, password, proxy_endpoint)
-            if err and err.strip() != 'WARNING! Using --password via the CLI is insecure. Use --password-stdin.':
-                fmlogger.debug("Error encountered in executing docker login command. Not continuing with the request. %s" % err)
-                return
-
-        tag = str(int(round(time.time() * 1000)))
-
-        app_data['status'] = 'building-app-container'
-        app_data['output_config'] = str(app_details)
-        app_db.App().update(app_id, app_data)
-        err, output, image_name = self._build_app_container(app_info, repo_name, proxy_endpoint, tag=tag)
-        tagged_image = image_name + ":" + tag
-        if err:
-            fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
-            return
-
-        app_data['status'] = 'pushing-app-cont-to-ecr-repository'
-        app_data['output_config'] = str(app_details)
-        app_db.App().update(app_id, app_data)
-        err, output = self.docker_handler.push_container(tagged_image)
-        if err:
-            fmlogger.debug("Error encountered in pushing container image to ECR. Not continuing with the request.")
-            return
-        fmlogger.debug("Completed pushing container %s to AWS ECR" % tagged_image)
-
         app_data['status'] = 'registering-task-definition'
         app_data['output_config'] = str(app_details)
         app_db.App().update(app_id, app_data)
 
-        container_port = int(app_info['app_port'])
-        task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image, container_port)
+        tagged_image = common_functions.get_image_uri(app_info)
+
+        container_port = int(common_functions.get_app_port(app_info))
+        task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
+                                                                 container_port, env_vars)
         app_details['task_def_arn'] = [task_def_arn]
         app_details['cont_name'] = cont_name
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = [tagged_image]
-        if 'memory' in app_info:
-            app_details['memory'] = app_info['memory']
+        app_details['memory'] = common_functions.get_app_memory(app_info)
 
         app_data['status'] = 'creating-ecs-app-service'
         app_data['output_config'] = str(app_details)
@@ -587,8 +521,8 @@ class ECSHandler(coe_base.COEBase):
     def redeploy_application(self, app_id, app_info):
         self._copy_creds(app_info)
 
-        if app_info['env_id']:
-            common_functions.resolve_environment(app_id, app_info)
+        #if app_info['env_id']:
+        env_vars = common_functions.resolve_environment(app_id, app_info)
 
         app_obj = app_db.App().get(app_id)
         app_details = app_obj.output_config
@@ -639,7 +573,7 @@ class ECSHandler(coe_base.COEBase):
         app_dt['status'] = 'registering-new-task-ecs-app-service'
         app_db.App().update(app_id, app_dt)
         new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
-                                                                     container_port, cont_name=orig_cont_name)
+                                                                     container_port, env_vars, cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
         app_details_obj['task_def_arn'].append(new_task_def_arn)
@@ -659,43 +593,43 @@ class ECSHandler(coe_base.COEBase):
     def delete_application(self, app_id, app_info):
         fmlogger.debug("Deleting Application:%s" % app_id)
         app_obj = app_db.App().get(app_id)
-        app_details = app_obj.output_config
-        app_details_obj = ast.literal_eval(app_details)
-        app_details_obj['app_url'] = ''
-
-        app_dt = {}
-        app_dt['status'] = 'deleting'
-        app_dt['output_config'] = str(app_details_obj)
-        app_db.App().update(app_id, app_dt)
 
         try:
-            task_def_arn_list = app_details_obj['task_def_arn']
-            latest_task_def_arn = task_def_arn_list[-1]
-            cont_name = app_details_obj['cont_name']
-            self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
-            for task_def_arn in task_def_arn_list:
-                self._deregister_task_definition(task_def_arn)
-            self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
-                                           service=app_obj.name)
-        except Exception as e:
-            fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
+            app_details = app_obj.output_config
+            app_details_obj = ast.literal_eval(app_details)
+            app_details_obj['app_url'] = ''
 
-        ECSHandler.awshelper.delete_listener(app_details_obj)
+            app_dt = {}
+            app_dt['status'] = 'deleting'
+            app_dt['output_config'] = str(app_details_obj)
+            app_db.App().update(app_id, app_dt)
 
-        ECSHandler.awshelper.delete_target_group(app_details_obj)
+            try:
+                task_def_arn_list = app_details_obj['task_def_arn']
+                latest_task_def_arn = task_def_arn_list[-1]
+                cont_name = app_details_obj['cont_name']
+                self._update_ecs_app_service(app_info, cont_name, latest_task_def_arn, task_desired_count=0)
+                for task_def_arn in task_def_arn_list:
+                    self._deregister_task_definition(task_def_arn)
+                self.ecs_client.delete_service(cluster=app_details_obj['cluster_name'],
+                                               service=app_obj.name)
+            except Exception as e:
+                fmlogger.error("Exception encountered in trying to delete ecs service %s" % e)
 
-        ECSHandler.awshelper.delete_load_balancer(app_details_obj)
+            ECSHandler.awshelper.delete_listener(app_details_obj)
 
-        try:
-            self._delete_repository(app_obj.name)
-        except Exception as e:
-            fmlogger.error("Exception encountered while deleting ecr repository %s" % e)
+            ECSHandler.awshelper.delete_target_group(app_details_obj)
 
-        try:
-            tagged_image_list = app_details_obj['image_name']
-            if tagged_image_list:
-                for tagged_image in tagged_image_list:
-                    self.docker_handler.remove_container_image(tagged_image)
+            ECSHandler.awshelper.delete_load_balancer(app_details_obj)
+
+            try:
+                tagged_image_list = app_details_obj['image_name']
+                if tagged_image_list:
+                    for tagged_image in tagged_image_list:
+                        self.docker_handler.remove_container_image(tagged_image)
+            except Exception as e:
+                fmlogger.error("Exception encountered while deleting images %s" % e)
+
         except Exception as e:
             fmlogger.error("Exception encountered while deleting images %s" % e)
 

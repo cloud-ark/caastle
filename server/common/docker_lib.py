@@ -127,6 +127,20 @@ class DockerLib(object):
         err, output = self._execute_cmd(run_cmd)
         return err, output
 
+    def run_container_with_env(self, cont_name, env_vars_dict):
+        env_string = ""
+        for key, value in env_vars_dict.iteritems():
+            env_string = env_string + "-e " + '"' + key + '=' + value + '"' + " "
+            fmlogging.debug("Environment string %s" % env_string)
+
+        """Run container asynchronously."""
+        run_cmd = ("docker run {env_string} -i -d --publish-all=true {cont_name}").format(
+            env_string=env_string,
+            cont_name=cont_name)
+        fmlogging.debug("Docker run cmd:%s" % run_cmd)
+        err, output = self._execute_cmd(run_cmd)
+        return err, output
+
     def run_container_sync(self, cont_name):
         """Run container in synchronous manner."""
         run_cmd = ("docker run {cont_name}").format(cont_name=cont_name)

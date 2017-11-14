@@ -48,17 +48,24 @@ setup(
         'server.server_plugins.aws.resource': [
             'rds = server.server_plugins.aws.resource.rds_handler:RDSResourceHandler',
             'dynamodb = server.server_plugins.aws.resource.dynamodb_handler:DynamoDBResourceHandler',
+            'ecr = server.server_plugins.aws.resource.ecr:ECRHandler',
         ],
         'server.server_plugins.aws.coe': [
             'ecs = server.server_plugins.aws.coe.ecs:ECSHandler',
         ],
         'server.server_plugins.gcloud.resource': [
             'cloudsql = server.server_plugins.gcloud.resource.cloudsql:CloudSQLResourceHandler',
+            'gcr = server.server_plugins.gcloud.resource.gcr:GCRHandler',
         ],
         'server.server_plugins.gcloud.coe': [
             'gke = server.server_plugins.gcloud.coe.gke:GKEHandler',
         ],
-
+        'server.server_plugins.local.resource': [
+            'mysql = server.server_plugins.local.resource.mysql:MySQLResourceHandler',
+        ],
+        'server.server_plugins.local.coe': [
+            'local-docker = server.server_plugins.local.coe.native_docker:NativeDockerHandler',
+        ],
     },
 
     zip_safe=False,

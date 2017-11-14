@@ -60,7 +60,7 @@ class EnvironmentCreate(Command):
         file_name = parsed_args.file_name
         if not file_name:
             file_name = raw_input("Please enter " + env_file_request_string + ">")
-        
+
         try:
             fp = open(file_name, "r")
         except Exception as e:

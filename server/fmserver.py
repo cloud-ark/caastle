@@ -23,10 +23,12 @@ ENV_STORE_PATH = APP_STORE_PATH
 
 #try:
 import app_handler
+import container_handler
 from common import common_functions
 from common import fm_logger
 from dbmodule import db_main
 from dbmodule.objects import app as app_db
+from dbmodule.objects import container as cont_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 import environment_handler
@@ -78,6 +80,90 @@ class ResourceRestResource(Resource):
         else:
             response.status_code = 404
 
+        return response
+
+class ContainersRestResource(Resource):
+
+    def get(self):
+        fmlogging.debug("Received GET request for all containers.")
+        resp_data = {}
+
+        all_containers = cont_db.Container().get_all()
+        resp_data['data'] = [cont_db.Container.to_json(res) for res in all_containers]
+
+        response = jsonify(**resp_data)
+        response.status_code = 200
+        return response
+
+    def post(self):
+        fmlogging.debug("Received POST request to create container")
+        args = request.get_json(force=True)
+
+        response = jsonify()
+        response.status_code = 201
+
+        args_dict = dict(args)
+
+        try:
+            if 'cont_info' not in args_dict:
+                response.status_code = 400
+            else:
+                cont_info = args_dict['cont_info']
+                content = cont_info['content']
+                cont_name = cont_info['cont_name']
+                cont_tar_name = cont_info['cont_tar_name']
+                cont_store_path, cont_version = common_functions.store_app_contents(cont_name, cont_tar_name, content)
+                cont_info['cont_store_path'] = cont_store_path
+                cont_db.Container().insert(cont_info)
+                request_handler_thread = container_handler.ContainerHandler(cont_name, cont_info, action='create')
+                thread.start_new_thread(start_thread, (request_handler_thread, ))
+                response.headers['location'] = ('/containers/{cont_name}').format(cont_name=cont_name)
+        except Exception as e:
+            fmlogging.error(e)
+            # Send back Internal Server Error
+            resp_data = {'error': str(e)}
+            response = jsonify(**resp_data)
+            response.status_code = 500
+
+        return response
+
+class ContainerRestResource(Resource):
+    def get(self, cont_name):
+        resp_data = {}
+        response = jsonify(**resp_data)
+        cont = cont_db.Container().get(cont_name)
+        if cont:
+            resp_data['data'] = cont_db.Container.to_json(cont)
+            response = jsonify(**resp_data)
+            response.status_code = 200
+        else:
+            response.status_code = 404
+
+        return response
+
+    def delete(self, cont_name):
+        fmlogging.debug("Received DELETE request for container %s" % cont_name)
+        resp_data = {}
+
+        response = jsonify(**resp_data)
+        cont_info = {}
+
+        cont_obj = cont_db.Container().get(cont_name)
+        if cont_obj:
+            output_config = ast.literal_eval(cont_obj.output_config)
+            tagged_image = output_config['tagged_image']
+            cont_info['dep_target'] = cont_obj.dep_target
+            cont_info['cont_name'] = cont_name
+            cont_info['cont_store_path'] = cont_obj.cont_store_path
+
+            request_handler_thread = container_handler.ContainerHandler(tagged_image, cont_info, action='delete')
+            thread.start_new_thread(start_thread, (request_handler_thread, ))
+            response.status_code = 202
+            # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
+            if cont_obj.dep_target == 'gcr':
+                response.status_code = 303
+        else:
+            response.status_code = 404
         return response
 
 
@@ -368,6 +454,9 @@ class EnvironmentRestResource(Resource):
 
 api.add_resource(AppsRestResource, '/apps')
 api.add_resource(AppRestResource, '/apps/<app_id>')
+
+api.add_resource(ContainersRestResource, '/containers')
+api.add_resource(ContainerRestResource, '/containers/<cont_name>')
 
 api.add_resource(EnvironmentsRestResource, '/environments')
 api.add_resource(EnvironmentRestResource, '/environments/<env_id>')

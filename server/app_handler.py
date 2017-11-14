@@ -5,6 +5,8 @@ from common import fm_logger
 import gcloud_handler
 import local_handler
 
+from server.dbmodule.objects import app as app_db
+
 fmlogging = fm_logger.Logging()
 
 
@@ -33,7 +35,7 @@ class AppHandler(threading.Thread):
         elif cloud == 'local':
             AppHandler.registered_cloud_handlers['local'].deploy_application(self.app_id, self.app_info)
         else:
-            print("Unknown deployment target %s" % cloud)
+            fmlogging.error("Unknown deployment target %s" % cloud)
             return
 
     def _redeploy_app(self):
@@ -47,7 +49,7 @@ class AppHandler(threading.Thread):
         elif cloud == 'local':
             AppHandler.registered_cloud_handlers['local'].deploy_application(self.app_id, self.app_info)
         else:
-            print("Unknown deployment target %s" % cloud)
+            fmlogging.error("Unknown deployment target %s" % cloud)
             return
 
     def _delete_app(self):
@@ -59,7 +61,8 @@ class AppHandler(threading.Thread):
         elif cloud == 'local':
             AppHandler.registered_cloud_handlers['local'].delete_application(self.app_id, self.app_info)
         else:
-            print("Unknown deployment target %s" % cloud)
+            fmlogging.error("Unknown deployment target %s" % cloud)
+            app_db.App().delete(self.app_id)
             return
 
     def run(self):

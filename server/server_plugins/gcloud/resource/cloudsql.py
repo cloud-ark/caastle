@@ -47,7 +47,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
         create_accepted = False
         count = 1
-        while not create_accepted and count < constant.TIMEOUT_COUNT:
+        while not create_accepted and count < constants.TIMEOUT_COUNT:
             try:
                 insert_db_req.execute()
                 create_accepted = True
