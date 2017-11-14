@@ -6,7 +6,7 @@ from pydoc import locate
 
 import call_server as server
 
-env_file_request_string = "Name of yaml file containing environment resource specification"
+env_file_request_string = "YAML file containing environment resource specification"
 
 not_allowed_regex_list = ["--+", "^\d", "-$"]
 
@@ -87,8 +87,4 @@ class EnvironmentCreate(Command):
         if setup_not_done:
             exit()
 
-        self.dep_track_url = server.TakeAction().create_environment(env_name, environment_def)
-
-        l = self.dep_track_url.rfind("/")
-        env_id = self.dep_track_url[l+1:]
-        print("env id:%s" % env_id)
+        server.TakeAction().create_environment(env_name, environment_def)
