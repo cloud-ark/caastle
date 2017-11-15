@@ -151,6 +151,19 @@ class TakeAction(object):
                 print("App with name %s not found." % app_name)
         return app_data
 
+    def get_app_logs(self, app_name):
+        self._check_server()
+        app_url = apps_endpoint + "/" + app_name + "/logs"
+        req = urllib2.Request(app_url)
+        logs_data = ''
+        try:
+            response = urllib2.urlopen(req)
+            logs_data = response.fp.read()
+        except urllib2.HTTPError as e:
+            if e.getcode() == 404:
+                print("App with name %s not found." % app_name)
+        return logs_data
+
     def delete_app(self, app_name):
         self._check_server()
         app_url = apps_endpoint + "/" + app_name

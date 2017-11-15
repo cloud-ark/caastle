@@ -358,6 +358,30 @@ class AppRestResource(Resource):
         return response
 
 
+class AppLogsRestResource(Resource):
+    def get(self, app_name):
+        resp_data = {}
+        response = jsonify(**resp_data)
+        app_obj = app_db.App().get_by_name(app_name)
+        if app_obj:
+            app_info = {}
+            app_info['target'] = app_obj.dep_target
+            app_info['app_name'] = app_obj.name
+            app_info['app_location'] = app_obj.location
+            app_info['app_version'] = app_obj.version
+            app_info['env_id'] = app_obj.env_id
+
+            request_handler = app_handler.AppHandler(app_obj.id, app_info)
+            logs_data = request_handler.get_logs()
+
+            resp_data['data'] = logs_data
+            response = jsonify(**resp_data)
+            response.status_code = 200
+        else:
+            response.status_code = 404
+
+        return response
+
 class EnvironmentsRestResource(Resource):
 
     def post(self):
@@ -465,6 +489,7 @@ class EnvironmentRestResource(Resource):
 
 api.add_resource(AppsRestResource, '/apps')
 api.add_resource(AppRestResource, '/apps/<app_name>')
+api.add_resource(AppLogsRestResource, '/apps/<app_name>/logs')
 
 api.add_resource(ContainersRestResource, '/containers')
 api.add_resource(ContainerRestResource, '/containers/<cont_name>')

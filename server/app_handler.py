@@ -73,3 +73,9 @@ class AppHandler(threading.Thread):
             self._redeploy_app()
         if self.action == 'delete':
             self._delete_app()
+
+    def get_logs(self):
+        log_lines = []
+        cloud = self.app_info['target']
+        log_lines = AppHandler.registered_cloud_handlers[cloud].get_logs(self.app_id, self.app_info)
+        return log_lines

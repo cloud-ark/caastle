@@ -122,3 +122,11 @@ class LocalHandler(object):
         for name, ext in LocalHandler.coe_mgr.items():
             if name == coe_type:
                 ext.obj.delete_application(app_id, app_info)
+    
+    def get_logs(self, app_id, app_info):
+        log_lines = ''
+        coe_type = common_functions.get_coe_type_for_app(app_id)
+        for name, ext in LocalHandler.coe_mgr.items():
+            if name == coe_type:
+                log_lines = ext.obj.get_logs(app_id, app_info)
+        return log_lines
