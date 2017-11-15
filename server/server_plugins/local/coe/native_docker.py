@@ -120,5 +120,6 @@ class NativeDockerHandler(coe_base.COEBase):
         cont_id = output_config['cont_id'].strip()
 
         logs = self.docker_handler.get_logs(cont_id)
+        lines = logs[0].split('\n')
 
-        return [logs]
+        return lines
