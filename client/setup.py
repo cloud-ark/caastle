@@ -61,6 +61,7 @@ setup(
             'app redeploy = fmcmds.app_redeploy:AppRedeploy',
             'app list = fmcmds.app_list:AppList',
             'app show = fmcmds.app_show:AppShow',
+            'app logs = fmcmds.app_logs:AppLogs',
             'resource show = fmcmds.resource_show:ResourceShow',
             'resource list = fmcmds.resource_list:ResourceList',
             'env create = fmcmds.environment_create:EnvironmentCreate',

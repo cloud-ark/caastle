@@ -38,7 +38,6 @@ class NativeDockerHandler(coe_base.COEBase):
 
     def _deploy_app_container(self, cont_name, env_vars, app_info):
         app_url = ''
-        app_status = ''
 
         err, cont_id = self.docker_handler.run_container_with_env(cont_name, env_vars)
 
@@ -52,13 +51,17 @@ class NativeDockerHandler(coe_base.COEBase):
         app_url = ("http://{app_ip_addr}:{app_port}").format(app_ip_addr=app_ip_addr,
                                                              app_port=app_port)
         fmlogger.debug("App URL: %s" % app_url)
+        return cont_id, app_url
+    
+    def _check_app_status(self, app_url):
+        app_status = ''
         if common_functions.is_app_ready(app_url):
             fmlogger.debug("Application is ready.")
             app_status = constants.APP_DEPLOYMENT_COMPLETE
         else:
             fmlogger.debug("Application could not start properly.")
             app_status = constants.APP_DEPLOYMENT_TIMEOUT
-        return cont_id, app_url, app_status
+        return app_status
 
     def create_cluster(self, env_id, env_info):
         fmlogger.debug("Creating GKE cluster.")
@@ -76,16 +79,17 @@ class NativeDockerHandler(coe_base.COEBase):
 
         cont_name = common_functions.get_image_uri(app_info)
         app_db.App().update(app_id, {'status': constants.DEPLOYING_APP})
-        cont_id, app_url, app_status = self._deploy_app_container(cont_name, env_vars, app_info)
+        
+        cont_id, app_url = self._deploy_app_container(cont_name, env_vars, app_info)
         
         app_data = {}
         app_data['url'] = app_url
         app_data['cont_id'] = cont_id.strip()
-        if app_url:
-            app_db.App().update(app_id, {'status': app_status,
-                                         'output_config': str(app_data)})
-        else:
-            app_db.App().update(app_id, {'status': constants.DEPLOYMENT_ERROR})
+        app_db.App().update(app_id, {'output_config': str(app_data)})
+
+        app_status = self._check_app_status(app_url)
+
+        app_db.App().update(app_id, {'status': app_status,'output_config': str(app_data)})
         fmlogger.debug("Done deploying application")
 
     def redeploy_application(self, app_id, app_info):
@@ -107,3 +111,14 @@ class NativeDockerHandler(coe_base.COEBase):
 
         app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application")
+
+    def get_logs(self, app_id, app_info):
+        fmlogger.debug("Retrieving logs for application %s %s" % (app_id, app_info['app_name']))
+
+        app_obj = app_db.App().get(app_id)
+        output_config = ast.literal_eval(app_obj.output_config)
+        cont_id = output_config['cont_id'].strip()
+
+        logs = self.docker_handler.get_logs(cont_id)
+
+        return [logs]
