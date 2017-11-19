@@ -243,10 +243,14 @@ def get_image_uri(app_info):
 
 
 def get_app_port(app_info):
-    app_port = ''
+    app_port = []
     app_yaml_def = read_app_yaml(app_info)
-    if 'port' in app_yaml_def['app']:
-        app_port = app_yaml_def['app']['port']
+    if 'container_port' in app_yaml_def['app']:
+        app_port.append(app_yaml_def['app']['container_port'])
+    if 'host_port' in app_yaml_def['app']:
+        app_port.append(app_yaml_def['app']['host_port'])
+    else:
+        app_port.append(80)
     return app_port
 
 

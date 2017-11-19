@@ -92,16 +92,30 @@ class App(db_base.Base):
             fmlogger.debug(e)
         return self.id
 
+    def _update(self, app, app_data):
+        if 'location' in app_data: app.location = app_data['location']
+        if 'version' in app_data: app.version = app_data['version']
+        if 'dep_target' in app_data: app.dep_target = app_data['dep_target']
+        if 'status' in app_data: app.status = app_data['status']
+        if 'output_config' in app_data: app.output_config = app_data['output_config']
+        if 'env_id' in app_data: app.env_id = app_data['env_id']
+        return app
+
     def update(self, app_id, app_data):
         try:
             session = db_base.get_session()
             app = session.query(App).filter_by(id=app_id).first()
-            if 'location' in app_data: app.location = app_data['location']
-            if 'version' in app_data: app.version = app_data['version']
-            if 'dep_target' in app_data: app.dep_target = app_data['dep_target']
-            if 'status' in app_data: app.status = app_data['status']
-            if 'output_config' in app_data: app.output_config = app_data['output_config']
-            if 'env_id' in app_data: app.env_id = app_data['env_id']
+            app = self._update(app, app_data)
+            session.commit()
+            session.close()
+        except IntegrityError as e:
+            fmlogger.debug(e)
+
+    def update_by_name(self, app_name, app_data):
+        try:
+            session = db_base.get_session()
+            app = session.query(App).filter_by(name=app_name).first()
+            app = self._update(app, app_data)
             session.commit()
             session.close()
         except IntegrityError as e:

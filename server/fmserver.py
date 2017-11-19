@@ -25,7 +25,9 @@ ENV_STORE_PATH = APP_STORE_PATH
 import app_handler
 import container_handler
 from common import common_functions
+from common import exceptions
 from common import fm_logger
+from common import validator
 from dbmodule import db_main
 from dbmodule.objects import app as app_db
 from dbmodule.objects import container as cont_db
@@ -204,6 +206,7 @@ class AppsRestResource(Resource):
                     response = jsonify(**resp_data)
                     response.status_code = 400
                     return response
+
                 app_id = ''
                 app_location = ''
                 app_version = ''
@@ -251,6 +254,16 @@ class AppsRestResource(Resource):
                 app_data['version'] = app_version
                 app_data['dep_target'] = cloud
                 app_db.App().update(app_id, app_data)
+
+                try:
+                    validator.validate_app_deployment(app_info, app_data, env_obj)
+                except exceptions.AppDeploymentValidationFailure as e:
+                    fmlogging.error(e)
+                    message = e.get_message()
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
+                    response.status_code = 400
+                    return response
 
                 request_handler_thread = app_handler.AppHandler(app_id, app_info, action='deploy')
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
