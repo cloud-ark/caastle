@@ -3,6 +3,7 @@ from os.path import expanduser
 
 from stevedore import extension
 
+from common import common_functions
 from common import fm_logger
 from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
@@ -104,3 +105,11 @@ class AWSHandler(object):
         for name, ext in AWSHandler.res_mgr.items():
             if name == repo_type:
                 ext.obj.delete(cont_name, cont_info)
+
+    def get_logs(self, app_id, app_info):
+        log_lines = ''
+        coe_type = common_functions.get_coe_type_for_app(app_id)
+        for name, ext in AWSHandler.coe_mgr.items():
+            if name == coe_type:
+                log_lines = ext.obj.get_logs(app_id, app_info)
+        return log_lines

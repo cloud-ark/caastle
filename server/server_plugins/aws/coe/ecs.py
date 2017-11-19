@@ -1,8 +1,10 @@
 import ast
 import base64
 import boto3
+import json
 import os
 from os.path import expanduser
+import re
 import shutil
 import time
 
@@ -233,11 +235,17 @@ class ECSHandler(coe_base.COEBase):
 
         return application_url, task_arn, cluster_name
 
-    def _copy_creds(self, app_info):
+    def _get_path_for_dfs(self, app_info):
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
 
         df_dir = app_dir + "/" + app_folder_name
+        return df_dir
+
+    def _copy_creds(self, app_info, provided_df_dir=''):
+        df_dir = provided_df_dir
+        if not df_dir:
+            df_dir = self._get_path_for_dfs(app_info)
 
         if not os.path.exists(df_dir + "/aws-creds"):
             shutil.copytree(home_dir + "/.aws", df_dir + "/aws-creds")
@@ -338,6 +346,51 @@ class ECSHandler(coe_base.COEBase):
 
         res_db.Resource().delete(res_id)
 
+    def _get_cluster_ips(self, cluster_name, env_store_location):
+        cluster_instance_ip_list = []
+        df = self.docker_handler.get_dockerfile_snippet("aws")
+        df = df + ("COPY . /src \n"
+                   "WORKDIR /src \n"
+                   "RUN cp -r aws-creds $HOME/.aws \ \n"
+                        " && aws ec2 describe-instances")
+        fp = open(env_store_location + "/Dockerfile.get-instance-ip", "w")
+        fp.write(df)
+        fp.flush()
+        fp.close()
+
+        get_ip_cont_image = cluster_name+"get-ip"
+        err, output = self.docker_handler.build_container_image(get_ip_cont_image,
+                                                                env_store_location + "/Dockerfile.get-instance-ip",
+                                                                df_context=env_store_location)
+        output_lines = output.split('\n')
+        json_lines = []
+        start = False
+        for line in output_lines:
+            if not start:
+                if len(line) == 1 and line == '{':
+                    start = True
+                    json_lines.append(line)
+            else:
+                json_lines.append(line)
+        for line in json_lines[::-1]:
+            if not line == '}':
+                del json_lines[-1]
+            else:
+                break
+
+        json_string = '\n'.join(json_lines)
+        json_string = re.sub('\s+', '', json_string)
+        json_output = json.loads(json_string)
+
+        reservations = json_output['Reservations']
+        for res_item in reservations:
+            instances = res_item['Instances']
+            for instance in instances:
+                key_name = instance['KeyName']
+                if key_name == cluster_name:
+                    cluster_instance_ip_list.append(instance['PublicIpAddress'])
+        return cluster_instance_ip_list
+
     def create_cluster(self, env_id, env_info):
         cluster_status = 'unavailable'
         env_obj = env_db.Environment().get(env_id)
@@ -403,9 +456,9 @@ class ECSHandler(coe_base.COEBase):
                    "{create_keypair_cmd} \n"
                    "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \ \n"
-                   " && ecs-cli configure --region {reg} --access-key {access_key} --secret-key {secret_key} --cluster {cluster} \n"
+                   " && ecs-cli configure --region {reg} --cluster {cluster} \n"
                    " {entry_point_cmd}"
-                   ).format(create_keypair_cmd=create_keypair_cmd, reg=region, access_key=access_key, secret_key=secret_key,
+                   ).format(create_keypair_cmd=create_keypair_cmd, reg=region,
                             cluster=cluster_name, entry_point_cmd=entry_point_cmd)
 
         fp = open(env_store_location + "/Dockerfile.create-cluster", "w")
@@ -451,12 +504,16 @@ class ECSHandler(coe_base.COEBase):
         self.docker_handler.remove_container(cont_id)
         self.docker_handler.remove_container_image(cluster_name)
 
+        instance_ip_list = self._get_cluster_ips(cluster_name, env_store_location)
+
         env_output_config['subnets'] = subnet_list
         env_output_config['vpc_id'] = vpc_id
         env_output_config['cidr_block'] = cidr_block
         env_output_config['http-and-ssh-group-name'] = sec_group_name
         env_output_config['http-and-ssh-group-id'] = sec_group_id
         env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
+        env_output_config['cluster_ips'] = instance_ip_list
+        env_output_config['cluster_name'] = cluster_name
 
         env_update = {}
         env_update['status'] = env_obj.status
@@ -488,6 +545,8 @@ class ECSHandler(coe_base.COEBase):
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
         app_details['image_name'] = [tagged_image]
         app_details['memory'] = common_functions.get_app_memory(app_info)
+        app_details['app_folder_name'] = app_info['app_folder_name']
+        app_details['env_name'] = app_info['env_name']
 
         app_data['status'] = 'creating-ecs-app-service'
         app_data['output_config'] = str(app_details)
@@ -634,3 +693,168 @@ class ECSHandler(coe_base.COEBase):
             fmlogger.error("Exception encountered while deleting images %s" % e)
 
         app_db.App().delete(app_id)
+
+    def _retrieve_runtime_logs(self, cluster_ip, app_name, logs_path, df_dir, pem_file_name):
+        runtime_log = cluster_ip + constants.RUNTIME_LOG
+        runtime_log_path = logs_path + "/" + runtime_log
+
+        mkdir_command = ("mkdir {logs_path}").format(logs_path=runtime_log_path)
+        fmlogger.debug(mkdir_command)
+        os.system(mkdir_command)
+
+        app_obj = app_db.App().get_by_name(app_name)
+        output_config = ast.literal_eval(app_obj.output_config)
+        tagged_images = output_config['image_name']
+        image = tagged_images[0]
+
+        dockerlogs_sh = "dockerlogs.sh"
+        if not os.path.exists(df_dir + "/" + dockerlogs_sh):
+            fp = open(df_dir + "/" + dockerlogs_sh, "w")
+            file_content = ("#!/bin/bash \n"
+                            "sudo docker ps | grep {image} | awk '{{print $1}}' | xargs docker logs \n"
+                           ).format(image=image)
+            fp.write(file_content)
+            fp.flush()
+            fp.close()
+
+        ssh_wrapper = "ssh_wrapper.sh"
+        ssh_wrapper_path = df_dir + "/" + ssh_wrapper
+        if not os.path.exists(ssh_wrapper_path):
+            fp = open(ssh_wrapper_path, "w")
+            file_content = ("#!/bin/bash \n"
+                            "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i "
+                            "/root/.ssh/{pem_file_name} ec2-user@{cluster_ip} 'bash -s' < {dockerlogs_sh}").format(
+                             pem_file_name=pem_file_name, cluster_ip=cluster_ip, dockerlogs_sh=dockerlogs_sh)
+            fp.write(file_content)
+            fp.flush()
+            fp.close()
+            change_perm_command = ("chmod +x {ssh_wrapper_path}").format(ssh_wrapper_path=ssh_wrapper_path)
+            os.system(change_perm_command)
+
+        dockerfile_name = "Dockerfile.retrieve-logs-" + runtime_log
+        df_path = df_dir + "/" + dockerfile_name
+        if not os.path.exists(df_path):
+            df = self.docker_handler.get_dockerfile_snippet("aws")
+            df = df + ("COPY . /src \n"
+                       "WORKDIR /src \n"
+                       "RUN sudo apt-get install -y openssh-client \n"
+                       "RUN cp -r aws-creds $HOME/.aws \ \n"
+                       " && mkdir /root/.ssh \ \n"
+                       " && cp /src/{pem_file_name} /root/.ssh/. \ \n"
+                       " && chmod 400 /root/.ssh/{pem_file_name} \ \n"
+                       " && ./ssh_wrapper.sh"
+                       ).format(pem_file_name=pem_file_name)
+            fp = open(df_path, "w")
+
+            fp.write(df)
+            fp.flush()
+            fp.close()
+
+        log_cont_name = ("{app_name}-{cluster_ip}-retrieve-run-logs").format(app_name=app_name,
+                                                                             cluster_ip=cluster_ip)
+        err, output = self.docker_handler.build_container_image(log_cont_name, df_path, df_context=df_dir)
+        if not err:
+            filtered_output = self.docker_handler.filter_output(output)
+            log_output_string = '\n'.join(filtered_output)
+
+            fp2 = open(runtime_log_path + "/runtime.log", "w")
+            fp2.write(log_output_string)
+            fp2.flush()
+            fp2.close()
+
+            self.docker_handler.remove_container_image(log_cont_name)
+
+        return runtime_log_path
+
+    def _retrieve_deploy_logs(self, cluster_ip, app_name, logs_path, df_dir, pem_file_name):
+        deploy_log = cluster_ip + constants.DEPLOY_LOG
+        deploy_log_path = logs_path + "/" + deploy_log
+
+        mkdir_command = ("mkdir {logs_path}").format(logs_path=deploy_log_path)
+        fmlogger.debug(mkdir_command)
+        os.system(mkdir_command)
+
+        logs_path_cont = '/src/' + deploy_log
+        scp_cmd = ("ENTRYPOINT [\"scp\", \"-rp\", \"-o\", \"UserKnownHostsFile=/dev/null\", \"-o\", \"StrictHostKeyChecking=no\", "
+                   "\"-i\", \"/root/.ssh/{pem_file_name}\", \"ec2-user@{public_ip}:/var/log/ecs\", \"{logs_path}\" ]"
+                   ).format(pem_file_name=pem_file_name, public_ip=cluster_ip, logs_path=".")
+
+        dockerfile_name = "Dockerfile.retrieve-logs-" + deploy_log
+        df_path = df_dir + "/" + dockerfile_name
+
+        if not os.path.exists(df_path):
+            df = self.docker_handler.get_dockerfile_snippet("aws")
+            df = df + ("COPY . /src \n"
+                       "WORKDIR /src \n"
+                       "RUN sudo apt-get install -y openssh-client \n"
+                       "RUN cp -r aws-creds $HOME/.aws \ \n"
+                       " && mkdir /root/.ssh \ \n"
+                       " && cp /src/{pem_file_name} /root/.ssh/. \ \n"
+                       " && chmod 400 /root/.ssh/{pem_file_name}  \n"
+                       " {scp_command}"
+                       ).format(pem_file_name=pem_file_name, scp_command=scp_cmd)
+            fp = open(df_path, "w")
+
+            fp.write(df)
+            fp.flush()
+            fp.close()
+
+        log_cont_name = ("{app_name}-{cluster_ip}-retrieve-deploy-logs").format(app_name=app_name,
+                                                                                cluster_ip=cluster_ip)
+        err, output = self.docker_handler.build_container_image(log_cont_name, df_path, df_context=df_dir)
+
+        if not err:
+            run_err, run_output = self.docker_handler.run_container(log_cont_name)
+            if not run_err:
+                logs_cont_id = run_output.strip()
+
+                time.sleep(5) # Allow time to retrieve the logs
+                logs_cp_cmd = ("docker cp {cont_id}:{logs_path_cont} {logs_path}/").format(cont_id=logs_cont_id,
+                                                                                           logs_path_cont="/src/ecs",
+                                                                                           logs_path=deploy_log_path)
+                fmlogger.debug(logs_cp_cmd)
+                os.system(logs_cp_cmd)
+
+                self.docker_handler.stop_container(logs_cont_id)
+                self.docker_handler.remove_container(logs_cont_id)
+                self.docker_handler.remove_container_image(log_cont_name)
+        return deploy_log_path
+
+    def _retrieve_logs(self, app_info):
+        env_obj = env_db.Environment().get(app_info['env_id'])
+        env_output_config = ast.literal_eval(env_obj.output_config)
+        cluster_ips = env_output_config['cluster_ips']
+        cluster_name = env_output_config['cluster_name']
+        pem_file = env_output_config['key_file']
+
+        app_name = app_info['app_name']
+        app_location = app_info['app_location']
+
+        self._copy_creds(app_info, provided_df_dir=app_location)
+
+        df_dir = app_location
+        logs_path = app_info['app_location'] + "/logs"
+        logs_path_cmd = ("mkdir {logs_path}").format(logs_path=logs_path)
+        os.system(logs_path_cmd)
+
+        pem_file_name = ("{cluster_name}.pem").format(cluster_name=cluster_name)
+        copy_pem_file = ("cp {pem_file} {df_dir}/{pem_file_name}").format(pem_file=pem_file,
+                                                                          df_dir=df_dir,
+                                                                          pem_file_name=pem_file_name)
+        fmlogger.debug(copy_pem_file)
+        os.system(copy_pem_file)
+
+        logs_path_list = []
+        for cluster_ip in cluster_ips:
+            deploy_logs_path = self._retrieve_deploy_logs(cluster_ip, app_name, logs_path,
+                                                          df_dir, pem_file_name)
+            runtime_logs_path = self._retrieve_runtime_logs(cluster_ip, app_name, logs_path,
+                                                            df_dir, pem_file_name)
+            logs_path_list.append(deploy_logs_path)
+            logs_path_list.append(runtime_logs_path)
+        return logs_path_list
+
+    def get_logs(self, app_id, app_info):
+        fmlogger.debug("Retrieving logs for application %s %s" % (app_id, app_info['app_name']))
+        logs_path_list = self._retrieve_logs(app_info)
+        return logs_path_list

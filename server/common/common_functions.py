@@ -4,6 +4,7 @@ import os
 import requests
 import tarfile
 import time
+import subprocess
 import yaml
 
 from os.path import expanduser
@@ -270,3 +271,16 @@ def get_coe_type_for_app(app_id):
     app_obj = app_db.App().get(app_id)
     coe_type = get_coe_type(app_obj.env_id)
     return coe_type
+
+
+def execute_cmd(cmd):
+    err= ''
+    output=''
+    try:
+        chanl = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, shell=True).communicate()
+        err = chanl[1]
+        output = chanl[0]
+    except Exception as e:
+        fmlogging.error(e)
+    return err, output

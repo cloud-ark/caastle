@@ -1,3 +1,4 @@
+import common_functions
 import fm_logger
 import subprocess
 import time
@@ -67,16 +68,6 @@ class DockerLib(object):
     def get_dockerfile_snippet(self, key):
         """Return Dockerfile snippet."""
         return self.docker_file_snippets[key]
-    
-    def _execute_cmd(self, cmd):
-        try:
-            chanl = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE, shell=True).communicate()
-            err = chanl[1]
-            output = chanl[0]
-        except Exception as e:
-            fmlogging.error(e)
-        return err, output
 
     def docker_login(self, username, password, proxy_endpoint):
         """Set up docker client to connect to a remote repository."""
@@ -85,7 +76,7 @@ class DockerLib(object):
                                                 password=password,
                                                 proxy_endpoint=proxy_endpoint)
         fmlogging.debug("Login command:%s" % login_cmd)
-        err, output = self._execute_cmd(login_cmd)
+        err, output = common_functions.execute_cmd(login_cmd)
         return err, output
 
     def build_container_image(self, cont_name, docker_file_name, df_context='', tag=''):
@@ -102,7 +93,7 @@ class DockerLib(object):
                                                                                                   docker_file_name=docker_file_name,
                                                                                                   df_context=df_context)
         fmlogging.debug("Docker build cmd:%s" % build_cmd)
-        err, output = self._execute_cmd(build_cmd)
+        err, output = common_functions.execute_cmd(build_cmd)
         return err, output
 
     def remove_container_image(self, cont_name, reason_phrase=''):
@@ -110,21 +101,21 @@ class DockerLib(object):
         fmlogging.debug("Removing container image %s. Reason: %s" % (cont_name, reason_phrase))
         rm_cmd = ("docker rmi -f {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("rm command:%s" % rm_cmd)
-        err, output = self._execute_cmd(rm_cmd)
+        err, output = common_functions.execute_cmd(rm_cmd)
         return err, output
 
     def push_container(self, cont_name):
         """Push container to a registry."""
         push_cmd = ("docker push {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("Docker push cmd:%s" % push_cmd)
-        err, output = self._execute_cmd(push_cmd)
+        err, output = common_functions.execute_cmd(push_cmd)
         return err, output
 
     def run_container(self, cont_name):
         """Run container asynchronously."""
         run_cmd = ("docker run -i -d --publish-all=true {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("Docker run cmd:%s" % run_cmd)
-        err, output = self._execute_cmd(run_cmd)
+        err, output = common_functions.execute_cmd(run_cmd)
         return err, output
 
     def run_container_with_env(self, cont_name, env_vars_dict):
@@ -138,14 +129,14 @@ class DockerLib(object):
             env_string=env_string,
             cont_name=cont_name)
         fmlogging.debug("Docker run cmd:%s" % run_cmd)
-        err, output = self._execute_cmd(run_cmd)
+        err, output = common_functions.execute_cmd(run_cmd)
         return err, output
 
     def run_container_sync(self, cont_name):
         """Run container in synchronous manner."""
         run_cmd = ("docker run {cont_name}").format(cont_name=cont_name)
         fmlogging.debug("Docker run cmd:%s" % run_cmd)
-        err, output = self._execute_cmd(run_cmd)
+        err, output = common_functions.execute_cmd(run_cmd)
         return err, output
 
     def stop_container(self, cont_id, reason_phrase=''):
@@ -153,7 +144,7 @@ class DockerLib(object):
         fmlogging.debug("Stopping container %s. Reason: %s" % (cont_id, reason_phrase))
         stop_cmd = ("docker stop {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("stop command:%s" % stop_cmd)
-        err, output = self._execute_cmd(stop_cmd)
+        err, output = common_functions.execute_cmd(stop_cmd)
         return err, output
 
     def remove_container(self, cont_id, reason_phrase=''):
@@ -161,7 +152,7 @@ class DockerLib(object):
         fmlogging.debug("Removing container %s. Reason: %s" % (cont_id, reason_phrase))
         rm_cmd = ("docker rm -f {cont_id}").format(cont_id=cont_id)
         fmlogging.debug("rm command:%s" % rm_cmd)
-        err, output = self._execute_cmd(rm_cmd)
+        err, output = common_functions.execute_cmd(rm_cmd)
         return err, output
 
     def get_logs(self, cont_id):
@@ -175,10 +166,27 @@ class DockerLib(object):
 
         i = 0
         while not output and i < count:
-            err, output = self._execute_cmd(logs_cmd)
+            err, output = common_functions.execute_cmd(logs_cmd)
             if output:
                 break
             else:
                 time.sleep(2)
                 i = i + 1
         return err, output
+
+    def filter_output(self, output):
+        output_lines = []
+        start = False
+        for line in output.split("\n"):
+            if start:
+                output_lines.append(line)
+            if line.find("Running in") >= 0:
+                start = True
+                output_lines = []
+
+        # Pop off last three items
+        output_lines.pop()
+        output_lines.pop()
+        output_lines.pop()
+
+        return output_lines

@@ -369,6 +369,8 @@ class AppLogsRestResource(Resource):
             app_info['app_name'] = app_obj.name
             app_info['app_location'] = app_obj.location
             app_info['app_version'] = app_obj.version
+            app_output_config = ast.literal_eval(app_obj.output_config)
+            app_info['app_folder_name'] = app_output_config['app_folder_name']
             app_info['env_id'] = app_obj.env_id
 
             request_handler = app_handler.AppHandler(app_obj.id, app_info)
@@ -459,7 +461,7 @@ class EnvironmentRestResource(Resource):
         return response
 
     def delete(self, env_name):
-        fmlogging.debug("Received DELETE request for environment %s" % env_id)
+        fmlogging.debug("Received DELETE request for environment %s" % env_name)
         resp_data = {}
 
         response = jsonify(**resp_data)

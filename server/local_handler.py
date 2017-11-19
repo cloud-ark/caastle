@@ -52,7 +52,7 @@ class LocalHandler(object):
         cont_db.Container().update(cont_name, cont_data)
 
         return err, output, tagged_image
-    
+
     def create_resources(self, env_id, resource_list):
         fmlogger.debug("Local create_resources")
         resource_details = ''
@@ -122,7 +122,7 @@ class LocalHandler(object):
         for name, ext in LocalHandler.coe_mgr.items():
             if name == coe_type:
                 ext.obj.delete_application(app_id, app_info)
-    
+
     def get_logs(self, app_id, app_info):
         log_lines = ''
         coe_type = common_functions.get_coe_type_for_app(app_id)
