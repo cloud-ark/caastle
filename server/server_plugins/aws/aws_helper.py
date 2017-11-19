@@ -1,8 +1,13 @@
 import boto3
 import time
 
+from server.common import constants
 from server.common import docker_lib
+from server.common import exceptions
 from server.common import fm_logger
+
+from server.dbmodule.objects import app as app_db
+from server.dbmodule.objects import environment as env_db
 
 fmlogger = fm_logger.Logging()
 
@@ -49,13 +54,13 @@ class AWSHelper(object):
         fmlogger.debug("lb target group creation done. target_group_arn:%s target_group_name:%s" % (target_group_arn, target_group_name))
         return target_group_arn, target_group_name
 
-    def _create_lb_listener(self, load_balancer_arn, target_group_arn):
+    def _create_lb_listener(self, host_port, load_balancer_arn, target_group_arn):
         fmlogger.debug("Creating lb listener.")
         listener_arn = ''
         try:
             response = self.alb_client.create_listener(LoadBalancerArn=load_balancer_arn,
                                                        Protocol='HTTP',
-                                                       Port=80,
+                                                       Port=host_port,
                                                        DefaultActions=[{'Type': 'forward',
                                                                         'TargetGroupArn': target_group_arn}])
             listener_arn = response['Listeners'][0]['ListenerArn']
@@ -218,15 +223,15 @@ class AWSHelper(object):
 
         return service_available
 
-    def create_service(self, app_name, app_port, vpc_id, subnet_list, sec_group_id,
+    def create_service(self, app_name, container_port, host_port, vpc_id, subnet_list, sec_group_id,
                        cluster_name, task_def_arn, container_name):
 
         app_url = ''
         fmlogger.debug("Creating ECS service for app %s" % app_name)
         sec_group_list = [sec_group_id]
         lb_arn, lb_dns = self._create_application_lb(app_name, subnet_list, sec_group_list)
-        target_group_arn, target_group_name = self._create_target_group(app_name, app_port, vpc_id)
-        listener_arn = self._create_lb_listener(lb_arn, target_group_arn)
+        target_group_arn, target_group_name = self._create_target_group(app_name, container_port, vpc_id)
+        listener_arn = self._create_lb_listener(host_port, lb_arn, target_group_arn)
         desired_count = 1  # Number of tasks default to 1
 
         role_obj = self.iam_client.get_role(RoleName='EcsServiceRole')
@@ -239,7 +244,7 @@ class AWSHelper(object):
                                            loadBalancers=[{'targetGroupArn': target_group_arn,
                                                            # 'loadBalancerName': app_name,
                                                            'containerName': container_name,
-                                                           'containerPort': int(app_port)}],
+                                                           'containerPort': int(container_port)}],
                                            desiredCount=desired_count,
                                            role=role_arn)
         except Exception as e:
@@ -248,20 +253,31 @@ class AWSHelper(object):
         fmlogger.debug("ECS service creation for app %s done." % app_name)
 
         service_available = False
-        issue_encountered = False
         service_desc = ''
-        while not service_available and not issue_encountered:
+        service_message = ''
+        count = 1
+        while not service_available and count < constants.TIMEOUT_COUNT:
             try:
                 service_desc = self.ecs_client.describe_services(cluster=cluster_name,
                                                                  services=[app_name])
                 pending_count = service_desc['services'][0]['pendingCount']
                 running_count = service_desc['services'][0]['runningCount']
+                service_message = service_desc['services'][0]['events'][0]['message']
+
+                app_data = {'status': service_message}
+                app_db.App().update_by_name(app_name, app_data)
+
                 if pending_count == 0 and running_count == desired_count:
                     service_available = True
-                    app_url = lb_dns
+                    app_url = lb_dns + ":" + str(host_port)
+                    break
             except Exception as e:
                 fmlogger.debug("Exception encountered in trying to run describe_services. %s" % e)
-                issue_encountered = True
+            count = count + 1
+            time.sleep(2)
+
+        if count == constants.TIMEOUT_COUNT and not service_available:
+            raise exceptions.ECSServiceCreateTimeout(app_name)
 
         return app_url, lb_arn, target_group_arn, listener_arn
 

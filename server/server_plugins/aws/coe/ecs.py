@@ -12,6 +12,7 @@ import server.server_plugins.coe_base as coe_base
 from server.common import common_functions
 from server.common import constants
 from server.common import docker_lib
+from server.common import exceptions
 from server.common import fm_logger
 from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import environment as env_db
@@ -86,8 +87,7 @@ class ECSHandler(coe_base.COEBase):
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
-    def _register_task_definition(self, app_info, image, container_port, env_vars_dict, cont_name=''):
-
+    def _register_task_definition(self, app_info, image, container_port, host_port, env_vars_dict, cont_name=''):
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
         memory = 250  # Default memory size of 250MB. This is hard limit
@@ -105,6 +105,20 @@ class ECSHandler(coe_base.COEBase):
             environment_dict['value'] = value
             env_list.append(environment_dict)
 
+        if host_port != 80:
+            env_obj = env_db.Environment().get(app_info['env_id'])
+            env_output_config = ast.literal_eval(env_obj.output_config)
+            sec_group_name = env_output_config['http-and-ssh-group-name']
+            sec_group_id = env_output_config['http-and-ssh-group-id']
+            vpc_id = env_output_config['vpc_id']
+
+            vpc_traffic_block = []
+            internet_traffic = '0.0.0.0/0'
+            vpc_traffic_block.append(internet_traffic)
+            port_list = [host_port]
+            ECSHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
+                                                      sec_group_id, sec_group_name, port_list)
+
         try:
             resp = self.ecs_client.register_task_definition(
                 family=family_name,
@@ -113,7 +127,7 @@ class ECSHandler(coe_base.COEBase):
                                        'memory': memory,
                                        'portMappings': [{
                                            'containerPort': container_port,
-                                           'hostPort': 80,
+                                           'hostPort': host_port,
                                            'protocol': 'tcp'}],
                                         'environment': env_list}]
             )
@@ -129,7 +143,7 @@ class ECSHandler(coe_base.COEBase):
         except Exception as e:
             fmlogger.error("Exception encountered in deregistering task definition:%s" % e)
 
-    def _get_app_url(self, app_info, cluster_name):
+    def _get_app_url(self, app_info, cluster_name, host_port):
         app_url = ''
         self._copy_creds(app_info)
         df = self.docker_handler.get_dockerfile_snippet("aws")
@@ -137,7 +151,7 @@ class ECSHandler(coe_base.COEBase):
                    "WORKDIR /src \n"
                    "RUN cp -r aws-creds $HOME/.aws \n"
                    "RUN sudo apt-get update && sudo apt-get install -y curl \n"
-                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
+                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.6.2 \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \n"
                    "ENTRYPOINT [\"ecs-cli\", \"ps\", \"--cluster\", \"{cluster_name}\"]").format(cluster_name=cluster_name)
 
@@ -230,7 +244,7 @@ class ECSHandler(coe_base.COEBase):
 
         fmlogger.debug("Container IP:%s" % container_ip)
         fmlogger.debug("Container Port:%s" % host_port)
-        application_url = self._get_app_url(app_info, cluster_name)
+        application_url = self._get_app_url(app_info, cluster_name, host_port)
         fmlogger.debug("Completed Running task")
 
         return application_url, task_arn, cluster_name
@@ -273,11 +287,15 @@ class ECSHandler(coe_base.COEBase):
         sec_group_id = env_output_config['http-and-ssh-group-id']
         vpc_id = env_output_config['vpc_id']
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        app_port = common_functions.get_app_port(app_info)
-        app_url, lb_arn, target_group_arn, listener_arn = ECSHandler.awshelper.create_service(app_info['app_name'], app_port, vpc_id,
-                                                                                              subnet_list, sec_group_id, cluster_name,
-                                                                                              task_def_arn, cont_name)
-        app_ip_url = self._get_app_url(app_info, cluster_name)
+        app_ports = common_functions.get_app_port(app_info)
+        container_port = app_ports[0]
+        host_port = app_ports[1]
+        app_url, lb_arn, target_group_arn, listener_arn = ECSHandler.awshelper.create_service(
+            app_info['app_name'], container_port, host_port, vpc_id,
+            subnet_list, sec_group_id, cluster_name,
+            task_def_arn, cont_name
+        )
+        app_ip_url = self._get_app_url(app_info, cluster_name, host_port)
         if not app_url:
             app_url = app_ip_url
         else:
@@ -299,7 +317,7 @@ class ECSHandler(coe_base.COEBase):
                    "WORKDIR /src \n"
                    "RUN cp -r aws-creds $HOME/.aws \n"
                    "RUN sudo apt-get update && sudo apt-get install -y curl \n"
-                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
+                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.6.2 \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \ \n"
                    " && ecs-cli down --cluster {cluster} --force").format(cluster=cluster_name)
 
@@ -386,9 +404,10 @@ class ECSHandler(coe_base.COEBase):
         for res_item in reservations:
             instances = res_item['Instances']
             for instance in instances:
-                key_name = instance['KeyName']
-                if key_name == cluster_name:
-                    cluster_instance_ip_list.append(instance['PublicIpAddress'])
+                if 'KeyName' in instance:
+                    key_name = instance['KeyName']
+                    if key_name == cluster_name:
+                        cluster_instance_ip_list.append(instance['PublicIpAddress'])
         return cluster_instance_ip_list
 
     def create_cluster(self, env_id, env_info):
@@ -454,7 +473,7 @@ class ECSHandler(coe_base.COEBase):
                    "RUN cp -r aws-creds $HOME/.aws \n"
                    "RUN sudo apt-get update && sudo apt-get install -y curl \n"
                    "{create_keypair_cmd} \n"
-                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest \ \n"
+                   "RUN sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-v0.6.2 \ \n"
                    " && chmod +x /usr/local/bin/ecs-cli \ \n"
                    " && ecs-cli configure --region {reg} --cluster {cluster} \n"
                    " {entry_point_cmd}"
@@ -526,7 +545,6 @@ class ECSHandler(coe_base.COEBase):
         self._copy_creds(app_info)
 
         env_vars = common_functions.resolve_environment(app_id, app_info)
-        #if app_info['env_id']:
 
         app_details = {}
         app_data = {}
@@ -537,9 +555,12 @@ class ECSHandler(coe_base.COEBase):
 
         tagged_image = common_functions.get_image_uri(app_info)
 
-        container_port = int(common_functions.get_app_port(app_info))
+        app_ports = common_functions.get_app_port(app_info)
+        container_port = int(app_ports[0])
+        host_port = int(app_ports[1])
         task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
-                                                                 container_port, env_vars)
+                                                                 container_port, host_port,
+                                                                 env_vars)
         app_details['task_def_arn'] = [task_def_arn]
         app_details['cont_name'] = cont_name
         app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
@@ -547,14 +568,29 @@ class ECSHandler(coe_base.COEBase):
         app_details['memory'] = common_functions.get_app_memory(app_info)
         app_details['app_folder_name'] = app_info['app_folder_name']
         app_details['env_name'] = app_info['env_name']
+        app_details['container_port'] = container_port
+        app_details['host_port'] = host_port
 
         app_data['status'] = 'creating-ecs-app-service'
         app_data['output_config'] = str(app_details)
         app_db.App().update(app_id, app_data)
 
-        app_url, app_ip_url, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(app_info,
-                                                                                                   cont_name,
-                                                                                                   task_def_arn)
+        app_url = app_ip_url = lb_arn = target_group_arn = listener_arn = ''
+
+        try:
+            app_url, app_ip_url, lb_arn, target_group_arn, listener_arn = self._create_ecs_app_service(
+                app_info,
+                cont_name,
+                task_def_arn
+            )
+        except exceptions.ECSServiceCreateTimeout as e:
+            fmlogger.error(e)
+            app_details['error'] = e.get_message()
+            app_data = {}
+            app_data['output_config'] = str(app_details)
+            app_db.App().update(app_id, app_data)
+            return
+
         app_details['lb_arn'] = lb_arn
         app_details['target_group_arn'] = target_group_arn
         app_details['listener_arn'] = listener_arn
@@ -622,6 +658,7 @@ class ECSHandler(coe_base.COEBase):
 
         current_task_def_arn = app_details_obj['task_def_arn'][-1]
         container_port = self._get_container_port(current_task_def_arn)
+        host_port = 80
         orig_cont_name = app_details_obj['cont_name']
 
         app_dt['status'] = 'deregistering-current-task-ecs-app-service'
@@ -632,7 +669,8 @@ class ECSHandler(coe_base.COEBase):
         app_dt['status'] = 'registering-new-task-ecs-app-service'
         app_db.App().update(app_id, app_dt)
         new_task_def_arn, cont_name = self._register_task_definition(app_info, tagged_image,
-                                                                     container_port, env_vars, cont_name=orig_cont_name)
+                                                                     container_port, host_port, env_vars,
+                                                                     cont_name=orig_cont_name)
         self._update_ecs_app_service(app_info, orig_cont_name, new_task_def_arn, task_desired_count=1)
 
         app_details_obj['task_def_arn'].append(new_task_def_arn)
