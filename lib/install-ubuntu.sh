@@ -15,7 +15,6 @@ virtualenv $virtenv &>> $install_log
 source $virtenv/bin/activate &>> $install_log
 
 pip install -r requirements.txt &>> $install_log
-#./$virtenv/bin/python server/setup.py install
 
 cd client
 ../$virtenv/bin/python setup.py install &>> $install_log
@@ -34,7 +33,7 @@ echo "export PYTHONPATH=$PYTHONPATH" >> ~/.profile
 echo '### Added by CloudARK' >> ~/.bashrc
 echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
 
-echo "Installing cloudark client done." &>> $install_log
+echo "Installing CloudARK client done." &>> $install_log
 
 cd ..
 
@@ -45,11 +44,6 @@ echo "  - cld setup aws - to do aws setup"
 echo "  - cld setup gcloud - to do gcloud setup"
 echo "- Once required cloud setup is done, start CloudARK server"
 echo "  - ./start-cloudark.sh"
-
-#echo "- Start cloudark server by running ./start.sh"
-#echo "Starting server.." &>> $install_log
-#ps -eaf | grep 'python server/fmserver.py' | grep -v grep | awk '{print $2}' | xargs kill &>> $install_log
-#python server/fmserver.py 1>>cld-server.log 2>&1 &
 
 # Activate virtual environment
 /bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"
