@@ -45,9 +45,6 @@ class ContainerCreate(Command):
             else:
                 cont_info['project'] = parsed_args.project_id
 
-        #dockerfile = self._read_dockerfile()
-        #cont_info['dockerfile'] = dockerfile
-
         cont_df_location = os.getcwd()
         cont_df_folder_name = common.get_app_folder_name(cont_df_location)
         cont_info['cont_df_folder_name'] = cont_df_folder_name

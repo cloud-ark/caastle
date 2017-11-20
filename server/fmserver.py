@@ -21,7 +21,6 @@ APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 ENV_STORE_PATH = APP_STORE_PATH
 
 
-#try:
 import app_handler
 import container_handler
 from common import common_functions
@@ -34,10 +33,6 @@ from dbmodule.objects import container as cont_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 import environment_handler
-#except Exception as e:
-#    if e.message == "You must specify a region.":
-#        print(constants.AWS_SETUP_INCORRECT)
-#        exit()
 
 
 def start_thread(request_handler_thread):
@@ -77,6 +72,7 @@ class ResourcesRestResource(Resource):
             response.status_code = 200
             return response
 
+
 class ResourceRestResource(Resource):
 
     def get(self, resource_id):
@@ -94,6 +90,7 @@ class ResourceRestResource(Resource):
             response.status_code = 404
 
         return response
+
 
 class ContainersRestResource(Resource):
 
@@ -133,12 +130,12 @@ class ContainersRestResource(Resource):
                 response.headers['location'] = ('/containers/{cont_name}').format(cont_name=cont_name)
         except Exception as e:
             fmlogging.error(e)
-            # Send back Internal Server Error
             resp_data = {'error': str(e)}
             response = jsonify(**resp_data)
             response.status_code = 500
 
         return response
+
 
 class ContainerRestResource(Resource):
     def get(self, cont_name):
@@ -270,7 +267,6 @@ class AppsRestResource(Resource):
                 response.headers['location'] = ('/apps/{app_name}').format(app_name=app_name)
         except Exception as e:
             fmlogging.error(e)
-            # Send back Internal Server Error
             resp_data = {'error': str(e)}
             response = jsonify(**resp_data)
             response.status_code = 500
@@ -340,7 +336,6 @@ class AppRestResource(Resource):
                     response.status_code = 404
         except Exception as e:
             fmlogging.error(e)
-            # Send back Internal Server Error
             response.status_code = 500
 
         return response
@@ -396,6 +391,7 @@ class AppLogsRestResource(Resource):
             response.status_code = 404
 
         return response
+
 
 class EnvironmentsRestResource(Resource):
 

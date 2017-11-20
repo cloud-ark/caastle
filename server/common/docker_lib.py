@@ -33,9 +33,6 @@ class DockerLib(object):
                 "COPY google-creds/gcloud  /root/.config/gcloud \n"
                 "WORKDIR /root/.config/gcloud \n"
                 )
-#"""   13  /google-cloud-sdk/bin/gcloud config set account kulkarni.devdatta@gmail.com
-#   14  /google-cloud-sdk/bin/gcloud config set project conf-registration-company-a
-#   15  /google-cloud-sdk/bin/gcloud container clusters get-credentials env-gke-2017-11-01-20-06-28 --zone us-central1-b    
         return df_1
         
     def _google_df_snippet_for_token(self):

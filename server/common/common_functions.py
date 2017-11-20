@@ -133,34 +133,6 @@ def resolve_environment(app_id, app_info):
 
     return new_env_var
 
-#     app_dir = app_info['app_location']
-#     app_folder_name = app_info['app_folder_name']
-#     df_dir = app_dir + "/" + app_folder_name
-#
-#     app_yaml = app_info['app_yaml']
-#     os.rename(df_dir + "/" + app_yaml, df_dir + "/" + app_yaml + ".orig")
-#     fp = open(df_dir + "/" + app_yaml, "w")
-#     fp1 = open(df_dir + "/" + app_yaml + ".orig", "r")
-#
-#     lines = fp1.readlines()
-#
-#     for line in lines:
-#         line_to_write = line
-#         if line.find("$CLOUDARK_") >= 0:
-#             new_line_parts = []
-#             parts = line.split(" ")
-#             for part in parts:
-#                 if part.find("$CLOUDARK_") >= 0:
-#                     translated_env_value = _get_env_value(resource_list, part)
-#                     new_line_parts.append(translated_env_value)
-#                 else:
-#                     new_line_parts.append(part)
-#             line_to_write = " ".join(new_line_parts)
-#         fp.write(line_to_write)
-#         fp.write("\n")
-#     fp.close()
-#     fp1.close()
-
 
 def is_app_ready(app_url, app_id='', timeout=300):
     ready = False

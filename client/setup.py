@@ -2,7 +2,6 @@
 
 PROJECT = 'cld'
 
-# Change docs/sphinx/conf.py too!
 VERSION = '0.0.1'
 
 from setuptools import setup, find_packages
@@ -30,8 +29,6 @@ setup(
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2',
                  'Programming Language :: Python :: 2.7',
-                 'Programming Language :: Python :: 3',
-                 'Programming Language :: Python :: 3.2',
                  'Intended Audience :: Developers',
                  'Environment :: Console',
                  ],
