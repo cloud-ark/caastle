@@ -70,6 +70,7 @@ class EnvironmentHandler(threading.Thread):
         if 'resources' in env_details:
             resources = env_details['resources']
             resources_list = ''
+
             if 'aws' in resources:
                 fmlogging.debug("Creating AWS resources")
                 resources_list = resources['aws']
@@ -96,6 +97,7 @@ class EnvironmentHandler(threading.Thread):
         if all_available:
             env_db.Environment().update(self.env_id, {'status': 'available'})
         else:
+            env_db.Environment().update(self.env_id, {'status': 'create-failed'})
             fmlogging.debug("One or more resources in environment failed to provision.")
 
     def _delete_environment(self):

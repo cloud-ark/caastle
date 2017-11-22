@@ -13,3 +13,4 @@ flake8
 google-api-python-client
 entry_point_inspector
 kubernetes
+google-cloud-logging
