@@ -386,14 +386,23 @@ class GKEHandler(coe_base.COEBase):
             res_db.Resource().update(res_id, res_data)
             return status
 
-        resp = self.gke_service.projects().zones().clusters().create(
-            projectId=project,
-            zone=zone,
-            body={"cluster": {"name": cluster_name,
-                              "initialNodeCount": cluster_size,
-                              "nodeConfig": {
-                                  "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only"}}}
-        ).execute()
+        resp = ''
+        try:
+            resp = self.gke_service.projects().zones().clusters().create(
+                projectId=project,
+                zone=zone,
+                body={"cluster": {"name": cluster_name,
+                                  "initialNodeCount": cluster_size,
+                                  "nodeConfig": {
+                                      "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only"}}}
+            ).execute()
+        except Exception as e:
+            fmlogger.error(e)
+
+            env_update = {}
+            env_update['output_config'] = str({'error': str(e)})
+            env_db.Environment().update(env_id, env_update)
+            return
     
         fmlogger.debug(resp)
 
@@ -573,3 +582,6 @@ class GKEHandler(coe_base.COEBase):
 
         app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application %s" % app_info['app_name'])
+
+    def get_logs(self):
+        fmlogger.debug("Not implemented yet")
