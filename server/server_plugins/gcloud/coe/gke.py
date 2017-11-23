@@ -93,7 +93,7 @@ class GKEHandler(coe_base.COEBase):
 
         return list_of_ips
 
-    def _check_if_app_is_ready(self, app_id, app_info):
+    def _check_if_app_is_ready(self, app_id, app_info, app_details):
         fmlogger.debug("Checking if application is ready.")
 
         service_name = app_info['app_name']
@@ -114,6 +114,10 @@ class GKEHandler(coe_base.COEBase):
                 time.sleep(5)
 
         app_url = "http://" + app_ip
+
+        app_details['app_url'] = app_url
+        app_db.App().update(app_id, {'output_config': str(app_details)})
+
         app_ready = common_functions.is_app_ready(app_url, app_id=app_id)
 
         if app_ready:
@@ -154,19 +158,16 @@ class GKEHandler(coe_base.COEBase):
         df = self.docker_handler.get_dockerfile_snippet("google")
 
         cluster_name = self._get_cluster_name(app_info['env_id'])
-        kubectl = "curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
 
         user_account, project_name, zone_name = self._get_deployment_details(app_info['env_id'])
         df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
                    " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
-                   "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n"
-                   "RUN {kubectl} \ \n"
-                   " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods "
+                   "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \ \n"
+                   " && kubectl get pods "
                    ).format(account=user_account,
                             project=project_name,
                             cluster_name=cluster_name,
-                            zone=zone_name,
-                            kubectl=kubectl)
+                            zone=zone_name)
 
         return df
 
@@ -521,14 +522,13 @@ class GKEHandler(coe_base.COEBase):
 
         deployment_obj = self._create_deployment_object(app_info,
                                                         tagged_image,
-                                                        env_vars,
-                                                        alternate_api=True)
+                                                        env_vars)
 
         app_data['status'] = 'creating-kubernetes-deployment'
         app_db.App().update(app_id, app_data)
 
         try:
-            self._create_deployment(deployment_obj, alternate_api=True)
+            self._create_deployment(deployment_obj)
         except Exception as e:
             fmlogger.error(e)
             deployment_obj = self._create_deployment_object(app_info,
@@ -539,7 +539,7 @@ class GKEHandler(coe_base.COEBase):
                 self._create_deployment(deployment_obj, alternate_api=True)
             except Exception as e:
                 fmlogger.error(e)
-                app_data['status'] = 'deployment-error' + str(e)
+                app_data['status'] = 'deployment-error ' + str(e)
                 app_db.App().update(app_id, app_data)
                 return
 
@@ -567,7 +567,8 @@ class GKEHandler(coe_base.COEBase):
         app_db.App().update(app_id, app_data)
 
         app_url, status = self._check_if_app_is_ready(app_id,
-                                                      app_info)
+                                                      app_info,
+                                                      app_details)
 
         fmlogger.debug('Application URL:%s' % app_url)
 
@@ -622,10 +623,11 @@ class GKEHandler(coe_base.COEBase):
 
         get_logs = "get-logs.sh"
         get_logs_wrapper = df_dir + "/" + get_logs
+
         if not os.path.exists(get_logs_wrapper):
             fp = open(get_logs_wrapper, "w")
             file_content = ("#!/bin/bash \n"
-                            "kubectl get pods | grep {app_name} | awk '{print $1}' | xargs kubectl describe pods").format(
+                            "kubectl get pods | grep {app_name} | awk '{{print $1}}' | xargs kubectl describe pods").format(
                              app_name=app_info['app_name'])
             fp.write(file_content)
             fp.flush()

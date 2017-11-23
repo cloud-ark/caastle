@@ -20,15 +20,7 @@ class DockerLib(object):
         return df
     
     def _google_df_snippet(self):
-        df_1 = ("FROM lmecld/clis:gcloud \n"
-                "RUN sudo apt-get update && sudo apt-get install -y curl \n"
-                "WORKDIR / \n"
-                "RUN mv google-cloud-sdk google-cloud-sdk.1 \ \n"
-                "&& wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-178.0.0-linux-x86_64.tar.gz \ \n"
-                "&& gunzip google-cloud-sdk-178.0.0-linux-x86_64.tar.gz \ \n"
-                "&& tar -xvf google-cloud-sdk-178.0.0-linux-x86_64.tar \n" 
-                "WORKDIR /google-cloud-sdk \n"
-                "RUN ./install.sh \n"
+        df_1 = ("FROM lmecld/clis:gkebase \n"
                 "COPY . /src \n"
                 "COPY google-creds/gcloud  /root/.config/gcloud \n"
                 "WORKDIR /root/.config/gcloud \n"
