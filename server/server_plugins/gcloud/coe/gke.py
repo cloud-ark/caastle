@@ -144,7 +144,13 @@ class GKEHandler(coe_base.COEBase):
         
         return access_token
 
-    def _setup_kube_config(self, app_info):
+    def _get_ports(self, app_info):
+        port_list = common_functions.get_app_port(app_info)
+        container_port = int(port_list[0])
+        host_port = int(port_list[1])
+        return container_port, host_port
+
+    def _get_kube_df_file(self, app_info):
         df = self.docker_handler.get_dockerfile_snippet("google")
 
         cluster_name = self._get_cluster_name(app_info['env_id'])
@@ -155,13 +161,17 @@ class GKEHandler(coe_base.COEBase):
                    " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
                    "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n"
                    "RUN {kubectl} \ \n"
-                   " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods"
+                   " && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl && kubectl get pods "
                    ).format(account=user_account,
                             project=project_name,
                             cluster_name=cluster_name,
                             zone=zone_name,
                             kubectl=kubectl)
 
+        return df
+
+    def _setup_kube_config(self, app_info):
+        df = self._get_kube_df_file(app_info)
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
         cont_name = app_info['app_name'] + "-get-kubeconfig"
@@ -224,7 +234,8 @@ class GKEHandler(coe_base.COEBase):
 
     def _create_deployment_object(self, app_info, tagged_image, env_vars_dict, alternate_api=False):
         deployment_name = app_info['app_name']
-        container_port = int(common_functions.get_app_port(app_info))
+
+        container_port, host_port = self._get_ports(app_info)
 
         env_list = []
         for key, value in env_vars_dict.iteritems():
@@ -286,14 +297,14 @@ class GKEHandler(coe_base.COEBase):
 
     def _create_service(self, app_info):
         deployment_name = app_info['app_name']
-        container_port = int(common_functions.get_app_port(app_info))
+
+        container_port, host_port = self._get_ports(app_info)
 
         v1_object_meta = client.V1ObjectMeta()
         v1_object_meta.name = deployment_name
 
-        v1_service_port = client.V1ServicePort()
-        v1_service_port.port = 80
-        v1_service_port.target_port = container_port
+        v1_service_port = client.V1ServicePort(port=host_port,
+                                               target_port=container_port)
 
         v1_service_spec = client.V1ServiceSpec()
         v1_service_spec.ports = [v1_service_port]
@@ -490,7 +501,6 @@ class GKEHandler(coe_base.COEBase):
         fmlogger.debug("Deploying application %s" % app_info['app_name'])
         self._copy_creds(app_info)
 
-        #if app_info['env_id']:
         env_vars = common_functions.resolve_environment(app_id, app_info)
 
         app_details = {}
@@ -511,13 +521,14 @@ class GKEHandler(coe_base.COEBase):
 
         deployment_obj = self._create_deployment_object(app_info,
                                                         tagged_image,
-                                                        env_vars)
+                                                        env_vars,
+                                                        alternate_api=True)
 
         app_data['status'] = 'creating-kubernetes-deployment'
         app_db.App().update(app_id, app_data)
 
         try:
-            self._create_deployment(deployment_obj)
+            self._create_deployment(deployment_obj, alternate_api=True)
         except Exception as e:
             fmlogger.error(e)
             deployment_obj = self._create_deployment_object(app_info,
@@ -530,6 +541,7 @@ class GKEHandler(coe_base.COEBase):
                 fmlogger.error(e)
                 app_data['status'] = 'deployment-error' + str(e)
                 app_db.App().update(app_id, app_data)
+                return
 
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
@@ -538,6 +550,16 @@ class GKEHandler(coe_base.COEBase):
         except Exception as e:
             fmlogger.error(e)
 
+        container_port, host_port = self._get_ports(app_info)
+        app_details['cluster_name'] = self._get_cluster_name(app_info['env_id'])
+        app_details['image_name'] = [tagged_image]
+        app_details['memory'] = common_functions.get_app_memory(app_info)
+        app_details['app_folder_name'] = app_info['app_folder_name']
+        app_details['env_name'] = app_info['env_name']
+        app_details['container_port'] = container_port
+        app_details['host_port'] = host_port
+
+        app_data['output_config'] = str(app_details)
         app_data['status'] = 'creating-kubernetes-service'
         app_db.App().update(app_id, app_data)
 
@@ -583,5 +605,82 @@ class GKEHandler(coe_base.COEBase):
         app_db.App().delete(app_id)
         fmlogger.debug("Done deleting application %s" % app_info['app_name'])
 
-    def get_logs(self):
-        fmlogger.debug("Not implemented yet")
+    def _retrieve_logs(self, app_info):
+
+        app_dir = app_info['app_location']
+        app_folder_name = app_info['app_folder_name']
+        df_dir = app_dir + "/" + app_folder_name
+
+        logs_path = []
+        try:
+            self._setup_kube_config(app_info)
+        except Exception as e:
+            fmlogger.error("Exception encountered in obtaining kube config %s" % e)
+            app_db.App().update(app_id, {'status': str(e)})
+
+        df = self._get_kube_df_file(app_info)
+
+        get_logs = "get-logs.sh"
+        get_logs_wrapper = df_dir + "/" + get_logs
+        if not os.path.exists(get_logs_wrapper):
+            fp = open(get_logs_wrapper, "w")
+            file_content = ("#!/bin/bash \n"
+                            "kubectl get pods | grep {app_name} | awk '{print $1}' | xargs kubectl describe pods").format(
+                             app_name=app_info['app_name'])
+            fp.write(file_content)
+            fp.flush()
+            fp.close()
+            change_perm_command = ("chmod +x {get_logs_wrapper}").format(get_logs_wrapper=get_logs_wrapper)
+            os.system(change_perm_command)
+
+        logs_wrapper_cmd = ("\n"
+                            "CMD [\"sh\", \"/src/get-logs.sh\"] ")
+
+        df = df + logs_wrapper_cmd
+
+        log_cont_name = app_info['app_name'] + "-get-logs"
+
+        df_name = df_dir + "/Dockerfile.get-logs"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        err, output = self.docker_handler.build_container_image(
+            log_cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        if err:
+            error_msg = ("Error {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+        else:
+            err1, output1 = self.docker_handler.run_container(log_cont_name)
+            if not err1:
+                logs_cont_id = output1.strip()
+                logs_output = self.docker_handler.get_logs(logs_cont_id)
+
+                logs_dir = ("{app_dir}/logs").format(app_dir=app_dir)
+                logs_dir_command = ("mkdir {logs_dir}").format(logs_dir=logs_dir)
+                os.system(logs_dir_command)
+
+                deploy_log = app_info['app_name'] + constants.DEPLOY_LOG
+                deploy_log_path = logs_dir + "/" + deploy_log
+
+                fp1 = open(deploy_log_path, "w")
+                fp1.writelines(logs_output)
+                fp1.flush()
+                fp1.close()
+
+                self.docker_handler.stop_container(logs_cont_id)
+                self.docker_handler.remove_container(logs_cont_id)
+                self.docker_handler.remove_container_image(log_cont_name)
+
+                logs_path.append(deploy_log_path)
+        return logs_path
+
+    def get_logs(self, app_id, app_info):
+        fmlogger.debug("Retrieving logs for application %s %s" % (app_id, app_info['app_name']))
+        logs_path_list = self._retrieve_logs(app_info)
+        return logs_path_list
