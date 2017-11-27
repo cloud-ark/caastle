@@ -60,6 +60,10 @@ setup(
         'server.server_plugins.gcloud.coe': [
             'gke = server.server_plugins.gcloud.coe.gke:GKEHandler',
         ],
+        'server.server_plugins.gcloud.app': [
+            'single-container = server.server_plugins.gcloud.coe.gke_single_container:GKESingleContainer',
+            'multi-container = server.server_plugins.gcloud.coe.gke_multi_container:GKEMultiContainer',
+        ],
         'server.server_plugins.local.resource': [
             'mysql = server.server_plugins.local.resource.mysql:MySQLResourceHandler',
         ],

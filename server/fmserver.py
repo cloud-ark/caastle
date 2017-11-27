@@ -250,6 +250,7 @@ class AppsRestResource(Resource):
                 app_data['location'] = app_location
                 app_data['version'] = app_version
                 app_data['dep_target'] = cloud
+                app_data['app_yaml_contents'] = str(common_functions.read_app_yaml(app_info))
                 app_db.App().update(app_id, app_data)
 
                 try:

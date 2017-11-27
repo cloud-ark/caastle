@@ -249,6 +249,16 @@ def get_coe_type_for_app(app_id):
     return coe_type
 
 
+def get_app_type(app_id):
+    app_obj = app_db.App().get(app_id)
+    app_yaml_contents = ast.literal_eval(app_obj.app_yaml_contents)
+    if 'app' in app_yaml_contents:
+        return 'single-container'
+    if 'apiVersion' in app_yaml_contents and 'kind' in app_yaml_contents:
+        return 'multi-container'
+    return coe_type
+
+
 def execute_cmd(cmd):
     err= ''
     output=''

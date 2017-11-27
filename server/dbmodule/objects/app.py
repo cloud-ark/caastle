@@ -18,6 +18,7 @@ class App(db_base.Base):
     dep_target = sa.Column(sa.String)
     status = sa.Column(sa.String)
     output_config = sa.Column(sa.Text)
+    app_yaml_contents = sa.Column(sa.Text)
     env_id = sa.Column(sa.Integer)
 
     def __init__(self):
@@ -33,6 +34,7 @@ class App(db_base.Base):
         app_json['status'] = app.status
         app_json['output_config'] = str(app.output_config)
         app_json['env_id'] = app.env_id
+        app_json['app_yaml_contents'] = app.app_yaml_contents
         return app_json
 
     def get_by_name(self, app_name):
@@ -99,6 +101,7 @@ class App(db_base.Base):
         if 'status' in app_data: app.status = app_data['status']
         if 'output_config' in app_data: app.output_config = app_data['output_config']
         if 'env_id' in app_data: app.env_id = app_data['env_id']
+        if 'app_yaml_contents' in app_data: app.app_yaml_contents = app_data['app_yaml_contents']
         return app
 
     def update(self, app_id, app_data):
