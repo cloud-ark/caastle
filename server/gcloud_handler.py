@@ -27,6 +27,11 @@ class GCloudHandler(object):
         invoke_on_load=True,
     )
 
+    app_mgr = extension.ExtensionManager(
+        namespace='server.server_plugins.gcloud.app',
+        invoke_on_load=True,
+    )
+
     def create_resources(self, env_id, resource_list):
         fmlogger.debug("GCloudHandler create_resources")
         resource_details = ''
@@ -65,18 +70,6 @@ class GCloudHandler(object):
             if name == coe_type:
                 ext.obj.delete_cluster(env_id, env_info, resource)
 
-    def deploy_application(self, app_id, app_info):
-        coe_type = common_functions.get_coe_type_for_app(app_id)
-        for name, ext in GCloudHandler.coe_mgr.items():
-            if name == coe_type:
-                ext.obj.deploy_application(app_id, app_info)
-
-    def delete_application(self, app_id, app_info):
-        coe_type = common_functions.get_coe_type_for_app(app_id)
-        for name, ext in GCloudHandler.coe_mgr.items():
-            if name == coe_type:
-                ext.obj.delete_application(app_id, app_info)
-
     def create_container(self, cont_name, cont_info):
         repo_type = cont_info['dep_target']
         for name, ext in GCloudHandler.res_mgr.items():
@@ -89,10 +82,23 @@ class GCloudHandler(object):
             if name == repo_type:
                 ext.obj.delete(cont_name, cont_info)
 
+    # App functions
+    def deploy_application(self, app_id, app_info):
+        app_type = common_functions.get_app_type(app_id)
+        for name, ext in GCloudHandler.app_mgr.items():
+            if name == app_type:
+                ext.obj.deploy_application(app_id, app_info)
+
+    def delete_application(self, app_id, app_info):
+        app_type = common_functions.get_app_type(app_id)
+        for name, ext in GCloudHandler.app_mgr.items():
+            if name == app_type:
+                ext.obj.delete_application(app_id, app_info)
+
     def get_logs(self, app_id, app_info):
         log_lines = ''
-        coe_type = common_functions.get_coe_type_for_app(app_id)
-        for name, ext in GCloudHandler.coe_mgr.items():
-            if name == coe_type:
+        app_type = common_functions.get_app_type(app_id)
+        for name, ext in GCloudHandler.app_mgr.items():
+            if name == app_type:
                 log_lines = ext.obj.get_logs(app_id, app_info)
         return log_lines
