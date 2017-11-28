@@ -77,8 +77,8 @@ Once you have installed Docker follow these steps:
 6) Choose a sample application and follow the steps in the included README
 
 
-Available commands
--------------------
+Sample commands
+----------------
 
 $ cld --help
 
@@ -99,6 +99,14 @@ Commands:
 
   env delete
 
+  container create
+
+  container list
+
+  container show
+
+  container delete
+
   app deploy
 
   app list
@@ -106,10 +114,6 @@ Commands:
   app show
 
   app delete
-
-  resource list
-
-  resource show
 
   setup aws
 
