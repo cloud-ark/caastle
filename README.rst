@@ -77,6 +77,45 @@ Once you have installed Docker follow these steps:
 6) Choose a sample application and follow the steps in the included README
 
 
+Available commands
+-------------------
+
+$ cld --help
+
+usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
+
+CloudARK command-line tool to create and manage cloud environments for
+containerized applications.
+
+Commands:
+
+  env create
+
+  env list
+
+  env show
+
+  env exec
+
+  env delete
+
+  app deploy
+
+  app list
+
+  app show
+
+  app delete
+
+  resource list
+
+  resource show
+
+  setup aws
+
+  setup gcloud
+
+
 
 Deploying on Google GKE
 ------------------------
@@ -116,7 +155,6 @@ You will also need to add IAM policy shown below which will grant permissions to
 ECS agent running on your ECS cluster instances to perform IAM actions
 such as creating a ECS instance profile role and assuming that role.
 These permissions are required for the ECS agent to communicate with the ECS service.
-
 Use these steps to create it:
 
 -> AWS Web Console -> IAM -> Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
@@ -140,45 +178,6 @@ In the Policy Document enter the following policy. Replace <account-id> with you
 
 Once the policy is created attach it to your user.
 
-
-Available commands
--------------------
-
-
-$ cld --help
-
-usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
-
-CloudARK command-line tool to create and manage cloud environments for
-containerized applications.
-
-Commands:
-
-  env create
-
-  env list
-
-  env show
-
-  env delete
-
-  app deploy
-
-  app redeploy
-
-  app list
-
-  app show
-
-  app delete
-
-  resource list
-
-  resource show
-
-  setup aws
-
-  setup gcloud
 
 
 Screenshots
