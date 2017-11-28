@@ -18,6 +18,7 @@ from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
 import server.server_plugins.coe_base as coe_base
 from server.server_plugins.gcloud import gcloud_helper
+from __builtin__ import True
 
 home_dir = expanduser("~")
 
@@ -32,7 +33,11 @@ class GKEHandler(coe_base.COEBase):
     """GKE Handler."""
 
     gcloudhelper = gcloud_helper.GCloudHelper()
-    
+
+    allowed_commands = ["kubectl get pods",
+                        "kubectl get services",
+                        "kubectl describe pods"]
+
     def __init__(self):
         credentials = GoogleCredentials.get_application_default()
         self.gke_service = discovery.build('container', 'v1',
@@ -43,6 +48,12 @@ class GKEHandler(coe_base.COEBase):
         self.docker_handler = docker_lib.DockerLib()
 
         self.app_yaml_def = ''
+
+    def _verify(self, command):
+        if command in GKEHandler.allowed_commands:
+            return True
+        else:
+            return False
 
     def _get_cluster_node_ip(self, env_name, project, zone):
         pageToken = None
@@ -178,7 +189,7 @@ class GKEHandler(coe_base.COEBase):
         res_db.Resource().update(res_id, res_data)
         fmlogger.debug("Done creating GKE cluster.")
         return cluster_status
-        
+
     def delete_cluster(self, env_id, env_info, resource_obj):
         fmlogger.debug("Deleting GKE cluster")
 
@@ -218,6 +229,33 @@ class GKEHandler(coe_base.COEBase):
         res_db.Resource().delete(resource_obj.id)
         fmlogger.debug("Done deleting GKE cluster.")
 
+    def run_command(self, env_id, env_name, resource_obj, command):
+        fmlogger.debug("Running command against GKE cluster")
+
+        command_output = ''
+
+        is_supported_command = self._verify(command)
+        if not is_supported_command:
+            command_output = ["Command not supported"]
+            return command_output
+
+        base_command = ''
+        cluster_name = resource_obj.cloud_resource_id
+
+        user_account, project_name, zone_name = GKEHandler.gcloudhelper.get_deployment_details(env_id)
+
+        base_command = ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n").format(
+                        cluster_name=cluster_name, zone=zone_name)
+
+        command_output = GKEHandler.gcloudhelper.run_command(env_id,
+                                                             env_name,
+                                                             resource_obj,
+                                                             base_command,
+                                                             command)
+
+        output_lines = command_output.split("\n")
+
+        return output_lines
 
     # Leaving these methods here as this coe_base.COEBase still contains these methods.
     # Once we remove them from coe_base.COEBase, we should remove these methods

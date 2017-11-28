@@ -223,6 +223,26 @@ class TakeAction(object):
         return data
 
     # Functions for environment
+    def run_command(self, env_name, command_string):
+        self._check_server()
+        environment_command_endpoint = environments_endpoint + "/" + env_name + "/command"
+        req = urllib2.Request(environment_command_endpoint)
+        req.add_header('Content-Type', 'application/octet-stream')
+
+        data = {'command_string': command_string,
+                'environment_name': env_name}
+        try:
+            response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
+            response_data = response.fp.read()
+            resp_data_json = json.loads(response_data)
+            result = resp_data_json['data']
+            result_str = '\n'.join(result)
+            return result_str
+        except Exception as e:
+            if e.msg == 'NOT FOUND':
+                print("Environment with name %s not found." % env_name)
+                exit()
+
     def create_environment(self, env_name, environment_def):
         self._check_server()
         req = urllib2.Request(environments_endpoint)

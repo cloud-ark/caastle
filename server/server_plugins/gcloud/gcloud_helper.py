@@ -1,9 +1,31 @@
+import ast
 import os
+from os.path import expanduser
+import shutil
+import time
+import yaml
 
+from kubernetes import client, config
+
+from googleapiclient import discovery
+from oauth2client.client import GoogleCredentials
+
+from server.common import constants
+from server.common import common_functions
 from server.common import docker_lib
 from server.common import fm_logger
+from server.dbmodule.objects import app as app_db
+from server.dbmodule.objects import environment as env_db
+from server.dbmodule.objects import resource as res_db
+import server.server_plugins.app_base as app_base
+
+home_dir = expanduser("~")
+
+APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
 fmlogger = fm_logger.Logging()
+
+GCR = "us.gcr.io"
 
 
 class GCloudHelper(object):
@@ -52,4 +74,87 @@ class GCloudHelper(object):
         
         return access_token
 
-        
+    def get_deployment_details(self, env_id):
+        env_obj = env_db.Environment().get(env_id)
+        env_details = ast.literal_eval(env_obj.env_definition)
+        project = env_details['environment']['app_deployment']['project']
+        zone = env_details['environment']['app_deployment']['zone']
+
+        user_account = ''
+        if not os.path.exists(home_dir + "/.config/gcloud/configurations/config_default"):
+            fmlogger.error("gcloud sdk installation not proper. Did not find ~/.config/gcloud/configurations/config_default file")
+            raise Exception()
+        else:
+            fp = open(home_dir + "/.config/gcloud/configurations/config_default", "r")
+            lines = fp.readlines()
+            for line in lines:
+                if line.find("account") >= 0:
+                    parts = line.split("=")
+                    user_account = parts[1].strip()
+                    break
+        return user_account, project, zone
+
+    def run_command(self, env_id, env_name, resource_obj, base_command, command):
+
+        command_output = ''
+        env_obj = env_db.Environment().get(env_id)
+        df_dir = env_obj.location
+
+        if not os.path.exists(df_dir):
+            mkdir_command = ("mkdir {df_dir}").format(df_dir=df_dir)
+            os.system(mkdir_command)
+
+        if not os.path.exists(df_dir + "/google-creds"):
+            shutil.copytree(home_dir + "/.config/gcloud", df_dir + "/google-creds/gcloud")
+
+        user_account, project_name, zone_name = self.get_deployment_details(env_id)
+
+        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
+                   " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
+                   "{base_command}"
+                   "WORKDIR /src \n"
+                   "CMD [\"sh\", \"/src/run_command.sh\"] "
+                   ).format(account=user_account,
+                            project=project_name,
+                            base_command=base_command
+                            )
+        df_name = df_dir + "/Dockerfile.run_command"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        fp1 = open(df_dir + "/run_command.sh", "w")
+        fp1.write("#!/bin/bash \n")
+        fp1.write(command)
+        fp1.close()
+
+        resource_name = resource_obj.cloud_resource_id
+        cont_name = resource_name + "_run_command"
+        err, output = self.docker_handler.build_container_image(
+            cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        if err:
+            error_msg = ("Error encountered in running command {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+
+        err, output = self.docker_handler.run_container(cont_name)
+
+        if err:
+            error_msg = ("Error encountered in running command {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+
+        cont_id = output.strip()
+
+        err, command_output = self.docker_handler.get_logs(cont_id)
+
+        #self.docker_handler.stop_container(cont_id)
+        self.docker_handler.remove_container(cont_id)
+        self.docker_handler.remove_container_image(cont_name)
+
+        return command_output

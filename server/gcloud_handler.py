@@ -57,6 +57,22 @@ class GCloudHandler(object):
             if name == type:
                 ext.obj.delete(resource)
 
+    def run_command(self, env_id, env_name, resource, command_string):
+        fmlogger.debug("GCloudHandler run_command")
+        type = resource.type
+
+        command_output = []
+        for name, ext in GCloudHandler.res_mgr.items():
+            if name == type:
+                command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+
+        coe_type = common_functions.get_coe_type(env_id)
+        for name, ext in GCloudHandler.coe_mgr.items():
+            if name == coe_type:
+                command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+
+        return command_output
+
     def create_cluster(self, env_id, env_info):
         coe_type = common_functions.get_coe_type(env_id)
         for name, ext in GCloudHandler.coe_mgr.items():
