@@ -455,6 +455,52 @@ class EnvironmentsRestResource(Resource):
         response.status_code = 200
         return response
 
+class EnvironmentRunCommandRestResource(Resource):
+
+    def post(self, env_name):
+        fmlogging.debug("Received POST request to run command on environment")
+        args = request.get_json(force=True)
+
+        response = jsonify()
+        response.status_code = 201
+
+        args_dict = dict(args)
+
+        resp_data = {}
+
+        try:
+            if 'command_string' not in args_dict:
+                response.status_code = 400
+            else:
+                command_string = args_dict['command_string']
+                environment_name = args_dict['environment_name']
+
+                env_obj = env_db.Environment().get_by_name(env_name)
+
+                if not env_obj:
+                    response.status_code = 404
+                    return response
+
+                environment_def = env_obj.env_definition
+                environment_info = {'name': env_name}
+
+                commond_output = []
+
+                envhandler = environment_handler.EnvironmentHandler(env_obj.id,
+                                                                        environment_def,
+                                                                        environment_info,
+                                                                        action='run_command')
+                command_output = envhandler.run_command(env_name, command_string)
+                resp_data['data'] = command_output
+                response = jsonify(**resp_data)
+
+                fmlogging.debug("Executing %s command on %s environment." % (command_string, environment_name))
+
+        except OSError as oe:
+            fmlogging.error(oe)
+            response.status_code = 503
+
+        return response
 
 class EnvironmentRestResource(Resource):
 
@@ -508,6 +554,7 @@ api.add_resource(ContainerRestResource, '/containers/<cont_name>')
 
 api.add_resource(EnvironmentsRestResource, '/environments')
 api.add_resource(EnvironmentRestResource, '/environments/<env_name>')
+api.add_resource(EnvironmentRunCommandRestResource, '/environments/<env_name>/command')
 
 api.add_resource(ResourcesRestResource, '/resources')
 api.add_resource(ResourceRestResource, '/resources/<resource_id>')

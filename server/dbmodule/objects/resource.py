@@ -56,7 +56,7 @@ class Resource(db_base.Base):
             fmlogger.debug(e)
         return res
 
-    def get_resource_for_env(self, env_id, res_type):
+    def get_resource_for_env_by_type(self, env_id, res_type):
         res = ''
         try:
             session = db_base.get_session()

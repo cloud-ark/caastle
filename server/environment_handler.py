@@ -132,3 +132,30 @@ class EnvironmentHandler(threading.Thread):
         if self.action == 'delete':
             fmlogging.debug("Deleting environment with id %s " % self.env_id)
             self._delete_environment()
+
+    def run_command(self, env_name, command_string):
+        command_output = []
+        resource_list = res_db.Resource().get_resources_for_env(self.env_id)
+        for resource in resource_list:
+            type = resource.type
+            if type == 'ecs-cluster':
+                command_output = EnvironmentHandler.registered_cloud_handlers['aws'].run_command(self.env_id,
+                                                                                                 env_name,
+                                                                                                 resource,
+                                                                                                 command_string)
+            if type == 'gke-cluster':
+                command_output = EnvironmentHandler.registered_cloud_handlers['gcloud'].run_command(self.env_id,
+                                                                                            env_name,
+                                                                                            resource,
+                                                                                            command_string)
+            if type in ['rds']:
+                command_output = EnvironmentHandler.registered_cloud_handlers['aws'].run_command(self.env_id,
+                                                                                                 env_name,
+                                                                                                 resource,
+                                                                                                 command_string)
+            if type in ['cloudsql']:
+                command_output = EnvironmentHandler.registered_cloud_handlers['gcloud'].run_command(self.env_id,
+                                                                                                    env_name,
+                                                                                                    resource,
+                                                                                                    command_string)
+        return command_output

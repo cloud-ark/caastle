@@ -45,29 +45,8 @@ class GKEAppBase(app_base.AppBase):
 
         self.app_yaml_def = ''
 
-    def _get_deployment_details(self, env_id):
-        env_obj = env_db.Environment().get(env_id)
-        env_details = ast.literal_eval(env_obj.env_definition)
-        project = env_details['environment']['app_deployment']['project']
-        zone = env_details['environment']['app_deployment']['zone']
-
-        user_account = ''
-        if not os.path.exists(home_dir + "/.config/gcloud/configurations/config_default"):
-            fmlogger.error("gcloud sdk installation not proper. Did not find ~/.config/gcloud/configurations/config_default file")
-            raise Exception()
-        else:
-            fp = open(home_dir + "/.config/gcloud/configurations/config_default", "r")
-            lines = fp.readlines()
-            for line in lines:
-                if line.find("account") >= 0:
-                    parts = line.split("=")
-                    user_account = parts[1].strip()
-                    break
-        return user_account, project, zone
-
-
     def _get_cluster_name(self, env_id):
-        resource_obj = res_db.Resource().get_resource_for_env(env_id, 'gke-cluster')
+        resource_obj = res_db.Resource().get_resource_for_env_by_type(env_id, 'gke-cluster')
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 
@@ -90,7 +69,7 @@ class GKEAppBase(app_base.AppBase):
 
         df_dir = app_dir + "/" + app_folder_name
 
-        access_token = GKEHandler.gcloudhelper.get_access_token(df_dir, cont_name)
+        access_token = GKEAppBase.gcloudhelper.get_access_token(df_dir, cont_name)
         
         return access_token
 
@@ -105,7 +84,7 @@ class GKEAppBase(app_base.AppBase):
 
         cluster_name = self._get_cluster_name(app_info['env_id'])
 
-        user_account, project_name, zone_name = self._get_deployment_details(app_info['env_id'])
+        user_account, project_name, zone_name = GKEAppBase.gcloudhelper.get_deployment_details(app_info['env_id'])
         df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
                    " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
                    "RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \ \n"
