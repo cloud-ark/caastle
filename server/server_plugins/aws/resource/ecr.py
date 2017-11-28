@@ -104,6 +104,8 @@ class ECRHandler(resource_base.ResourceBase):
         tagged_image = image_name + ":" + tag
         if err:
             fmlogger.debug("Error encountered in building and tagging image. Not continuing with the request. %s" % err)
+            cont_data['status'] = 'Error encountered in building and tagging image.' + str(err)
+            cont_db.Container().update(cont_name, cont_data)
             return
 
         cont_details = {'tagged_image': tagged_image}
