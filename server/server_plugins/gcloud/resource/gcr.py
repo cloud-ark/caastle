@@ -129,5 +129,9 @@ class GCRHandler(resource_base.ResourceBase):
         cont_data['status'] = 'container-ready'
         cont_db.Container().update(cont_name, cont_data)
 
+    def run_command(self, env_id, env_name, resource_obj, command):
+        fmlogger.debug("Running command on GCR.")
+        return []
+
     def delete(self, tagged_image, cont_info):
         self._delete_container(tagged_image, cont_info)

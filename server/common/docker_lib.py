@@ -13,19 +13,31 @@ class DockerLib(object):
         self.docker_file_snippets = {}
         self.docker_file_snippets['aws'] = self._aws_df_snippet()
         self.docker_file_snippets['google_for_token'] = self._google_df_snippet_for_token()
-        self.docker_file_snippets['google'] = self._google_df_snippet()
+        self.docker_file_snippets['gke'] = self._google_df_snippet()
+        self.docker_file_snippets['google'] = self._google_df_snippet_gcloud()
 
     def _aws_df_snippet(self):
         df = ("FROM lmecld/clis:awscli\n")
         return df
-    
+
     def _google_df_snippet(self):
         df_1 = ("FROM lmecld/clis:gkebase \n"
+                "RUN export PATH=$PATH:/google-cloud-sdk/bin/ \n"
                 "COPY . /src \n"
                 "COPY google-creds/gcloud  /root/.config/gcloud \n"
                 "WORKDIR /root/.config/gcloud \n"
                 )
         return df_1
+
+    def _google_df_snippet_gcloud(self):
+        df_1 = ("FROM lmecld/clis:gcloud \n"
+                "RUN export PATH=$PATH:/google-cloud-sdk/bin/ \n"
+                "COPY . /src \n"
+                "COPY google-creds/gcloud  /root/.config/gcloud \n"
+                "WORKDIR /root/.config/gcloud \n"
+                )
+        return df_1
+
         
     def _google_df_snippet_for_token(self):
         cmd_1 = ("RUN sed -i "

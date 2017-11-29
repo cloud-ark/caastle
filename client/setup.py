@@ -66,6 +66,7 @@ setup(
             'env show = fmcmds.environment_show:EnvironmentShow',
             'env list = fmcmds.environment_list:EnvironmentList',
             'env exec = fmcmds.env_exec:EnvironmentExec',
+            'env shell = fmcmds.env_shell:EnvironmentShell',
             'setup aws = fmcmds.setup_aws:AWSSetup',
             'setup gcloud = fmcmds.setup_gcloud:GCloudSetup',
         ],

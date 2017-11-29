@@ -1,6 +1,7 @@
 import ast
 import os
 from os.path import expanduser
+import re
 import shutil
 import time
 
@@ -34,9 +35,15 @@ class GKEHandler(coe_base.COEBase):
 
     gcloudhelper = gcloud_helper.GCloudHelper()
 
-    allowed_commands = ["kubectl get pods",
-                        "kubectl get services",
-                        "kubectl describe pods"]
+    allowed_commands = ["kubectl get*",
+                        "kubectl describe*",
+                        "kubectl logs*",
+                        "kubectl delete*"]
+
+    help_commands = ["kubectl get ",
+                     "kubectl describe ",
+                     "kubectl logs "]
+
 
     def __init__(self):
         credentials = GoogleCredentials.get_application_default()
@@ -50,10 +57,13 @@ class GKEHandler(coe_base.COEBase):
         self.app_yaml_def = ''
 
     def _verify(self, command):
-        if command in GKEHandler.allowed_commands:
-            return True
-        else:
-            return False
+        matched = None
+        for pattern in GKEHandler.allowed_commands:
+            p = re.compile(pattern, re.IGNORECASE)
+            matched = p.match(command)
+            if matched:
+                return True
+        return False
 
     def _get_cluster_node_ip(self, env_name, project, zone):
         pageToken = None
@@ -232,6 +242,9 @@ class GKEHandler(coe_base.COEBase):
     def run_command(self, env_id, env_name, resource_obj, command):
         fmlogger.debug("Running command against GKE cluster")
 
+        if command.lower() == 'help':
+            return GKEHandler.help_commands
+
         command_output = ''
 
         is_supported_command = self._verify(command)
@@ -247,11 +260,13 @@ class GKEHandler(coe_base.COEBase):
         base_command = ("RUN /google-cloud-sdk/bin/gcloud container clusters get-credentials {cluster_name} --zone {zone} \n").format(
                         cluster_name=cluster_name, zone=zone_name)
 
+        base_image = "gke"
         command_output = GKEHandler.gcloudhelper.run_command(env_id,
                                                              env_name,
                                                              resource_obj,
                                                              base_command,
-                                                             command)
+                                                             command,
+                                                             base_image)
 
         output_lines = command_output.split("\n")
 

@@ -77,8 +77,14 @@ class GCloudHelper(object):
     def get_deployment_details(self, env_id):
         env_obj = env_db.Environment().get(env_id)
         env_details = ast.literal_eval(env_obj.env_definition)
-        project = env_details['environment']['app_deployment']['project']
-        zone = env_details['environment']['app_deployment']['zone']
+        project = ''
+        zone = ''
+        if 'app_deployment' in env_details['environment']:
+            project = env_details['environment']['app_deployment']['project']
+            zone = env_details['environment']['app_deployment']['zone']
+        else:
+            project = env_details['environment']['resources']['gcloud'][0]['resource']['project']
+            zone = env_details['environment']['resources']['gcloud'][0]['resource']['zone']
 
         user_account = ''
         if not os.path.exists(home_dir + "/.config/gcloud/configurations/config_default"):
@@ -94,7 +100,7 @@ class GCloudHelper(object):
                     break
         return user_account, project, zone
 
-    def run_command(self, env_id, env_name, resource_obj, base_command, command):
+    def run_command(self, env_id, env_name, resource_obj, base_command, command, base_image):
 
         command_output = ''
         env_obj = env_db.Environment().get(env_id)
@@ -109,7 +115,7 @@ class GCloudHelper(object):
 
         user_account, project_name, zone_name = self.get_deployment_details(env_id)
 
-        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = self.docker_handler.get_dockerfile_snippet(base_image)
         df = df + ("RUN /google-cloud-sdk/bin/gcloud config set account {account} \ \n"
                    " && /google-cloud-sdk/bin/gcloud config set project {project} \n"
                    "{base_command}"
@@ -158,3 +164,15 @@ class GCloudHelper(object):
         self.docker_handler.remove_container_image(cont_name)
 
         return command_output
+
+    def resource_type_for_command(self, command):
+        resource_type_for_command = {}
+        resource_type_for_command["gcloud sql"] = 'cloudsql'
+        resource_type_for_command["kubectl"] = 'gke'
+
+        type = ''
+        for key, value in resource_type_for_command.iteritems():
+            if command.find(key) >= 0:
+                type = value
+
+        return type
