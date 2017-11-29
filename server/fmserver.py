@@ -477,7 +477,7 @@ class EnvironmentRunCommandRestResource(Resource):
 
                 env_obj = env_db.Environment().get_by_name(env_name)
 
-                if not env_obj:
+                if not env_obj or env_obj.status == 'create-failed':
                     response.status_code = 404
                     return response
 

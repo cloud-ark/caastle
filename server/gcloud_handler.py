@@ -7,6 +7,7 @@ from common import common_functions
 from common import fm_logger
 from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
+from server.server_plugins.gcloud import gcloud_helper
 
 home_dir = expanduser("~")
 
@@ -31,6 +32,8 @@ class GCloudHandler(object):
         namespace='server.server_plugins.gcloud.app',
         invoke_on_load=True,
     )
+
+    gcloudhelper = gcloud_helper.GCloudHelper()
 
     def create_resources(self, env_id, resource_list):
         fmlogger.debug("GCloudHandler create_resources")
@@ -60,18 +63,23 @@ class GCloudHandler(object):
     def run_command(self, env_id, env_name, resource, command_string):
         fmlogger.debug("GCloudHandler run_command")
         type = resource.type
+        command_type = GCloudHandler.gcloudhelper.resource_type_for_command(command_string)
 
-        command_output = []
+        command_output_all = []
         for name, ext in GCloudHandler.res_mgr.items():
             if name == type:
-                command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                if name == command_type or command_string == 'help':
+                    command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                    command_output_all.extend(command_output)
 
         coe_type = common_functions.get_coe_type(env_id)
         for name, ext in GCloudHandler.coe_mgr.items():
             if name == coe_type:
-                command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                if name == command_type or command_string == 'help':
+                    command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                    command_output_all.extend(command_output)
 
-        return command_output
+        return command_output_all
 
     def create_cluster(self, env_id, env_info):
         coe_type = common_functions.get_coe_type(env_id)

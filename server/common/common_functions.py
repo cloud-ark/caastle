@@ -239,7 +239,8 @@ def get_coe_type(env_id):
     env_obj = env_db.Environment().get(env_id)
     env_definition = ast.literal_eval(env_obj.env_definition)
     env_details = env_definition['environment']
-    coe_type = env_details['app_deployment']['type']
+    if 'app_deployment' in env_details:
+        coe_type = env_details['app_deployment']['type']
     return coe_type
 
 
