@@ -2,6 +2,7 @@ import ast
 import os
 from os.path import expanduser
 import thread
+from datetime import datetime
 
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, Resource, Api
@@ -20,6 +21,7 @@ home_dir = expanduser("~")
 APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
 ENV_STORE_PATH = APP_STORE_PATH
 
+CLOUDARK_STATUS_FILE = "cloudark.status"
 
 import app_handler
 import container_handler
@@ -561,6 +563,9 @@ api.add_resource(ResourceRestResource, '/resources/<resource_id>')
 
 if __name__ == '__main__':
     try:
+        if os.path.exists(CLOUDARK_STATUS_FILE):
+            os.remove(CLOUDARK_STATUS_FILE)
+
         if not os.path.exists(APP_STORE_PATH):
             os.makedirs(APP_STORE_PATH)
         fmlogging = fm_logger.Logging()
@@ -569,9 +574,15 @@ if __name__ == '__main__':
         # Setup tables
         db_main.setup_tables()
 
+        fp = open(CLOUDARK_STATUS_FILE, "w")
+        current_time = str(datetime.now())
+        fp.write("CloudARK started %s" % current_time)
+        fp.close()
+
         from gevent.wsgi import WSGIServer
         http_server = WSGIServer(('', 5002), app)
         http_server.serve_forever()
+
     except Exception as e:
         fmlogging.error(e)
 
