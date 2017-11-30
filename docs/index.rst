@@ -6,7 +6,7 @@
 Welcome to CloudARK's documentation
 ====================================
 
-Environment-as-Code for cloud-native containerized applications.
+Platform-as-Code for cloud-native containerized applications / microservices.
 
 .. toctree::
    :maxdepth: 2
