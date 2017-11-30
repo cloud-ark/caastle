@@ -3,7 +3,7 @@ Environment
 
 An environment is defined in a yaml file using declarative syntax.
 Environment definition consists of two sections *resources* and *app_deployment*.
-The resources section is optional. Here is an example of environment definition
+Here is an example of environment definition
 containing AWS RDS resource and AWS ECS for application deployment.
 
 .. code-block:: yaml
@@ -32,13 +32,14 @@ The *app_deployment* section consists of the *target* attribute and the *type* a
 The target attribute identifies the cloud on which the container orchestration engine (COE)
 cluster should be created. The type attribute identifies the type of the COE.
 Using target and type attributes we are able to capture different combinations of
-clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <google, kubernetes>, <openstack, magnum>, etc.
-Currently supported options are: <aws, ecs>.
+clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <gcloud, gke>, <openstack, magnum>, etc.
+Currently supported options are: <aws, ecs> and <gcloud, gke>
 
 The reason behind separating resources and application deployment in the environment
 definition is to support cross-cloud deployments in the future where one can deploy application
-on one cloud and bind it to managed resources from another cloud. An environment is created using
-the *cld environment create {env}* command.
+on one cloud and bind it to managed resources from another cloud. 
+
+An environment is created using *cld environment create {env}* command.
 
 
 

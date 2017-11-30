@@ -54,6 +54,12 @@ CloudARK requires Docker to be installed. If you do not have Docker, you can ins
 
 https://docs.docker.com/engine/installation/
 
+On Mac OS, make sure the command shell from which you are installing CloudARK is able to run docker commands
+without sudo. You can achieve this by executing following command once Docker VM is running in the shell:
+
+eval "$(docker-machine env default)"
+
+
 Once you have installed Docker follow these steps:
 
 
@@ -196,38 +202,53 @@ Screenshots
 
 2) Create environment
    
-   $ cld env create staging environment-rds-ecs.yaml
+   $ cld env create wpenv environment-rds-ecs.yaml
  
-   .. image:: ./docs/screenshots/wordpress/env-create-1.png
+   .. image:: ./docs/screenshots/wordpress/env-create.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/wordpress/env-create-2.png
+   .. image:: ./docs/screenshots/wordpress/env-show-available.png
       :scale: 125%
 
-3) Deploy application
+3) Create application container
 
-   $ cld app deploy wordpress 12 --memory 1000
-
-   .. image:: ./docs/screenshots/wordpress/app-deploy-1.png
+   $ cld container create wordpresscontainer ecr
+ 
+   .. image:: ./docs/screenshots/wordpress/container-create.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/wordpress/app-deploy-2.png
+   .. image:: ./docs/screenshots/wordpress/container-ready.png
+      :scale: 125%
+
+4) Deploy application
+
+   $ cld app deploy wordpressapp wpenv app-ecs.yaml
+
+   .. image:: ./docs/screenshots/wordpress/app-yaml.png
+      :scale: 125%
+
+   .. image:: ./docs/screenshots/wordpress/app-create.png
       :scale: 125%
 
 
-4) Check application status
+
+5) Check application status
 
    $ cld app show 27
 
    .. image:: ./docs/screenshots/wordpress/app-deployment-complete.png
       :scale: 125%
 
-5) Deployed application (wordpress)
-
-   .. image:: ./docs/screenshots/wordpress/wordpress-deployed-1.png
+   .. image:: ./docs/screenshots/wordpress/app-logs.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/wordpress/wordpress-using-elb.png
+
+5) Deployed application (wordpress)
+
+   .. image:: ./docs/screenshots/wordpress/wordpress-installed.png
+      :scale: 125%
+
+   .. image:: ./docs/screenshots/wordpress/wordpress-blog-page-with-elb.png
       :scale: 125%
 
 6) AWS console

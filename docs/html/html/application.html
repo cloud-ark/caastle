@@ -44,11 +44,14 @@
 <p>An application is a Docker container in CloudARK. CloudARK assumes that Dockerfile
 is present in the application directory.</p>
 <p>Application is deployed on an <em>environment</em>. The application deployment action takes
-the id of the environment as input (<em>cld app deploy {app-name} –env-id {env-id}</em>).
-CloudARK builds the docker container image for the application and then deploys it on the COE cluster created as part of the specified
-environmnet. As part of the deployment step CloudARK binds the application to resources
+the name of the environment as input (<em>cld app deploy {app-name} {env-name} {app.yaml}</em>).
+app.yaml contains definition of the application container image, the container port
+and any environment variables.</p>
+<p>CloudARK provides commands to build the application container and push it to public container
+registry such as Amazon ECR or Google GCR.</p>
+<p>As part of the deployment step CloudARK binds the application container to resources
 in the environment through environment variables
-defined in the Dockerfile. For example here is a Dockerfile from <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a> application.</p>
+defined in app.yaml file. For example here is a Dockerfile from <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a> application.</p>
 <div class="highlight-Dockerfile"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="s"> ubuntu:14.04</span>
 <span class="k">RUN</span> apt-get update -y <span class="se">\</span>
     <span class="o">&amp;&amp;</span> apt-get install -y python-setuptools python-pip
@@ -56,10 +59,6 @@ defined in the Dockerfile. For example here is a Dockerfile from <a class="refer
 <span class="k">RUN</span> <span class="nb">cd</span> /src<span class="p">;</span> pip install -r requirements.txt
 <span class="k">ADD</span><span class="s"> . /src</span>
 <span class="k">EXPOSE</span><span class="s"> 5000</span>
-<span class="k">ENV</span><span class="s">  PASSWORD $CLOUDARK_RDS_MasterUserPassword</span>
-<span class="k">ENV</span><span class="s">  DB $CLOUDARK_RDS_DBName</span>
-<span class="k">ENV</span><span class="s">  HOST $CLOUDARK_RDS_Address</span>
-<span class="k">ENV</span><span class="s">  USER $CLOUDARK_RDS_MasterUsername</span>
 <span class="k">CMD</span><span class="s"> [&quot;python&quot;, &quot;/src/application.py&quot;]</span>
 </pre></div>
 </div>
@@ -67,7 +66,7 @@ defined in the Dockerfile. For example here is a Dockerfile from <a class="refer
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
 Output attributes available for a resource can be obtained by querying the resource
-using <em>cld resource list</em> command.</p>
+using <em>cld resource show {env_name}</em> command.</p>
 </div>
 
 
