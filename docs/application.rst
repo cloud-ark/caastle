@@ -5,11 +5,16 @@ An application is a Docker container in CloudARK. CloudARK assumes that Dockerfi
 is present in the application directory.
 
 Application is deployed on an *environment*. The application deployment action takes
-the id of the environment as input (*cld app deploy {app-name} --env-id {env-id}*).
-CloudARK builds the docker container image for the application and then deploys it on the COE cluster created as part of the specified
-environmnet. As part of the deployment step CloudARK binds the application to resources
+the name of the environment as input (*cld app deploy {app-name} {env-name} {app.yaml}*).
+app.yaml contains definition of the application container image, the container port
+and any environment variables.
+
+CloudARK provides commands to build the application container and push it to public container
+registry such as Amazon ECR or Google GCR.
+
+As part of the deployment step CloudARK binds the application container to resources
 in the environment through environment variables
-defined in the Dockerfile. For example here is a Dockerfile from greetings_ application.
+defined in app.yaml file. For example here is a Dockerfile from greetings_ application.
 
 .. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
 
@@ -22,14 +27,21 @@ defined in the Dockerfile. For example here is a Dockerfile from greetings_ appl
    RUN cd /src; pip install -r requirements.txt
    ADD . /src
    EXPOSE 5000
-   ENV  PASSWORD $CLOUDARK_RDS_MasterUserPassword
-   ENV  DB $CLOUDARK_RDS_DBName
-   ENV  HOST $CLOUDARK_RDS_Address
-   ENV  USER $CLOUDARK_RDS_MasterUsername
    CMD ["python", "/src/application.py"]
+
+.. code-block:: app.yaml
+   app:
+     image: <image_uri>
+     container_port: 5000
+     env:
+       PASSWORD: $CLOUDARK_RDS_MasterUserPassword
+       DB: $CLOUDARK_RDS_DBName
+       HOST: $CLOUDARK_RDS_Address
+       USER: $CLOUDARK_RDS_MasterUsername
+
 
 The environment variables are set using following format: *CLOUDARK_<TYPE>_<Attribute>*.
 The *TYPE* is one of the supported resource types (represented in uppercase).
 *Attribute* is the exact name of one of the output attributes of the provisioned resource.
 Output attributes available for a resource can be obtained by querying the resource
-using *cld resource list* command.
+using *cld resource show {env_name}* command.
