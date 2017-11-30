@@ -142,7 +142,7 @@ def is_app_ready(app_url, app_id='', timeout=300):
     while count < timeout and not ready:
         try:
             response = requests.get(app_url)
-            if response.status_code == 200:
+            if response.status_code == 200 or response.status_code == 404:
                 oks = oks + 1
                 if oks == num_of_oks:
                     ready = True
