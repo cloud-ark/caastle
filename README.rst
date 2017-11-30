@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-CloudARK enables full-stack deployment of microservices on Google GKE and Amazon ECS container platforms. Using CloudARK:
+CloudARK is built to deploy full-stack microservices on Google GKE and Amazon ECS container platforms. Using CloudARK:
 
 - Build and deploy microservices that use managed cloud services like Amazon RDS, Google Cloud SQL.
 
@@ -15,15 +15,16 @@ CloudARK enables full-stack deployment of microservices on Google GKE and Amazon
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 
-CloudARK is based on the concept of *Platform-as-Code (PaC)*.
+CloudARK is based on *Platform-as-Code (PaC)* paradigm.
 PaC enables defining and creating microservices using declarative definition
-of their platform elements consisting of:
+of platform elements consisting of:
+
+- Application containers
 
 - Container Orchestration Engine (COE) cluster
 
 - Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
 
-- Application containers
 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 100%
@@ -97,6 +98,8 @@ Commands:
 
   env exec
 
+  env shell
+
   env delete
 
   container create
@@ -125,7 +128,7 @@ Deploying on Google GKE
 ------------------------
 
   $ cld setup gcloud
-    - This will create a gcloud user token and an application token which will be used by CloudARK during deployments.
+    - This will request OAuth authorizations for gcloud sdk and gcloud auth library.
       Follow the prompts and provide the required input.
 
   $ ./restart-cloudark.sh
@@ -150,21 +153,21 @@ Your AWS user will need to have following managed policies in order to do deploy
 - AmazonEC2ContainerServiceforEC2Role
 - AmazonRDSFullAccess (if your application depends on RDS)
 
-Your AWS user will need to have the EC2 Container Service Role. Use these steps to create it:
+Additionally your AWS user will need to have the EC2 Container Service Role. Use these steps to create it:
 
 -> AWS Web Console -> IAM -> Roles -> Create Role -> Select EC2 Container Service -> In "Select your use case" choose EC2 Container Service 
 -> Next: Permissions -> Next: Review -> For role name give "EcsServiceRole" -> Hit "Create Role".
 
-You will also need to add IAM policy shown below which will grant permissions to the
+Finally you will also need to add IAM policy shown below which will grant permissions to the
 ECS agent running on your ECS cluster instances to perform IAM actions
 such as creating a ECS instance profile role and assuming that role.
-These permissions are required for the ECS agent to communicate with the ECS service.
-Use these steps to create it:
+This is required for the ECS agent to communicate with the ECS service.
+Use these steps to create this policy:
 
 -> AWS Web Console -> IAM -> Select your user in IAM -> Add permissions -> Attach existing policies directly -> Create Policy
 -> Create Your Own Policy
 
-In the Policy Document enter the following policy. Replace <account-id> with your account id.
+In the Policy Document enter following policy. Replace <account-id> with your account id.
 
 ::
 
