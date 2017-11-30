@@ -55,7 +55,7 @@ CloudARK requires Docker to be installed. If you do not have Docker, you can ins
 https://docs.docker.com/engine/installation/
 
 On Mac OS, make sure the command shell from which you are installing CloudARK is able to run docker commands
-without sudo. You can achieve this by executing following command once Docker VM is running in the shell:
+without sudo. You can achieve this by executing following command in the shell once Docker VM is up and running:
 
 eval "$(docker-machine env default)"
 
@@ -234,9 +234,9 @@ Screenshots
 
 5) Check application status
 
-   $ cld app show 27
+   $ cld app show wordpressapp
 
-   .. image:: ./docs/screenshots/wordpress/app-deployment-complete.png
+   .. image:: ./docs/screenshots/wordpress/app-deployment-done.png
       :scale: 125%
 
    .. image:: ./docs/screenshots/wordpress/app-logs.png
