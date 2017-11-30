@@ -16,5 +16,6 @@ Platform-as-Code for cloud-native containerized applications / microservices.
    intro
    architecture
    tutorial
+   faq
 
 
