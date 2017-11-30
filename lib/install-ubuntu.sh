@@ -46,7 +46,7 @@ echo "- Once required cloud setup is done, start CloudARK server"
 echo "  - ./start-cloudark.sh"
 
 # Activate virtual environment
-/bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"
+#/bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"
 
 
 
