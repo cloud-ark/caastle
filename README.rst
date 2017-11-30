@@ -2,7 +2,7 @@
 CloudARK
 =================
 
-CloudARK is built to deploy full-stack microservices on Google GKE and Amazon ECS container platforms. Using CloudARK:
+Full-stack microservices deployments to Google GKE and Amazon ECS container platforms. Using CloudARK:
 
 - Build and deploy microservices that use managed cloud services like Amazon RDS, Google Cloud SQL.
 
@@ -15,24 +15,27 @@ CloudARK is built to deploy full-stack microservices on Google GKE and Amazon EC
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 
-CloudARK is based on *Platform-as-Code (PaC)* paradigm.
-PaC enables defining and creating microservices using declarative definition
-of platform elements consisting of:
+CloudARK is based on Platform-as-Code (PaC) paradigm_
 
-- Application containers
+.. _paradigm: https://cloudark.io/resources
 
-- Container Orchestration Engine (COE) cluster
-
-- Managed cloud services (e.g. Amazon RDS, Google Cloud SQL)
-
-
+Platform of an application is defined as the run-time environment in which the application runs.
+Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
+These platform definitions can be version controlled and follow software development lifecycle.    
+ 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 100%
    :align: center
 
-Read this_ for more details about CloudARK
+Platform-as-Code paradigm offers:
 
-.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
+- *Simplicity* - A simple and easy to follow deployment process
+
+- *Shareability* - Deployment artifacts that are shareable between team members
+
+- *Repeatability* - Effortless creation of local/dev/test/prod environments
+
+- *Visibility* - Traceability and complete view of the application's run-time environment
 
 
 Try CloudARK
@@ -191,12 +194,15 @@ In the Policy Document enter following policy. Replace <account-id> with your ac
 
 Once the policy is created attach it to your user.
 
+Read this_ for more details about CloudARK
+
+.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
 
 
-Screenshots
-------------
+Wordpress deployment on ECS
+---------------------------
 
-1) Environment resource definition
+1) Environment definition
 
    .. image:: ./docs/screenshots/wordpress/env-yaml.png
 
@@ -253,16 +259,13 @@ Screenshots
 
 6) AWS console
 
-   .. image:: ./docs/screenshots/wordpress/RDS.png
+   .. image:: ./docs/screenshots/wordpress/wordpress-rds-instance.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/wordpress/ECS-cluster.png
+   .. image:: ./docs/screenshots/wordpress/wordpress-task-definition.png
       :scale: 125%
 
-   .. image:: ./docs/screenshots/wordpress/Task-Definition.png
-      :scale: 125%
-
-   .. image:: ./docs/screenshots/wordpress/ECR.png
+   .. image:: ./docs/screenshots/wordpress/wordpress-container.png
       :scale: 125%
 
 

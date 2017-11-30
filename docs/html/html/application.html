@@ -62,6 +62,16 @@ defined in app.yaml file. For example here is a Dockerfile from <a class="refere
 <span class="k">CMD</span><span class="s"> [&quot;python&quot;, &quot;/src/application.py&quot;]</span>
 </pre></div>
 </div>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;image_uri&gt;</span>
+  <span class="l l-Scalar l-Scalar-Plain">container_port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">PASSWORD</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUserPassword</span>
+    <span class="l l-Scalar l-Scalar-Plain">DB</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_DBName</span>
+    <span class="l l-Scalar l-Scalar-Plain">HOST</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_Address</span>
+    <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
+</pre></div>
+</div>
 <p>The environment variables are set using following format: <em>CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;</em>.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.

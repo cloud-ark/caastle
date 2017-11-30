@@ -29,7 +29,8 @@ defined in app.yaml file. For example here is a Dockerfile from greetings_ appli
    EXPOSE 5000
    CMD ["python", "/src/application.py"]
 
-.. code-block:: app.yaml
+.. code-block:: yaml
+
    app:
      image: <image_uri>
      container_port: 5000
