@@ -212,7 +212,7 @@ Screenshots
 
 3) Create application container
 
-   $ cld container create wordpresscontainer ecr
+   $ cld container create wordpresscont ecr
  
    .. image:: ./docs/screenshots/wordpress/container-create.png
       :scale: 125%
