@@ -80,7 +80,7 @@ class GKEAppBase(app_base.AppBase):
         return container_port, host_port
 
     def _get_kube_df_file(self, app_info):
-        df = self.docker_handler.get_dockerfile_snippet("google")
+        df = self.docker_handler.get_dockerfile_snippet("gke")
 
         cluster_name = self._get_cluster_name(app_info['env_id'])
 

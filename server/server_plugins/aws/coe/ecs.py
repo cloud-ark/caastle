@@ -83,7 +83,7 @@ class ECSHandler(coe_base.COEBase):
         return region, access_key, secret_key
 
     def _get_cluster_name(self, env_id):
-        resource_obj = res_db.Resource().get_resource_for_env(env_id, 'ecs-cluster')
+        resource_obj = res_db.Resource().get_resource_for_env_by_type(env_id, 'ecs-cluster')
         cluster_name = resource_obj.cloud_resource_id
         return cluster_name
 

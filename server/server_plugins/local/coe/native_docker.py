@@ -85,6 +85,9 @@ class NativeDockerHandler(coe_base.COEBase):
         app_data = {}
         app_data['url'] = app_url
         app_data['cont_id'] = cont_id.strip()
+        app_data['app_folder_name'] = app_info['app_folder_name']
+        app_data['env_name'] = app_info['env_name']
+
         app_db.App().update(app_id, {'output_config': str(app_data)})
 
         app_status = self._check_app_status(app_url)
@@ -120,6 +123,10 @@ class NativeDockerHandler(coe_base.COEBase):
         cont_id = output_config['cont_id'].strip()
 
         logs = self.docker_handler.get_logs(cont_id)
-        lines = logs[0].split('\n')
 
-        return lines
+        all_lines = []
+        for log_line in logs:
+            lines = log_line.split('\n')
+            all_lines.extend(lines)
+
+        return all_lines
