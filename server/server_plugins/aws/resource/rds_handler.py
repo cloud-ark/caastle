@@ -108,19 +108,22 @@ class RDSResourceHandler(resource_base.ResourceBase):
             except Exception as e:
                 fmlogger.error("Exception encountered in describing rds instance %s" % e)
 
-        # Saving vpc_id here for convenience as when we delete RDS instance we can directly read it
-        # from the resource table than querying the env table.
-        filtered_description['vpc_id'] = vpc_id
-        filtered_description['sql-security-group-name'] = sec_group_name
-        filtered_description['sql-security-group-id'] = sec_group_id
-        filtered_description['DBInstanceIdentifier'] = instance_id
-        filtered_description['DBInstanceClass'] = DEFAULT_RDS_INSTANCE_CLASS
-        filtered_description['Engine'] = DEFAULT_RDS_ENGINE
-        filtered_description['MasterUsername'] = constants.DEFAULT_DB_USER
-        filtered_description['MasterUserPassword'] = constants.DEFAULT_DB_PASSWORD
-        filtered_description['DBName'] = constants.DEFAULT_DB_NAME
-        endpoint_address = instance_description['DBInstances'][0]['Endpoint']['Address']
-        filtered_description['Address'] = endpoint_address
+        if status.lower() == 'available':
+            # Saving vpc_id here for convenience as when we delete RDS instance we can directly read it
+            # from the resource table than querying the env table.
+            filtered_description['vpc_id'] = vpc_id
+            filtered_description['sql-security-group-name'] = sec_group_name
+            filtered_description['sql-security-group-id'] = sec_group_id
+            filtered_description['DBInstanceIdentifier'] = instance_id
+            filtered_description['DBInstanceClass'] = DEFAULT_RDS_INSTANCE_CLASS
+            filtered_description['Engine'] = DEFAULT_RDS_ENGINE
+            filtered_description['MasterUsername'] = constants.DEFAULT_DB_USER
+            filtered_description['MasterUserPassword'] = constants.DEFAULT_DB_PASSWORD
+            filtered_description['DBName'] = constants.DEFAULT_DB_NAME
+            endpoint_address = instance_description['DBInstances'][0]['Endpoint']['Address']
+            filtered_description['Address'] = endpoint_address
+        else:
+            status = 'create-failed'
 
         res_data['status'] = status
         res_data['filtered_description'] = str(filtered_description)
