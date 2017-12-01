@@ -16,7 +16,7 @@ echo "Waiting for CloudARK server to start"
 sleep 5s
 done
 
-#has_server_started=`ps -eaf | grep fmserver`
+sleep 1s
 
 if [[ -f "cloudark.status" ]]; then
     echo "CloudARK server successfully started."

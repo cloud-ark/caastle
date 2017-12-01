@@ -9,6 +9,10 @@ if [[ -z "$platform" ]]; then
    exit
 fi
 
+if [[ -f "cloudark.status" ]]; then
+   echo "Removing previous cloudark.status file"
+fi
+
 host_platform=`uname -a | awk '{print $4}'`
 
 if [ "$host_platform" = "Darwin" ]; then
