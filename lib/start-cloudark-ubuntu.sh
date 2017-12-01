@@ -9,13 +9,13 @@ source $virtenv/bin/activate &>> $install_log
 ./$virtenv/bin/python server/setup.py install
 ./$virtenv/bin/python server/fmserver.py 1>>cld.log 2>&1 &
 
-#has_server_started=`ps -eaf | grep fmserver`
-
 while [[ ! -f "cloudark.status" ]]
 do
 echo "Waiting for CloudARK server to start"
 sleep 5s
 done
+
+sleep 1s
 
 if [[ -f "cloudark.status" ]]; then
     echo "CloudARK server successfully started."
