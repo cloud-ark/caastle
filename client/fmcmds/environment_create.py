@@ -1,3 +1,5 @@
+import os
+from os.path import expanduser
 import yaml
 
 from cliff.command import Command
@@ -10,9 +12,15 @@ env_file_request_string = "YAML file containing environment resource specificati
 
 not_allowed_regex_list = ["--+", "^\d", "-$"]
 
+import subprocess
+
+home_dir = expanduser("~")
+
+APP_STORE_PATH = ("{home_dir}/.cld/data/deployments").format(home_dir=home_dir)
+
 
 class EnvironmentCreate(Command):
-    
+
     def get_parser(self, prog_name):
         parser = super(EnvironmentCreate, self).get_parser(prog_name)
 
@@ -22,6 +30,9 @@ class EnvironmentCreate(Command):
         parser.add_argument(dest='file_name',
                             help=env_file_request_string)
 
+        parser.add_argument('--project-id',
+                            dest='project_id',
+                            help="Project ID (Required when environment definition contains Google-based platform elements)")
         return parser
 
     # Template of how to load plugins -- Currently not required
@@ -86,5 +97,23 @@ class EnvironmentCreate(Command):
 
         if setup_not_done:
             exit()
+
+        if environment_def['environment']['app_deployment']['target'] == 'gcloud':
+            project_id = ''
+            if not parsed_args.project_id:
+                project_id = raw_input("Project ID>")
+            else:
+                project_id = parsed_args.project_id
+            environment_def['environment']['app_deployment']['project'] = project_id.strip()
+
+            zone = ''
+            cloudark_google_setup_details_path = APP_STORE_PATH + "/google-creds-cloudark"
+            fp = open(cloudark_google_setup_details_path, "r")
+            line = fp.readline()
+            parts = line.split(":")
+            zone = parts[1]
+
+            environment_def['environment']['app_deployment']['project'] = project_id
+            environment_def['environment']['app_deployment']['zone'] = zone
 
         server.TakeAction().create_environment(env_name, environment_def)

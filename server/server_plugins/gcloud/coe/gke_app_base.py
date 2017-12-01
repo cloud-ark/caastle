@@ -235,8 +235,75 @@ class GKEAppBase(app_base.AppBase):
             fmlogger.error(e)
             raise e
 
-    def _retrieve_logs(self, app_info, app_name):
+    def _retrieve_runtime_logs(self, app_info, app_name):
+        app_dir = app_info['app_location']
+        app_folder_name = app_info['app_folder_name']
+        df_dir = app_dir + "/" + app_folder_name
 
+        logs_path = []
+
+        df = self._get_kube_df_file(app_info)
+
+        get_logs = "get-runtimelogs.sh"
+        get_logs_wrapper = df_dir + "/" + get_logs
+
+        #if not os.path.exists(get_logs_wrapper):
+        fp = open(get_logs_wrapper, "w")
+        file_content = ("#!/bin/bash \n"
+                        "kubectl get pods | grep {app_name} | awk '{{print $1}}' | xargs kubectl logs ").format(
+                         app_name=app_name)
+        fp.write(file_content)
+        fp.flush()
+        fp.close()
+        change_perm_command = ("chmod +x {get_logs_wrapper}").format(get_logs_wrapper=get_logs_wrapper)
+        os.system(change_perm_command)
+
+        logs_wrapper_cmd = ("\n"
+                            "CMD [\"sh\", \"/src/get-runtimelogs.sh\"] ")
+
+        df = df + logs_wrapper_cmd
+
+        log_cont_name = app_info['app_name'] + "-get-runtimelogs"
+
+        df_name = df_dir + "/Dockerfile.get-runtimelogs"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        err, output = self.docker_handler.build_container_image(
+            log_cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        if err:
+            error_msg = ("Error {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+        else:
+            err1, output1 = self.docker_handler.run_container(log_cont_name)
+            if not err1:
+                logs_cont_id = output1.strip()
+                logs_output = self.docker_handler.get_logs(logs_cont_id)
+
+                logs_dir = ("{app_dir}/logs").format(app_dir=app_dir)
+
+                runtime_log = app_info['app_name'] + constants.RUNTIME_LOG
+                runtime_log_path = logs_dir + "/" + runtime_log
+
+                fp1 = open(runtime_log_path, "w")
+                fp1.writelines(logs_output)
+                fp1.flush()
+                fp1.close()
+
+                self.docker_handler.stop_container(logs_cont_id)
+                self.docker_handler.remove_container(logs_cont_id)
+                self.docker_handler.remove_container_image(log_cont_name)
+
+                logs_path.append(runtime_log_path)
+        return logs_path
+
+    def _retrieve_deploy_logs(self, app_info, app_name):
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
         df_dir = app_dir + "/" + app_folder_name
@@ -250,7 +317,7 @@ class GKEAppBase(app_base.AppBase):
 
         df = self._get_kube_df_file(app_info)
 
-        get_logs = "get-logs.sh"
+        get_logs = "get-deploytimelogs.sh"
         get_logs_wrapper = df_dir + "/" + get_logs
 
         #if not os.path.exists(get_logs_wrapper):
@@ -265,13 +332,13 @@ class GKEAppBase(app_base.AppBase):
         os.system(change_perm_command)
 
         logs_wrapper_cmd = ("\n"
-                            "CMD [\"sh\", \"/src/get-logs.sh\"] ")
+                            "CMD [\"sh\", \"/src/get-deploytimelogs.sh\"] ")
 
         df = df + logs_wrapper_cmd
 
-        log_cont_name = app_info['app_name'] + "-get-logs"
+        log_cont_name = app_info['app_name'] + "-get-deploytimelogs"
 
-        df_name = df_dir + "/Dockerfile.get-logs"
+        df_name = df_dir + "/Dockerfile.get-deploytimelogs"
         fp = open(df_name, "w")
         fp.write(df)
         fp.close()
@@ -310,6 +377,14 @@ class GKEAppBase(app_base.AppBase):
 
                 logs_path.append(deploy_log_path)
         return logs_path
+
+    def _retrieve_logs(self, app_info, app_name):
+        all_logs = []
+        deploy_logs = self._retrieve_deploy_logs(app_info, app_name)
+        runtime_logs = self._retrieve_runtime_logs(app_info, app_name)
+        all_logs.extend(deploy_logs)
+        all_logs.extend(runtime_logs)
+        return all_logs
 
     def deploy_application(self, app_id, app_info):
         pass
