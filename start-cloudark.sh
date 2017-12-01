@@ -11,6 +11,7 @@ fi
 
 if [[ -f "cloudark.status" ]]; then
    echo "Removing previous cloudark.status file"
+   rm cloudark.status
 fi
 
 host_platform=`uname -a | awk '{print $4}'`
