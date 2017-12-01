@@ -1,0 +1,119 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Frequently Asked Questions &#8212; CloudARK 0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="frequently-asked-questions">
+<h1>Frequently Asked Questions</h1>
+<ol class="arabic simple">
+<li>How is Platform-as-Code different from Platform-as-a-Service (PaaS)?</li>
+</ol>
+<p>Platform-as-Code is a non-hosted implementation of platform functionality.
+There is no private / public hosted central server like PaaSes.
+This approach helps improve dev/prod parity and ability to recreate application environments anywhere.</p>
+<ol class="arabic simple" start="2">
+<li>How is Platform-as-Code different from Infrastructure-as-Code?</li>
+</ol>
+<p>Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
+In contrast, Platform-as-Code offers application centric abstractions that simplify modeling a deployment as per the application architecture.</p>
+<ol class="arabic simple" start="3">
+<li>Where does CloudARK store its internal state?</li>
+</ol>
+<p>CloudARK stores its internal state in the home folder inside .cld directory.
+The database state is stored in ~/.cld/data/deployments/cld.sqlite
+Environment, Container, and Application related creation files are stored in separate directories
+inside ~/.cld/data/deployments.
+You can view all the artifacts that CloudARK generates for each platform element inside
+the corresponding directory.</p>
+<p>Moreover, CloudARK aims to be a <em>soft state</em> system. There is no restriction if you want to
+directly modify any platform element provisioned by CloudARK through the corresponding Cloud’s web console.
+In the future releases of CloudARK, the internal state will be synced with the state of platform elements on the Cloud.</p>
+<ol class="arabic simple" start="4">
+<li>What is environment-specific shell in CloudARK?</li>
+</ol>
+<p>CloudARK provides <em>cld env shell</em> command that can be used to get a <em>environment-specific</em> shell.
+This shell allows you to execute cloud-native cli commands corresponding to the platform elements in <em>that</em> environment.
+This shell can be quite handy when you are developing applications using CloudARK.</p>
+<ol class="arabic simple" start="5">
+<li>How does CloudARK strike balance between high-level abstractions and providing control when needed?</li>
+</ol>
+<p>There is always fine line between abstraction and control. CloudARK tries to balance these competing goals through
+following three aspects of its design:</p>
+<ul class="simple">
+<li>For defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
+the corresponding Cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
+AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
+supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
+file a Github issue (<a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">https://github.com/cloud-ark/cloudark/issues</a>) and we will add it to CloudARK).</li>
+<li>For microservices definition we take a two pronged approach. For applications that involve a single container, we
+support a simpler application definition format. This format supports minimal set of attributes that are required
+to deploy the single container application. These include, <em>image uri</em>, <em>container_port</em>, <em>host_port</em>, <em>environment
+variables</em>. For multi-container applications we support Kubernetes’s native yaml file. You can define your Pods, Services, Deployments,
+ReplicationControllers, etc. in Kubernetes’s standard format. Currently we require you to define a single file
+containing all your Kubernetes element definitions.</li>
+<li>We provide the mechanism of environment-specific shell (see above) through which you can execute native commands.
+For instance, when developing/deploying your applications on GKE, you might want to execute “kubectl get pods” to
+see if your application’s Pods have started up on the GKE cluster. Or you might want to execute “kubectl describe pods &lt;podname&gt;”
+to see what caused Pod from not starting up. The environment-specific shell allows you to execute all such commands
+<em>without</em> having to worry about obtaining GKE cluster credentials and setting up kubectl to use them.</li>
+</ul>
+<ol class="arabic simple" start="6">
+<li>What kind of application logs CloudARK collects?</li>
+</ol>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

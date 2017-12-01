@@ -1,0 +1,126 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Deployment Details &#8212; CloudARK 0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Frequently Asked Questions" href="faq.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="faq.html" title="Frequently Asked Questions"
+             accesskey="P">previous</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="deployment-details">
+<h1>Deployment Details</h1>
+<p>Check this <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples">repository</a> to see examples of deploying applications using CloudARK.</p>
+</div>
+<div class="section" id="deployment-to-gke">
+<h1>Deployment to GKE</h1>
+<p>$ cld setup gcloud
+This will request OAuth authorizations for gcloud sdk and gcloud auth library. Follow the prompts and provide the required input.</p>
+<p>$ ./restart-cloudark.sh</p>
+<p>Create a project from Google Cloud console.
+Then before creating a environment modify the environment yaml file to contain your project’s ID and the zone in which you want
+the application to be deployed.</p>
+</div>
+<div class="section" id="deployment-to-amazon-ecs">
+<h1>Deployment to Amazon ECS</h1>
+<blockquote>
+<div><p>$ cld setup aws</p>
+<blockquote>
+<div>This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
+Follow the prompts and provide the required input.</div></blockquote>
+<p>$ ./restart-cloudark.sh</p>
+</div></blockquote>
+<p>Your AWS user will need to have following managed policies in order to do deployments using CloudARK.</p>
+<ul class="simple">
+<li>AmazonEC2FullAccess</li>
+<li>AmazonEC2ContainerRegistryFullAccess</li>
+<li>AmazonEC2ContainerServiceFullAccess</li>
+<li>AmazonEC2ContainerServiceAutoscaleRole</li>
+<li>AmazonEC2ContainerServiceforEC2Role</li>
+<li>AmazonRDSFullAccess (if your application depends on RDS)</li>
+</ul>
+<p>Additionally your AWS user will need to have the EC2 Container Service Role. Use these steps to create it:</p>
+<p>-&gt; AWS Web Console -&gt; IAM -&gt; Roles -&gt; Create Role -&gt; Select EC2 Container Service -&gt; In “Select your use case” choose EC2 Container Service
+-&gt; Next: Permissions -&gt; Next: Review -&gt; For role name give “EcsServiceRole” -&gt; Hit “Create Role”.</p>
+<p>Finally you will also need to add IAM policy shown below which will grant permissions to the
+ECS agent running on your ECS cluster instances to perform IAM actions
+such as creating a ECS instance profile role and assuming that role.
+This is required for the ECS agent to communicate with the ECS service.
+Use these steps to create this policy:</p>
+<p>-&gt; AWS Web Console -&gt; IAM -&gt; Select your user in IAM -&gt; Add permissions -&gt; Attach existing policies directly -&gt; Create Policy
+-&gt; Create Your Own Policy</p>
+<p>In the Policy Document enter following policy. Replace &lt;account-id&gt; with your account id.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;iam:*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arn:aws:iam::&lt;account-id&gt;:role/*&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;arn:aws:iam::&lt;account-id&gt;:instance-profile/*]&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Once the policy is created attach it to your user.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="previous chapter">Frequently Asked Questions</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="faq.html" title="Frequently Asked Questions"
+             >previous</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

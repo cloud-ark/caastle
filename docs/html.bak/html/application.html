@@ -1,0 +1,120 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Application &#8212; CloudARK 0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Environment" href="environment.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="environment.html" title="Environment"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="architecture.html" accesskey="U">Architecture</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="application">
+<h1>Application</h1>
+<p>An application is a Docker container in CloudARK. CloudARK assumes that Dockerfile
+is present in the application directory.</p>
+<p>Application is deployed on an <em>environment</em>. The application deployment action takes
+the name of the environment as input (<em>cld app deploy {app-name} {env-name} {app.yaml}</em>).
+app.yaml contains definition of the application container image, the container port
+and any environment variables.</p>
+<p>CloudARK provides commands to build the application container and push it to public container
+registry such as Amazon ECR or Google GCR.</p>
+<p>As part of the deployment step CloudARK binds the application container to resources
+in the environment through environment variables
+defined in app.yaml file. For example here is a Dockerfile from <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a> application.</p>
+<div class="highlight-Dockerfile"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="s"> ubuntu:14.04</span>
+<span class="k">RUN</span> apt-get update -y <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> apt-get install -y python-setuptools python-pip
+<span class="k">ADD</span><span class="s"> requirements.txt /src/requirements.txt</span>
+<span class="k">RUN</span> <span class="nb">cd</span> /src<span class="p">;</span> pip install -r requirements.txt
+<span class="k">ADD</span><span class="s"> . /src</span>
+<span class="k">EXPOSE</span><span class="s"> 5000</span>
+<span class="k">CMD</span><span class="s"> [&quot;python&quot;, &quot;/src/application.py&quot;]</span>
+</pre></div>
+</div>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;image_uri&gt;</span>
+  <span class="l l-Scalar l-Scalar-Plain">container_port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+  <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">PASSWORD</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUserPassword</span>
+    <span class="l l-Scalar l-Scalar-Plain">DB</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_DBName</span>
+    <span class="l l-Scalar l-Scalar-Plain">HOST</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_Address</span>
+    <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
+</pre></div>
+</div>
+<p>The environment variables are set using following format: <em>CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;</em>.
+The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
+<em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
+Output attributes available for a resource can be obtained by querying the resource
+using <em>cld resource show {env_name}</em> command.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="environment.html"
+                        title="previous chapter">Environment</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tutorial.html" title="Tutorial"
+             >next</a></li>
+        <li class="right" >
+          <a href="environment.html" title="Environment"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.1.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="architecture.html" >Architecture</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
