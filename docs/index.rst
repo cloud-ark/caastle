@@ -6,16 +6,26 @@
 Welcome to CloudARK's documentation
 ====================================
 
-Platform-as-Code for cloud-native containerized applications / microservices.
+Platform of an application is defined as the run-time environment in which the application runs. 
+Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files. 
+These platform definitions can be version controlled and follow software development lifecycle.
+
+CloudARK is implementation of Platform-as-Code (PaC) paradigm.
+
+There are two main abstractions in CloudARK - *Environment* and *Application*.
+
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
    :hidden:
 
-   intro
-   architecture
-   tutorial
-   faq
+   environment
+   application
+   deployments
+
+
+..   intro
+..   architecture
 
 
