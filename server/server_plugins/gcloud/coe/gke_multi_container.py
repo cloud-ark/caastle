@@ -181,7 +181,7 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
             app_output_config = ast.literal_eval(app_obj.output_config)
             self._delete_service(app_info, app_output_config['service_name'])
             pod_name_list = app_output_config['pod_name']
-            for pod in pod_name_list: 
+            for pod in pod_name_list:
                 self._delete_pod(app_info, pod)
         except Exception as e:
             fmlogger.error(e)
@@ -194,7 +194,7 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
 
         app_obj = app_db.App().get(app_id)
         output_config = ast.literal_eval(app_obj.output_config)
-        
+
         pod_name_list = output_config['pod_name']
         log_list = []
         for pod in pod_name_list:      

@@ -24,7 +24,7 @@ class ContainerCreate(Command):
 
         parser.add_argument('repository',
                             help="Name of repository to push container to. Supported options: 'ecr', 'gcr', 'local'.")
-        
+
         parser.add_argument('--project-id',
                             dest='project_id',
                             help="Project ID (Required only when repository = gcr")
