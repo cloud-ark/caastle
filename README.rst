@@ -198,6 +198,14 @@ Read this_ for more details about CloudARK
 
 .. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
 
+CloudARK FAQ_
+
+.. _FAQ: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
+
+CloudARK Roadmap_
+
+.. _Roadmap: https://cloud-ark.github.io/cloudark/docs/html/html/roadmap.html
+
 
 Wordpress deployment on ECS
 ---------------------------
