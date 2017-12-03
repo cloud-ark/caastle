@@ -12,7 +12,7 @@ class Environment(db_base.Base):
     __table_args__ = {'extend_existing': True}
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    name = sa.Column(sa.Text, nullable=False)
+    name = sa.Column(sa.Text, nullable=False, unique=True)
     status = sa.Column(sa.String(32))
     env_definition = sa.Column(sa.Text, nullable=False)
     output_config = sa.Column(sa.Text)
