@@ -21,6 +21,14 @@ class AppDeploymentFailure(Exception):
     def get_message(self):
         pass
 
+@six.add_metaclass(abc.ABCMeta)
+class EnvironmentDeleteFailure(Exception):
+    def __init__(self, message):
+        self.message = ("Deleting environment encountered error: {msg}").format(msg=message)
+
+    @abc.abstractmethod
+    def get_message(self):
+        return self.message
 
 class ECSServiceCreateTimeout(AppDeploymentFailure):
 

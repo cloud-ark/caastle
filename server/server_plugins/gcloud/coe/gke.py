@@ -13,6 +13,7 @@ from oauth2client.client import GoogleCredentials
 from server.common import constants
 from server.common import common_functions
 from server.common import docker_lib
+from server.common import exceptions
 from server.common import fm_logger
 from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import environment as env_db
@@ -29,6 +30,7 @@ fmlogger = fm_logger.Logging()
 
 GCR = "us.gcr.io"
 
+GCLOUD_ACTION_TIMEOUT = 60
 
 class GKEHandler(coe_base.COEBase):
     """GKE Handler."""
@@ -64,6 +66,112 @@ class GKEHandler(coe_base.COEBase):
             if matched:
                 return True
         return False
+
+    def _delete_firewall_rule(self, project, cluster_name):
+        try:
+            self.compute_service.firewalls().delete(
+                project=project,
+                firewall=cluster_name
+            ).execute()
+        except Exception as e:
+            fmlogger.error(e)
+
+    def _delete_network(self, project, cluster_name):
+        try:
+            resp = self.compute_service.networks().delete(
+                project=project,
+                network=cluster_name
+            ).execute()
+        except Exception as e:
+            fmlogger.error(e)
+
+        network_deleted = False
+        count = 0
+        while not network_deleted and count < GCLOUD_ACTION_TIMEOUT:
+            try:
+                network_obj = self.compute_service.networks().get(
+                    project=project,
+                    network=cluster_name
+                ).execute()
+            except Exception as e:
+                fmlogger.error(e)
+                network_deleted = True
+            else:
+                time.sleep(1)
+                count = count + 1
+ 
+        if count >= GCLOUD_ACTION_TIMEOUT:
+            message = ("Failed to delete network {network_name}").format(network_name=cluster_name)
+            raise exceptions.EnvironmentDeleteFailure("Failed to delete network ")
+
+    def _create_firewall_rule(self, env_id, project, cluster_name):
+        count = 0
+        while count < GCLOUD_ACTION_TIMEOUT:
+            try:
+                resp = self.compute_service.firewalls().insert(
+                    project=project,
+                    body={"direction": "INGRESS",
+                          "allowed": [{"IPProtocol": "tcp",
+                                       "ports": ["80","443"]}],
+                          "network": "global/networks/" + cluster_name,
+                          "name": cluster_name
+                          }
+                ).execute()
+                break
+            except Exception as e:
+                fmlogger.error(e)
+                #env_update = {}
+                #env_update['output_config'] = str({'error': str(e)})
+                #env_db.Environment().update(env_id, env_update)
+                time.sleep(2)
+                count = count + 1
+
+        if count >= GCLOUD_ACTION_TIMEOUT:
+            raise exceptions.AppDeploymentFailure()
+
+    def _create_network(self, env_id, project, cluster_name):
+        network_name = cluster_name
+        try:
+            resp = self.compute_service.networks().insert(
+                project=project,
+                body={"autoCreateSubnetworks": True,
+                      "routingConfig":{
+                          "routingMode": "GLOBAL"
+                      },
+                      "name": network_name
+                     }
+            ).execute()
+        except Exception as e:
+            fmlogger.error(e)
+            env_update = {}
+            env_update['output_config'] = str({'error': str(e)})
+            env_db.Environment().update(env_id, env_update)
+            raise e
+        
+        network_obj = ''
+        count = 0
+        while not network_obj and count < GCLOUD_ACTION_TIMEOUT:
+            try:
+                network_obj = self.compute_service.networks().get(
+                    project=project,
+                    network=network_name
+                ).execute()
+            except Exception as e:
+                fmlogger.error(e)
+                #env_update = {}
+                #env_update['output_config'] = str({'error': str(e)})
+                #env_db.Environment().update(env_id, env_update)
+            
+            if network_obj:
+                break
+            else:
+                time.sleep(1)
+                count = count + 1
+ 
+        if count >= GCLOUD_ACTION_TIMEOUT:
+            raise exceptions.AppDeploymentFailure()
+
+        return network_obj
 
     def _get_cluster_node_ip(self, env_name, project, zone):
         pageToken = None
@@ -138,6 +246,18 @@ class GKEHandler(coe_base.COEBase):
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
 
+        try:
+            self._create_network(env_id, project, cluster_name)
+        except Exception as e:
+            fmlogger.error(e)
+            return
+
+        try:
+            self._create_firewall_rule(env_id, project, cluster_name)
+        except Exception as e:
+            fmlogger.error(e)
+            return
+
         resp = ''
         try:
             resp = self.gke_service.projects().zones().clusters().create(
@@ -147,7 +267,8 @@ class GKEHandler(coe_base.COEBase):
                                   "initialNodeCount": cluster_size,
                                   "nodeConfig": {
                                       "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only",
-                                      "machineType": instance_type}}}
+                                      "machineType": instance_type},
+                                  "network": cluster_name}}
             ).execute()
         except Exception as e:
             fmlogger.error(e)
@@ -195,6 +316,7 @@ class GKEHandler(coe_base.COEBase):
         filtered_description['cluster_ips'] = instance_ip_list
         filtered_description['project'] = project
         filtered_description['zone'] = zone
+        filtered_description['env_name'] = env_name
         res_data['filtered_description'] = str(filtered_description)
         res_db.Resource().update(res_id, res_data)
         fmlogger.debug("Done creating GKE cluster.")
@@ -210,6 +332,16 @@ class GKEHandler(coe_base.COEBase):
             cluster_name = filtered_description['cluster_name']
             project = filtered_description['project']
             zone = filtered_description['zone']
+
+            try:
+                self._delete_network(project, cluster_name)
+            except Exception as e:
+                fmlogger.error("Exception deleting network %s " % str(e))
+                env_update = {}
+                env_update['output_config'] = str({'error': str(e)})
+                env_db.Environment().update(env_id, env_update)
+
+            self._delete_firewall_rule(project, cluster_name)
 
             try:
                 resp = self.gke_service.projects().zones().clusters().delete(
