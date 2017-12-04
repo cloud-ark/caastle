@@ -1,4 +1,5 @@
 import boto3
+import os
 import time
 
 from server.common import constants
@@ -328,3 +329,73 @@ class AWSHelper(object):
                 successfully_deleted = True
         if not successfully_deleted:
             fmlogger.debug("Could not delete ELB loadbalancer.")
+
+    def run_command(self, env_id, env_name, resource_obj, command):
+        command_output = ''
+        env_obj = env_db.Environment().get(env_id)
+        df_dir = env_obj.location
+
+        if not os.path.exists(df_dir):
+            mkdir_command = ("mkdir {df_dir}").format(df_dir=df_dir)
+            os.system(mkdir_command)
+
+        dockerfile_name = "Dockerfile.run_command"
+        df_path = df_dir + "/" + dockerfile_name
+
+        df = self.docker_handler.get_dockerfile_snippet("aws")
+        df = df + ("COPY . /src \n"
+                   "WORKDIR /src \n"
+                   "RUN cp -r aws-creds $HOME/.aws \n"
+                   "CMD [\"sh\", \"/src/run_command.sh\"] "
+                  )
+
+        df_name = df_dir + "/Dockerfile.run_command"
+        fp = open(df_name, "w")
+        fp.write(df)
+        fp.close()
+
+        fp1 = open(df_dir + "/run_command.sh", "w")
+        fp1.write("#!/bin/bash \n")
+        fp1.write(command)
+        fp1.close()
+
+        resource_name = resource_obj.cloud_resource_id
+        cont_name = resource_name + "_run_command"
+        err, output = self.docker_handler.build_container_image(
+            cont_name,
+            df_name,
+            df_context=df_dir
+        )
+
+        if err:
+            error_msg = ("Error encountered in running command {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+
+        err, output = self.docker_handler.run_container(cont_name)
+
+        if err:
+            error_msg = ("Error encountered in running command {e}").format(e=err)
+            fmlogger.error(error_msg)
+            raise Exception(error_msg)
+
+        cont_id = output.strip()
+
+        err, command_output = self.docker_handler.get_logs(cont_id)
+
+        #self.docker_handler.stop_container(cont_id)
+        self.docker_handler.remove_container(cont_id)
+        self.docker_handler.remove_container_image(cont_name)
+        return command_output
+
+    def resource_type_for_command(self, command):
+        resource_type_for_command = {}
+        resource_type_for_command["aws ecs"] = 'ecs'
+        resource_type_for_command["aws rds"] = 'rds'
+
+        type = ''
+        for key, value in resource_type_for_command.iteritems():
+            if command.find(key) >= 0:
+                type = value
+
+        return type
