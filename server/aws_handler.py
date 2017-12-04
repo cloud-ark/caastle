@@ -7,6 +7,7 @@ from common import common_functions
 from common import fm_logger
 from dbmodule.objects import app as app_db
 from dbmodule.objects import environment as env_db
+from server.server_plugins.aws import aws_helper
 
 home_dir = expanduser("~")
 
@@ -26,6 +27,8 @@ class AWSHandler(object):
         namespace='server.server_plugins.aws.coe',
         invoke_on_load=True,
     )
+
+    awshelper = aws_helper.AWSHelper()
 
     def _get_coe_type_for_app(self, app_id):
         app_obj = app_db.App().get(app_id)
@@ -62,6 +65,27 @@ class AWSHandler(object):
         for name, ext in AWSHandler.res_mgr.items():
             if name == type:
                 ext.obj.delete(resource)
+
+    def run_command(self, env_id, env_name, resource, command_string):
+        fmlogger.debug("AWSHandler run_command")
+        type = resource.type
+        command_type = AWSHandler.awshelper.resource_type_for_command(command_string)
+
+        command_output_all = []
+        for name, ext in AWSHandler.res_mgr.items():
+            if name == type:
+                if name == command_type or command_string == 'help':
+                    command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                    command_output_all.extend(command_output)
+
+        coe_type = common_functions.get_coe_type(env_id)
+        for name, ext in AWSHandler.coe_mgr.items():
+            if name == coe_type:
+                if name == command_type or command_string == 'help':
+                    command_output = ext.obj.run_command(env_id, env_name, resource, command_string)
+                    command_output_all.extend(command_output)
+
+        return command_output_all
 
     def create_cluster(self, env_id, env_info):
         coe_type = self._get_coe_type(env_id)

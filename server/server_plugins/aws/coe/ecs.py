@@ -31,10 +31,49 @@ class ECSHandler(coe_base.COEBase):
 
     awshelper = aws_helper.AWSHelper()
 
+    allowed_commands = ["aws ecs delete-cluster*",
+                        "aws ecs delete-service*",
+                        "aws ecs describe-clusters*",
+                        "aws ecs describe-container-instances*",
+                        "aws ecs describe-services*",
+                        "aws ecs describe-task-definition*",
+                        "aws ecs describe-tasks*",
+                        "aws ecs list-clusters*",
+                        "aws ecs list-container-instances*",
+                        "aws ecs list-services*",
+                        "aws ecs list-taks-definition-families*",
+                        "aws ecs list-task-definitions*",
+                        "aws ecs list-tasks*",
+                        ]
+
+    help_commands = ["aws ecs delete-cluster",
+                     "aws ecs delete-service",
+                     "aws ecs describe-clusters",
+                     "aws ecs describe-container-instances",
+                     "aws ecs describe-services",
+                     "aws ecs describe-task-definition",
+                     "aws ecs describe-tasks",
+                     "aws ecs list-clusters",
+                     "aws ecs list-container-instances",
+                     "aws ecs list-services",
+                     "aws ecs list-taks-definition-families",
+                     "aws ecs list-task-definitions",
+                     "aws ecs list-tasks",
+                    ]
+
     def __init__(self):
         self.ecs_client = boto3.client('ecs')
         self.alb_client = boto3.client('elbv2')
         self.docker_handler = docker_lib.DockerLib()
+
+    def _verify(self, command):
+        matched = None
+        for pattern in ECSHandler.allowed_commands:
+            p = re.compile(pattern, re.IGNORECASE)
+            matched = p.match(command)
+            if matched:
+                return True
+        return False
 
     @staticmethod
     def get_aws_details():
@@ -896,3 +935,22 @@ class ECSHandler(coe_base.COEBase):
         fmlogger.debug("Retrieving logs for application %s %s" % (app_id, app_info['app_name']))
         logs_path_list = self._retrieve_logs(app_info)
         return logs_path_list
+
+    def run_command(self, env_id, env_name, resource_obj, command):
+        fmlogger.debug("Running command against ECS cluster")
+
+        if command.lower() == 'help':
+            return ECSHandler.help_commands
+
+        command_output = ''
+
+        is_supported_command = self._verify(command)
+        if not is_supported_command:
+            command_output = ["Command not supported"]
+            return command_output
+
+        command_output = ECSHandler.awshelper.run_command(env_id, env_name, resource_obj, command)
+
+        output_lines = command_output.split("\n")
+
+        return output_lines

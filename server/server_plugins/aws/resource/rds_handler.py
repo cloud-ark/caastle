@@ -1,5 +1,6 @@
 import ast
 import boto3
+import re
 import time
 
 import server.server_plugins.resource_base as resource_base
@@ -20,8 +21,31 @@ class RDSResourceHandler(resource_base.ResourceBase):
 
     awshelper = aws_helper.AWSHelper()
 
+    allowed_commands = ["aws rds describe-db-parameters*",
+                        "aws rds describe-db-security-groups*",
+                        "aws rds describe-db-subnet-groups*",
+                        "aws rds describe-engine-default-parameters*",
+                        "aws rds describe-events*",
+                        "aws rds describe-db-instances*"]
+
+    help_commands = ["aws rds describe-db-parameters",
+                     "aws rds describe-db-security-groups",
+                     "aws rds describe-db-subnet-groups",
+                     "aws rds describe-engine-default-parameters",
+                     "aws rds describe-events",
+                     "aws rds describe-db-instances"]
+
     def __init__(self):
         self.client = boto3.client('rds')
+
+    def _verify(self, command):
+        matched = None
+        for pattern in RDSResourceHandler.allowed_commands:
+            p = re.compile(pattern, re.IGNORECASE)
+            matched = p.match(command)
+            if matched:
+                return True
+        return False
 
     def create(self, env_id, resource_details):
         env_obj = env_db.Environment().get(env_id)
@@ -171,6 +195,26 @@ class RDSResourceHandler(resource_base.ResourceBase):
             fmlogger.error(e)
 
         res_db.Resource().delete(request_obj.id)
+
+    def run_command(self, env_id, env_name, resource_obj, command):
+        fmlogger.debug("Running command against RDS instance")
+
+        if command.lower() == 'help':
+            return RDSResourceHandler.help_commands
+
+        command_output = ''
+
+        is_supported_command = self._verify(command)
+        if not is_supported_command:
+            command_output = ["Command not supported"]
+            return command_output
+
+        command_output = RDSResourceHandler.awshelper.run_command(env_id, env_name,
+                                                                  resource_obj, command)
+
+        output_lines = command_output.split("\n")
+
+        return output_lines
 
 
 class RDS(object):
