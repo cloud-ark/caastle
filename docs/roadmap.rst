@@ -1,7 +1,7 @@
 Roadmap
 --------
 
-Currently we hav planned following features for CloudARK.
+Currently we have planned following features for CloudARK.
 If you are interested in any particular item from this list or something not on this list, please let us know_
 
 .. _know: https://github.com/cloud-ark/cloudark/issues
