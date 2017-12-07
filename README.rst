@@ -3,11 +3,12 @@ Platform-as-Code
 =================
 
 Platform of an application is the run-time environment in which the application runs.
-It includes application code, application servers, and application’s external resource dependencies such as databases.
-Platform-as-Code paradigm_ offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
+It includes application code/containers, application/web servers, container orchestration engine clusters,
+and application’s external resource dependencies such as managed database servers.
+Platform-as-Code_ paradigm offers ability to define all such platform elements of a containerized cloud application using declarative configuration files.
 These platform definitions can be version controlled and follow software development lifecycle.
 
-.. _paradigm: https://cloudark.io/resources
+.. _Platform-as-Code: https://cloudark.io/resources
 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 75%
@@ -18,7 +19,7 @@ CloudARK - Platform-as-Code implementation
 -------------------------------------------
 
 CloudARK is a **full-stack microservices development and deployment tool** that is implemented using Platform-as-Code principles.
-Currently it supports Google Cloud and Amazon AWS.
+Currently CloudARK supports Google Cloud and Amazon AWS.
 
 Key elements of CloudARK:
 
@@ -26,26 +27,27 @@ Key elements of CloudARK:
 
   **Environment** is the top level abstraction. It defines container orchestration engine cluster and managed cloud services for the application.
   **Application** is composed of one or more application container/s and is deployed in the environment.
-  You even get a shell customized for the environment with controls for its platform elements.
+  You get a shell customized for the environment with ability to directly use cloud-native CLIs against the platform elements created in that environment.
 
 - *Declarative platform definition*:
 
-  **env.yaml** to define managed cloud resources within an environment; **app.yaml** - definition of application for single container applications;
-  **kubernetes.yaml / ecs.yaml** – definition of application for multi-container applications.
+  **environment yaml** file is used to define managed cloud resources within an environment; **app yaml** is used to define application container (for single container applications);
+  **pod/deployment yaml or ecs's task yaml** is supported for multi-container applications.
   No need for platform inputs using command line parameters.
 
-- *Environment change history* - Get history of operations that changed the state of an environment to improve traceability and repeatability.
+- *Environment change history* - History of operations that change the state of an environment is maintained for traceability and repeatability.
 
-- *Platform element association* - Integrated creation and binding of cloud resources with application containers. Get view of the entire application run-time environment with platform element associations.
+- *Platform element association* - Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment
+  with appropriate platform elements associations.
 
 
-Using CloudARK:
+Use CloudARK to:
 
-- Develop and deploy microservices that use managed cloud services like Google Cloud SQL and Amazon RDS on Google GKE and Amazon ECS.
+- Develop and deploy microservices to Google GKE and Amazon ECS that use managed cloud services like Google Cloud SQL and Amazon RDS.
 
 - Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
 
-- Easily share application deployment artifacts with team members.
+- Easily share application deployment artifacts between team members.
 
 - Gain insights into your application and its cloud environment.
 
@@ -55,7 +57,7 @@ Using CloudARK:
 Try CloudARK
 -------------
 
-Tested on:
+Developed and Tested on:
 
 - Ubuntu 14.04, 16.04
 
@@ -193,7 +195,7 @@ Wordpress deployment on ECS
    .. image:: ./docs/screenshots/wordpress/app-logs.png
       :scale: 125%
 
-5) Deployed application (wordpress)
+5) Wordpress deployment complete
 
    .. image:: ./docs/screenshots/wordpress/wordpress-installed.png
       :scale: 125%
@@ -213,20 +215,6 @@ Wordpress deployment on ECS
       :scale: 125%
 
 
-How is Platform-as-Code different from Platform-as-a-Service?
--------------------------------------------------------------
-
-Platform-as-Code is a *non-hosted* implementation of platform functionality.
-There is no private / public hosted central server like PaaSes. This approach helps improve dev/prod parity and ability to recreate application environments anywhere.
-
-
-How is Platform-as-Code different from Infrastructure-as-Code?
---------------------------------------------------------------
-
-Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
-In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
-
-
 Details
 --------
 
@@ -243,9 +231,19 @@ CloudARK Roadmap_
 .. _Roadmap: https://cloud-ark.github.io/cloudark/docs/html/html/roadmap.html
 
 
+**How is Platform-as-Code different from Platform-as-a-Service?**
 
-Deploying on Google GKE
-------------------------
+Platform-as-Code is a *non-hosted* implementation of platform functionality.
+There is no private / public hosted central server like PaaSes. This approach helps improve dev/prod parity and ability to recreate application environments anywhere.
+
+
+**How is Platform-as-Code different from Infrastructure-as-Code?**
+
+Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
+In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
+
+
+*Deploying on Google GKE*
 
   $ cld setup gcloud
     - This will request OAuth authorizations for gcloud sdk and gcloud auth library.
@@ -254,8 +252,7 @@ Deploying on Google GKE
   $ ./restart-cloudark.sh
 
 
-Deploying on Amazon ECS
-------------------------
+*Deploying on Amazon ECS*
 
   $ cld setup aws
     - This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
