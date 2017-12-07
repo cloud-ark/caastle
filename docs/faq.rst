@@ -42,7 +42,7 @@ CloudARK tries to balance the fine line between abstraction and control through 
 Q) **What is environment-specific shell in CloudARK?**
 
 CloudARK provides *cld env shell* command that can be used to get a *environment-specific* shell.
-This shell allows you to execute cloud-native cli commands corresponding to the platform elements in *that* environment.
+This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in *that* environment.
 This shell can be quite handy when you are developing applications using CloudARK.
 
 
