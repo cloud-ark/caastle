@@ -195,7 +195,7 @@ Wordpress deployment on ECS
    .. image:: ./docs/screenshots/wordpress/app-logs.png
       :scale: 125%
 
-5) Wordpress deployment complete
+6) Wordpress deployment complete
 
    .. image:: ./docs/screenshots/wordpress/wordpress-installed.png
       :scale: 125%
@@ -203,7 +203,7 @@ Wordpress deployment on ECS
    .. image:: ./docs/screenshots/wordpress/wordpress-blog-page-with-elb.png
       :scale: 125%
 
-6) AWS console
+7) AWS console
 
    .. image:: ./docs/screenshots/wordpress/wordpress-rds-instance.png
       :scale: 125%
