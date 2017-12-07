@@ -1,30 +1,14 @@
 =================
-CloudARK
+Platform-as-Code
 =================
 
-Full-stack microservices deployments to Google GKE and Amazon ECS container platforms. Using CloudARK:
-
-- Build and deploy microservices that use managed cloud services like Amazon RDS, Google Cloud SQL.
-
-- Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
-
-- Easily share application deployment plans with team members.
-
-- Gain insights into your application and its cloud environment.
-
-.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
-
-
-CloudARK is based on Platform-as-Code (PaC) paradigm_
+Platform-as-Code paradigm_ offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
+These platform definitions can be version controlled and follow software development lifecycle.
 
 .. _paradigm: https://cloudark.io/resources
 
-Platform of an application is defined as the run-time environment in which the application runs.
-Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
-These platform definitions can be version controlled and follow software development lifecycle.    
- 
 .. image:: ./docs/screenshots/Block-diagram-short.png
-   :scale: 100%
+   :scale: 75%
    :align: center
 
 Platform-as-Code paradigm offers:
@@ -36,6 +20,57 @@ Platform-as-Code paradigm offers:
 - *Repeatability* - Effortless creation of local/dev/test/prod environments
 
 - *Visibility* - Traceability and complete view of the application's run-time environment
+
+
+
+How is Platform-as-Code different from Platform-as-a-Service?
+-------------------------------------------------------------
+
+Platform-as-Code is a *non-hosted* implementation of platform functionality.
+There is no private / public hosted central server like PaaSes. This approach helps improve dev/prod parity and ability to recreate application environments anywhere.
+
+
+How is Platform-as-Code different from Infrastructure-as-Code?
+--------------------------------------------------------------
+
+Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
+In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
+
+
+
+CloudARK - Platform-as-Code implementation
+-------------------------------------------
+
+CloudARK is a *full-stack microservices development and deployment* tool that is implemented using Platform-as-Code principles.
+Currently it supports Google Cloud and Amazon AWS.
+
+Key elements of CloudARK:
+
+- *Intelligent abstractions* - **Environment** is the top level abstraction.
+It defines container orchestration engine cluster and managed cloud services for the application.
+**Application** is composed of one or more application container/s and is deployed in the environment.
+You even get a shell customized for the environment with controls for its platform elements.
+
+- *Declarative platform definition* - **env.yaml** to define managed cloud resources within an environment; **app.yaml** - definition of application for single container applications;
+**kubernetes.yaml / ecs.yaml** – definition of application for multi-container applications.
+No need for platform inputs using command line parameters.
+
+- *Environment change history* - Get history of operations that changed the state of an environment to improve traceability and repeatability.
+
+- *Platform element association* - Integrated creation and binding of cloud resources with application containers. Get view of the entire application run-time environment with platform element associations.
+
+
+Using CloudARK:
+
+- Develop and deploy microservices on Google GKE and Amazon ECS that use managed cloud services like Google Cloud SQL and Amazon RDS.
+
+- Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
+
+- Easily share application deployment artifacts with team members.
+
+- Gain insights into your application and its cloud environment.
+
+.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 
 
 Try CloudARK
