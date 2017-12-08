@@ -2,6 +2,7 @@ Deployment to GKE
 ------------------
 
 $ cld setup gcloud
+
 This will request OAuth authorizations for gcloud sdk and gcloud auth library. Follow the prompts and provide the required input.
 
 $ ./restart-cloudark.sh
@@ -14,12 +15,12 @@ creating GKE environment.
 Deployment to Amazon ECS
 -------------------------
 
-  $ cld setup aws
+$ cld setup aws
     
-      This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
-      Follow the prompts and provide the required input.
+This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
+Follow the prompts and provide the required input.
 
-  $ ./restart-cloudark.sh
+$ ./restart-cloudark.sh
 
 
 Your AWS user will need to have following managed policies in order to do deployments using CloudARK.
