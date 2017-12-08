@@ -46,27 +46,20 @@
             
   <div class="section" id="application">
 <h1>Application</h1>
-<p>An application is a Docker container in CloudARK. CloudARK assumes that Dockerfile
-is present in the application directory.</p>
+<p>An application can be composed of a single or multiple Docker containers in CloudARK.</p>
+<p>CloudARK offers ‘cld container <a href="#id1"><span class="problematic" id="id2">*</span></a>’ commands to build your application containers from your Docker files and push them to your registry of choice.
+The container is appropriate tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.</p>
+<p>Application definition is done using our yaml format (for single container applications) or respective COE (Kubernetes / ECS) yaml format (for multi-container applications). Application definition generally includes URIs to the built containers from container registry, container interdependencies and any other run-time parameters to run each container.
+Here is a sample app.yaml based application definition for a single container wordpress application.</p>
 <p>Application is deployed on an <em>environment</em>. The application deployment action takes
 the name of the environment as input (<em>cld app deploy {app-name} {env-name} {app.yaml}</em>).
 app.yaml contains definition of the application container image, the container port
 and any environment variables.</p>
 <p>CloudARK provides commands to build the application container and push it to public container
 registry such as Amazon ECR or Google GCR.</p>
-<p>As part of the deployment step CloudARK binds the application container to resources
-in the environment through environment variables
-defined in app.yaml file. For example here is a Dockerfile from <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a> application.</p>
-<div class="highlight-Dockerfile"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="s"> ubuntu:14.04</span>
-<span class="k">RUN</span> apt-get update -y <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> apt-get install -y python-setuptools python-pip
-<span class="k">ADD</span><span class="s"> requirements.txt /src/requirements.txt</span>
-<span class="k">RUN</span> <span class="nb">cd</span> /src<span class="p">;</span> pip install -r requirements.txt
-<span class="k">ADD</span><span class="s"> . /src</span>
-<span class="k">EXPOSE</span><span class="s"> 5000</span>
-<span class="k">CMD</span><span class="s"> [&quot;python&quot;, &quot;/src/application.py&quot;]</span>
-</pre></div>
-</div>
+<p>As part of the deployment step CloudARK binds the application container(s) to cloud resources
+in the environment defined in application definition file.
+Here is a sample app.yaml based application definition for a single container wordpress application.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;image_uri&gt;</span>
   <span class="l l-Scalar l-Scalar-Plain">container_port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
@@ -77,6 +70,7 @@ defined in app.yaml file. For example here is a Dockerfile from <a class="refere
     <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
 </pre></div>
 </div>
+<p><em>Defining Environment Variables</em></p>
 <p>The environment variables are set using following format: <em>CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;</em>.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.

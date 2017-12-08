@@ -2,9 +2,9 @@ Environment
 ------------
 
 An environment is defined in a yaml file using declarative syntax.
-Environment definition consists of two sections *resources* and *app_deployment*.
+Environment definition consists of two sections *cloud resources* and *app_deployment target*.
 Here is an example of environment definition
-containing AWS RDS resource and AWS ECS for application deployment.
+containing AWS RDS as cloud resource and AWS ECS as application deployment target.
 
 .. code-block:: yaml
 
@@ -32,14 +32,12 @@ The *app_deployment* section consists of the *target* attribute and the *type* a
 The target attribute identifies the cloud on which the container orchestration engine (COE)
 cluster should be created. The type attribute identifies the type of the COE.
 Using target and type attributes we are able to capture different combinations of
-clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <gcloud, gke>, <openstack, magnum>, etc.
-Currently supported options are: <aws, ecs> and <gcloud, gke>
+clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <gcloud, gke>, etc.
 
-The reason behind separating resources and application deployment in the environment
-definition is to support cross-cloud deployments in the future where one can deploy application
-on one cloud and bind it to managed resources from another cloud. 
+CloudARK environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
+managed cloud services and COE cluster from any hosting provider of their choice. The framework is extensible to accommodate even third-party managed cloud services.
 
-An environment is created using *cld environment create {env}* command.
+An environment is created using *cld environment create {env-name} {env.yaml}* command.
 
 
 

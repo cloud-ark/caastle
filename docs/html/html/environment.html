@@ -47,9 +47,9 @@
   <div class="section" id="environment">
 <h1>Environment</h1>
 <p>An environment is defined in a yaml file using declarative syntax.
-Environment definition consists of two sections <em>resources</em> and <em>app_deployment</em>.
+Environment definition consists of two sections <em>cloud resources</em> and <em>app_deployment target</em>.
 Here is an example of environment definition
-containing AWS RDS resource and AWS ECS for application deployment.</p>
+containing AWS RDS as cloud resource and AWS ECS as application deployment target.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">environment</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">resources</span><span class="p p-Indicator">:</span>
     <span class="l l-Scalar l-Scalar-Plain">aws</span><span class="p p-Indicator">:</span>
@@ -74,12 +74,10 @@ that are configurable on that resource.</p>
 The target attribute identifies the cloud on which the container orchestration engine (COE)
 cluster should be created. The type attribute identifies the type of the COE.
 Using target and type attributes we are able to capture different combinations of
-clouds and COEs such as, &lt;aws, ecs&gt;, &lt;aws, kubernetes&gt;, &lt;gcloud, gke&gt;, &lt;openstack, magnum&gt;, etc.
-Currently supported options are: &lt;aws, ecs&gt; and &lt;gcloud, gke&gt;</p>
-<p>The reason behind separating resources and application deployment in the environment
-definition is to support cross-cloud deployments in the future where one can deploy application
-on one cloud and bind it to managed resources from another cloud.</p>
-<p>An environment is created using <em>cld environment create {env}</em> command.</p>
+clouds and COEs such as, &lt;aws, ecs&gt;, &lt;aws, kubernetes&gt;, &lt;gcloud, gke&gt;, etc.</p>
+<p>CloudARK environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
+managed cloud services and COE cluster from any hosting provider of their choice. The framework is extensible to accommodate even third-party managed cloud services.</p>
+<p>An environment is created using <em>cld environment create {env-name} {env.yaml}</em> command.</p>
 </div>
 
 

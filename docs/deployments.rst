@@ -1,11 +1,3 @@
-Deployment Details
--------------------
-
-Check this `repository`_ to see examples of deploying applications using CloudARK.
-
-.. _repository: https://github.com/cloud-ark/cloudark-samples
-
-
 Deployment to GKE
 ------------------
 
@@ -14,9 +6,9 @@ This will request OAuth authorizations for gcloud sdk and gcloud auth library. F
 
 $ ./restart-cloudark.sh
 
-Create a project from Google Cloud console.
-Then before creating a environment modify the environment yaml file to contain your project's ID and the zone in which you want
-the application to be deployed.
+Create a project from Google Cloud console. Note down the Project ID.
+You will need to pass it when creating container to be saved in GCR and when
+creating GKE environment.
 
 
 Deployment to Amazon ECS
@@ -78,5 +70,6 @@ Once the policy is created attach it to your user.
    :hidden:
 
  
+   samples
    faq
    roadmap
