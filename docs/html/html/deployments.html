@@ -46,8 +46,8 @@
             
   <div class="section" id="deployment-to-gke">
 <h1>Deployment to GKE</h1>
-<p>$ cld setup gcloud
-This will request OAuth authorizations for gcloud sdk and gcloud auth library. Follow the prompts and provide the required input.</p>
+<p>$ cld setup gcloud</p>
+<p>This will request OAuth authorizations for gcloud sdk and gcloud auth library. Follow the prompts and provide the required input.</p>
 <p>$ ./restart-cloudark.sh</p>
 <p>Create a project from Google Cloud console. Note down the Project ID.
 You will need to pass it when creating container to be saved in GCR and when
@@ -55,13 +55,10 @@ creating GKE environment.</p>
 </div>
 <div class="section" id="deployment-to-amazon-ecs">
 <h1>Deployment to Amazon ECS</h1>
-<blockquote>
-<div><p>$ cld setup aws</p>
-<blockquote>
-<div>This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
-Follow the prompts and provide the required input.</div></blockquote>
+<p>$ cld setup aws</p>
+<p>This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
+Follow the prompts and provide the required input.</p>
 <p>$ ./restart-cloudark.sh</p>
-</div></blockquote>
 <p>Your AWS user will need to have following managed policies in order to do deployments using CloudARK.</p>
 <ul class="simple">
 <li>AmazonEC2FullAccess</li>
