@@ -71,4 +71,4 @@ Once the policy is created attach it to your user.
 
    faq
    roadmap
-   samples
+

@@ -46,3 +46,10 @@ Mid-term roadmap:
 
 5) Support for third-party managed services for AWS and Google
 
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+   :hidden:
+
+   samples
