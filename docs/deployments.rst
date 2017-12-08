@@ -69,6 +69,7 @@ Once the policy is created attach it to your user.
    :caption: Contents:
    :hidden:
 
+   architecture
    faq
    roadmap
 

@@ -141,6 +141,8 @@ Commands:
 
   app show
 
+  app logs
+
   app delete
 
   setup aws
