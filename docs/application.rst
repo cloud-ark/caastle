@@ -3,7 +3,7 @@ Application
 
 An application can be composed of a single or multiple Docker containers in CloudARK.
 
-CloudARK offers ‘cld container *’ commands to build your application containers from your Docker files and push them to your registry of choice.
+CloudARK offers ‘cld container ’ commands to build your application containers from your Docker files and push them to your registry of choice.
 The container is appropriate tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.
 
 Application definition is done using our yaml format (for single container applications) or respective COE (Kubernetes / ECS) yaml format (for multi-container applications). Application definition generally includes URIs to the built containers from container registry, container interdependencies and any other run-time parameters to run each container.  
@@ -35,5 +35,11 @@ Here is a sample app.yaml based application definition for a single container wo
        HOST: $CLOUDARK_RDS_Address
        USER: $CLOUDARK_RDS_MasterUsername
 
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents:
+   :hidden:
+
+   env_vars
 
 
