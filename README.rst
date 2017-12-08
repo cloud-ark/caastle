@@ -35,21 +35,24 @@ Key elements of CloudARK:
   **pod/deployment yaml or ecs's task yaml** is supported for multi-container applications.
   No need for platform inputs using command line parameters.
 
-- *Environment change history* - History of operations that change the state of an environment is maintained for traceability and repeatability.
+- *Environment change history*:
 
-- *Platform element association* - Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment
-  with appropriate platform elements associations.
+  History of operations that change the state of an environment is maintained for traceability and repeatability.
+
+- *Platform element association*:
+
+  Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment with appropriate platform elements associations.
 
 
-Use CloudARK to:
+Use CloudARK to develop and deploy full-stack microservices on Google GKE and Amazon ECS:
 
-- Develop and deploy microservices to Google GKE and Amazon ECS that use managed cloud services like Google Cloud SQL and Amazon RDS.
+- Common language between developers and Ops to share the platform definition of a containerized cloud application. 
 
-- Get ultimate dev/prod parity_ between local Docker environment and production cloud environment.
+- Full-stack application view for better control. 
 
-- Easily share application deployment artifacts between team members.
+- Ultimate dev/prod parity_ between local Docker environment and production cloud environment.
 
-- Gain insights into your application and its cloud environment.
+- Non-hosted implementation for simplicity and usability.
 
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
 

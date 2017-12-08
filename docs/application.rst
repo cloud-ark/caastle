@@ -36,10 +36,4 @@ Here is a sample app.yaml based application definition for a single container wo
        USER: $CLOUDARK_RDS_MasterUsername
 
 
-*Defining Environment Variables*
 
-The environment variables are set using following format: *CLOUDARK_<TYPE>_<Attribute>*.
-The *TYPE* is one of the supported resource types (represented in uppercase).
-*Attribute* is the exact name of one of the output attributes of the provisioned resource.
-Output attributes available for a resource can be obtained by querying the resource
-using *cld resource show {env_name}* command.
