@@ -1,0 +1,108 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Environment Variables &#8212; CloudARK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deployment to GKE" href="deployments.html" />
+    <link rel="prev" title="Application" href="application.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="deployments.html" title="Deployment to GKE"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="application.html" title="Application"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="environment-variables">
+<h1>Environment Variables</h1>
+<p>The environment variables are defined in application yaml file under <em>env</em> section for
+single container applications. For multi-container applications environment variables
+would be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).</p>
+<p>An example of environment variable definition in application yaml is shown below:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">PASSWORD</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUserPassword</span>
+    <span class="l l-Scalar l-Scalar-Plain">DB</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_DBName</span>
+    <span class="l l-Scalar l-Scalar-Plain">HOST</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_Address</span>
+    <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
+</pre></div>
+</div>
+<p>For binding application container with managed services defined in the environment
+following format is defined: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;*.
+The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
+<em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
+Output attributes available for a resource can be obtained by querying the resource
+using <em>cld resource show {env_name}</em> command.</p>
+<p>In the above example, by defining the value of the PASSWORD environment variable as
+$CLOUDARK_RDS_MasterUserPassword, the value will be set to the MasterUserPassword of
+the RDS instance provisioned in the environment in which the application is deployed.
+For instance, if you have created two environments <em>test</em> and <em>staging</em> then when
+you deploy the application in <em>test</em> environment (using cld app deploy myapp test app.yaml),
+the value of PASSWORD will be set to the value of RDS instance in the test environment.
+On the other hand, if you deploy it in <em>staging</em> environment (using cld app deploy myapp staging app.yaml),
+the value will be set as per the value of RDS instance in the staging environment.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="application.html"
+                        title="previous chapter">Application</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="deployments.html"
+                        title="next chapter">Deployment to GKE</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="deployments.html" title="Deployment to GKE"
+             >next</a></li>
+        <li class="right" >
+          <a href="application.html" title="Application"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
