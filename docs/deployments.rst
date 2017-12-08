@@ -69,7 +69,6 @@ Once the policy is created attach it to your user.
    :caption: Contents:
    :hidden:
 
- 
-   samples
    faq
    roadmap
+   samples
