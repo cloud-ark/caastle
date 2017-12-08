@@ -1,8 +1,8 @@
 Roadmap
 --------
 
-Currently we have planned following features for CloudARK.
-If you are interested in any particular item from this list or something not on this list, please let us know_
+Here is our current roadmap for CloudARK. We follow agile approach for deciding next set of deliverables.
+So feel free to let us know_ if you need a specific feature/function on priority. 
 
 .. _know: https://github.com/cloud-ark/cloudark/issues
 
@@ -27,7 +27,7 @@ Near-term roadmap:
 
 6) Service mesh support in environment and application definitions (e.g. Istio)
 
-7) Local development support for multi-container use-case
+7) Support for local Docker environment as target for multi-container applications
 
 8) Support for storing containers in Public Docker hub (currently ECR and GCR are supported options)
 
@@ -42,7 +42,7 @@ Mid-term roadmap:
 
 3) Support for Helm charts for application definition
 
-4) Support for more native managed services for AWS and Google
+4) Support for additional cloud native managed services on AWS and Google cloud
 
 5) Support for third-party managed services for AWS and Google
 

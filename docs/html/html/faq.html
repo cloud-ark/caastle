@@ -64,7 +64,7 @@ In contrast, Platform-as-Code offers application centric abstractions that simpl
 <p>CloudARK tries to balance the fine line between abstraction and control through following aspects of its design:</p>
 <ul class="simple">
 <li>For defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
-the corresponding Cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
+the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
 AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
 supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
 file a Github issue (<a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">https://github.com/cloud-ark/cloudark/issues</a>) and we will add it to CloudARK).</li>
@@ -74,7 +74,7 @@ to deploy the single container application. These include, <em>image uri</em>, <
 variables</em>. For multi-container applications we support Kubernetes’s native yaml file. You can define your Pods, Services, Deployments,
 ReplicationControllers, etc. in Kubernetes’s standard format. Currently we require you to define a single file
 containing all your Kubernetes element definitions.</li>
-<li>We provide the mechanism of environment-specific shell (see below) through which you can execute native commands.
+<li>We provide the mechanism of environment-specific shell (see below) through which you can execute native commands specific to the resources in the environment.
 For instance, when developing/deploying your applications on GKE, you might want to execute “kubectl get pods” to
 see if your application’s Pods have started up on the GKE cluster. Or you might want to execute “kubectl describe pods &lt;podname&gt;”
 to see what caused Pod from not starting up. The environment-specific shell allows you to execute all such commands
@@ -85,7 +85,8 @@ to see what caused Pod from not starting up. The environment-specific shell allo
 </ol>
 <p>CloudARK provides <em>cld env shell</em> command that can be used to get a <em>environment-specific</em> shell.
 This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in <em>that</em> environment.
-This shell can be quite handy when you are developing applications using CloudARK.</p>
+This shell can be quite handy when you are developing applications using CloudARK.
+It offers a great tool for traceability without having to setup number of CLI tools</p>
 <ol class="upperalpha simple" start="17">
 <li><strong>Where does CloudARK store its internal state?</strong></li>
 </ol>
