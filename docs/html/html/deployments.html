@@ -22,18 +22,18 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CloudARK Architecture" href="architecture.html" />
-    <link rel="prev" title="Environment Variables" href="env_vars.html" /> 
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="CloudARK Architecture" href="architecture.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="faq.html" title="Frequently Asked Questions"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="env_vars.html" title="Environment Variables"
+          <a href="architecture.html" title="CloudARK Architecture"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
@@ -41,11 +41,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="env_vars.html"
-                        title="previous chapter">Environment Variables</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="architecture.html"
-                        title="next chapter">CloudARK Architecture</a></p>
+                        title="previous chapter">CloudARK Architecture</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="next chapter">Frequently Asked Questions</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -114,6 +114,24 @@ Use these steps to create this policy:</p>
 </div>
 <p>Once the policy is created attach it to your user.</p>
 </div>
+<div class="section" id="authorization-details">
+<h1>Authorization Details</h1>
+<p>CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
+The reason for this two-pronged approach is explained in <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/architecture.html">architecture section</a>.</p>
+<p>The deployment mechanisms dictate the nature of authorizations needed by CloudARK.
+For AWS deployments, authorization based on user’s access key is sufficient for both SDK and CLI.
+CloudARK uses the access key provided by the user and stores it in ~/.aws directory as part of ‘cld setup aws’ command.
+This is the standard directory in which AWS SDK and AWS CLI look for authorization credentials.</p>
+<p>For Google cloud, CloudARK uses the Google cloud SDK, the Google cloud CLI and Kubernetes CLI (kubectl) for performing deployments.
+The Google cloud SDK and CLI need separate OAuth authorizations. When you run ‘cld setup gcloud’ command you will have to
+grant authorizations to both. Once the authorizations are granted, the authorization information is stored in following directories:</p>
+<p>~/.config/gcloud and ~/.kube</p>
+<p>These are the standard directories where Google Cloud SDK/CLI and kubectl CLI expect authorization information.</p>
+<p>Additionally, for AWS CloudARK also generates a ssh key-pair when provisioning cluster instances of an environment.
+This key is stored in the environment-specific folder inside ~/.cld/data/deployments/environments directory.
+This key can be used to login to the ECS cluster instance using following command:</p>
+<p>ssh -i “&lt;pem file&gt;” ec2-user&#64;&lt;AWS cluster instance IP&gt;</p>
+</div>
 
 
           </div>
@@ -125,10 +143,10 @@ Use these steps to create this policy:</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="faq.html" title="Frequently Asked Questions"
              >next</a></li>
         <li class="right" >
-          <a href="env_vars.html" title="Environment Variables"
+          <a href="architecture.html" title="CloudARK Architecture"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
