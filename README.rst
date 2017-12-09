@@ -255,9 +255,11 @@ There is no private / public hosted central server like PaaSes. This approach he
 Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
 In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
 
-**Deploying on Google GKE_**
+`Deploying on Google GKE_`__
 
 .. _GKE: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#deployment-to-gke
+
+__ GKE_
 
 
 **Deploying on Amazon ECS_**
