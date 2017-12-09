@@ -31,8 +31,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="roadmap.html" title="Roadmap"
              accesskey="P">previous</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="roadmap.html" accesskey="U">Roadmap</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -61,6 +60,72 @@
   <div class="section" id="sample-deployments">
 <h1>Sample Deployments</h1>
 <p>Check this <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples">repository</a> to see examples of deploying applications using CloudARK.</p>
+<p><strong>Developer workflow when developing locally</strong></p>
+<p>Suppose the application is a single container application and needs MySQL for backend.</p>
+<ol class="arabic simple">
+<li>Write application code</li>
+<li>Create application-specific <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile">Dockerfile</a></li>
+</ol>
+<p><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml">env definition file (env.yaml)</a></p>
+<p>and <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml">app definition file (app.yaml)</a></p>
+<p>Ensure that app.yaml includes <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html">interpolated variables</a> corresponding to the environment variables that should be bound to cloud resources in the environment</p>
+<ol class="arabic simple" start="3">
+<li>Create local environment: cld env create localenv env.yaml</li>
+<li>Create container: cld container create cont1 local</li>
+<li>Edit app.yaml to include image id obtained from output of ‘cld container show cont1’ command</li>
+<li>Deploy application: cld app deploy app1 localenv app.yaml</li>
+<li>Test and modify application code</li>
+<li>Create new container: cld container create cont2 local</li>
+<li>Edit app.yaml to include image id obtained from output of ‘cld container show cont2’ command</li>
+<li>Deploy application: cld app deploy app2 localenv app.yaml</li>
+<li>Cleanup:<ul>
+<li>cld app delete app1</li>
+<li>cld app delete app2</li>
+<li>cld container delete cont1</li>
+<li>cld container delete cont2</li>
+<li>cld env delete localenv</li>
+</ul>
+</li>
+</ol>
+<p><strong>Developer workflow to test application on Public cloud</strong></p>
+<p>Suppose your deployment target is Google cloud.</p>
+<ol class="arabic simple">
+<li>Modify env.yaml to include Google cloud resources (cloudsql and gke)</li>
+<li>Create environment: cld env create testenv1 env.yaml</li>
+<li>Create container: cld container create gkecont gcr</li>
+<li>Edit app.yaml to include image uri obtained from output of ‘cld container show gkecont’ command</li>
+<li>Deploy application: cld app deploy gkeapp testenv1 app.yaml</li>
+<li>Test the application</li>
+<li>Open environment-specific shell: cld env shell testenv1</li>
+<li>Execute kubectl commands in the shell to verify that pods and services are working as expected:<ul>
+<li>kubectl get pods</li>
+<li>kubectl get services</li>
+<li>kubectl logs &lt;pod-name&gt;</li>
+</ul>
+</li>
+<li>Execute gcloud commands in the shell to verify that Cloud SQL was provisioned correctly:<ul>
+<li>gcloud sql instances list</li>
+<li>gcloud sql instances describe &lt;instance-name&gt;</li>
+</ul>
+</li>
+<li>Check-in following application artifacts to source control: env.yaml, app.yaml</li>
+</ol>
+<p><strong>Operator workflow to perform blue/green deployments</strong></p>
+<ol class="arabic simple">
+<li>Create staging-env.yaml with appropriate resource attributes</li>
+<li>Create staging environment: cld env create staging staging-env.yaml</li>
+<li>Take app.yaml available in source control. There is no need to edit it as the container
+image uri that should be used for deployment is already defined in app.yaml</li>
+<li>Deploy application on staging environment: cld app deploy app1 staging app.yaml</li>
+<li>Get application URL and IP address from output of: cld app show app1</li>
+<li>Verify that app1 is working as expected</li>
+<li>Get application deployment and runtime logs for inspection: cld app logs app1</li>
+<li>Create production-env.yaml with appropriate resource attributes</li>
+<li>Create production environment: cld env create production production-env.yaml</li>
+<li>Deploy application on production environment: cld app deploy prodapp production app.yaml</li>
+<li>Get application URL and IP address from output of: cld app show prodapp</li>
+<li>Update application’s canonical DNS entry to point to IP address of prodapp</li>
+</ol>
 </div>
 
 
@@ -75,8 +140,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="roadmap.html" title="Roadmap"
              >previous</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="roadmap.html" >Roadmap</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

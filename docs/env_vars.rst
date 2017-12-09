@@ -26,11 +26,11 @@ following the `12-factor design principles`__.
 __ Twelve_
 
 The value of the parameter that needs to be bound to some resource's specific attribute in an environment
-is set as a *interpolated value*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
+is set as a *interpolated variables*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
 The *TYPE* is one of the supported resource types (represented in uppercase).
 *Attribute* is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource
-using 'cld resource show env_name' command.
+using 'cld resource show <env-name>' command.
 
 In the above example, by defining the value of the PASSWORD environment variable as
 a interpolated value of $CLOUDARK_RDS_MasterUserPassword,

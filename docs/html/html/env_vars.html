@@ -82,11 +82,11 @@ would be defined in the standard approach in the respective yaml file of the tar
 <p>An application is bound to managed services in the environment through the environment variables
 following the <a class="reference external" href="https://12factor.net/config">12-factor design principles</a>.</p>
 <p>The value of the parameter that needs to be bound to some resource’s specific attribute in an environment
-is set as a <em>interpolated value</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
+is set as a <em>interpolated variables</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource
-using ‘cld resource show env_name’ command.</p>
+using ‘cld resource show &lt;env-name&gt;’ command.</p>
 <p>In the above example, by defining the value of the PASSWORD environment variable as
 a interpolated value of $CLOUDARK_RDS_MasterUserPassword,
 CloudARK will set the value of the PASSWORD to the MasterUserPassword of
