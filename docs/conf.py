@@ -27,12 +27,17 @@
 #
 # needs_sphinx = '1.0'
 
-html_theme = "classic"
+#html_theme = "classic"
 #html_theme_options = {
 #    "rightsidebar": "true",
 #    "relbarbgcolor": "black"
 #}
 
+#html_theme = "bizstyle"
+
+#html_theme = "alabaster"
+
+html_theme = "sphinxdoc"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -130,7 +135,7 @@ html_sidebars = {
         #'about.html',
         #'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
-        #'searchbox.html',
+        'searchbox.html',
         #'donate.html',
     ]
 }

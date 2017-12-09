@@ -1,5 +1,5 @@
-Under the Hood
---------------
+CloudARK Architecture
+----------------------
 
 CloudARK is implemented as extensible and modular architecture.
 There are two primary architectural components - *client* and *server*.
