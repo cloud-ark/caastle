@@ -12,8 +12,7 @@ We will be happy to work with you_ to add your requested feature to CloudARK roa
 
 
 
-Near-term roadmap:
--------------------
+**Near-term roadmap**
 
 1) Support for AWS ECS task yaml for application definition
 
@@ -35,8 +34,8 @@ Near-term roadmap:
 
 
 
-Mid-term roadmap:
-------------------
+**Mid-term roadmap**
+
 
 1) Support for SSL resource in environment and application definition to create SSL-enabled microservices
 

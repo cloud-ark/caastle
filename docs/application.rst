@@ -35,11 +35,7 @@ Here is a sample app.yaml based application definition for a single container wo
        HOST: $CLOUDARK_RDS_Address
        USER: $CLOUDARK_RDS_MasterUsername
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Contents:
-   :hidden:
 
-   env_vars
+
 
 

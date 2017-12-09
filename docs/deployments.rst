@@ -65,12 +65,4 @@ In the Policy Document enter following policy. Replace <account-id> with your ac
 Once the policy is created attach it to your user.
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents:
-   :hidden:
-
-   architecture
-   faq
-   roadmap
 
