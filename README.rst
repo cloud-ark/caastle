@@ -23,31 +23,32 @@ Currently CloudARK supports Google Cloud and Amazon AWS.
 
 Key elements of CloudARK:
 
-- *Intelligent abstractions*:
+- **Intelligent abstractions**:
 
-  **Environment** is the top level abstraction. It defines container orchestration engine cluster and managed cloud services for the application.
-  **Application** is composed of one or more application container/s and is deployed in the environment.
+  *Environment* is the top level abstraction. It defines container orchestration engine cluster and managed cloud services for the application.
+  *Application* is composed of one or more application container/s and is deployed in the environment.
   You get a shell customized for the environment with ability to directly use cloud-native CLIs against the platform elements created in that environment.
 
-- *Declarative platform definition*:
+- **Declarative platform definition**:
 
-  **environment yaml** file is used to define managed cloud resources within an environment; **app yaml** is used to define application container (for single container applications);
-  **pod/deployment yaml or ecs's task yaml** is supported for multi-container applications.
+  *environment yaml* file is used to define managed cloud resources within an environment; *application yaml* is used to define application
+  container (for single container applications);
+  *pod/deployment yaml or ecs's task yaml* is supported for multi-container applications.
   No need for platform inputs using command line parameters.
 
-- *Environment change history*:
-
-  History of operations that change the state of an environment is maintained for traceability and repeatability.
-
-- *Platform element association*:
+- **Platform element association**:
 
   Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment with
   appropriate platform elements associations.
 
-- *Non-hosted implementation*:
+- **Environment change history**:
 
-  CloudARK is a non-hosted implementation. There is no centralized server like PaaS implementations. CloudARK can be installed anywhere along with Docker.
-  This architecture enables effective local development with Docker environments setup on the individual workstations or laptops. 
+  History of operations that change the state of an environment is maintained for traceability and repeatability.
+
+- **Non-hosted implementation**:
+
+  CloudARK is a non-hosted implementation. There is no centralized server like PaaS implementations. CloudARK can be installed anywhere alongside Docker.
+  This architecture enables effective local development with Docker environments setup on the individual workstations or laptops.
   The non-hosted nature also simplifies integration of CloudARK with any DevOps workflow.
 
 
@@ -62,6 +63,20 @@ Use CloudARK to develop and deploy full-stack microservices on Google GKE and Am
 - Non-hosted implementation for simplicity and usability.
 
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
+
+
+Read this_ for more details about CloudARK
+
+.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
+
+CloudARK FAQ_
+
+.. _FAQ: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
+
+CloudARK Roadmap_
+
+.. _Roadmap: https://cloud-ark.github.io/cloudark/docs/html/html/roadmap.html
+
 
 
 Try CloudARK
@@ -230,17 +245,6 @@ Wordpress deployment on ECS
 Details
 --------
 
-Read this_ for more details about CloudARK
-
-.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
-
-CloudARK FAQ_
-
-.. _FAQ: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
-
-CloudARK Roadmap_
-
-.. _Roadmap: https://cloud-ark.github.io/cloudark/docs/html/html/roadmap.html
 
 
 **How is Platform-as-Code different from Platform-as-a-Service?**
