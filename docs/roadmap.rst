@@ -14,45 +14,32 @@ We will be happy to work with you_ to add your requested feature to CloudARK roa
 
 **Near-term roadmap**
 
-1) Support for AWS ECS task yaml for application definition
+1) Environment-specific shell history to enable traceability
 
-2) Support for AWS ECS cluster type of Fargate in environment definition
+2) Support for AWS ECS task yaml for application definition
 
-3) Application scaling
+3) Support for AWS ECS cluster type of Fargate in environment definition
 
-4) Environment shell history
+4) Service mesh support in environment and application definitions (e.g. Istio)
 
-5) Application pre-deployment checks
+5) Support for integrating monitoring tools in environment and application definitions (e.g.: Prometheus)
 
-6) Service mesh support in environment and application definitions (e.g. Istio)
+6) Support for additional native managed services for AWS and Google cloud
 
-7) Support for local Docker environment as target for multi-container applications
-
-8) Support for storing containers in Public Docker hub (currently ECR and GCR are supported options)
-
-9) Support for integrating monitoring tools in environment and application definitions (e.g.: Prometheus)
-
+7) Support for third-party managed services for AWS and Google cloud
 
 
 **Mid-term roadmap**
 
+1) Application scaling
 
-1) Support for SSL resource in environment and application definition to create SSL-enabled microservices
+2) Support for SSL resource in environment and application definition to create SSL-enabled microservices
 
-2) Support for AWS EKS
+3) Support for AWS Kubernetes Service (EKS)
 
-3) Support for additional cloud native managed services on AWS and Google cloud
-
-4) Support for third-party managed services for AWS and Google
-
-5) Support for Helm charts for application definition
-
-6) Support for IaC tools such as Terraform and Ansible for environment definition
+4) Support for Helm charts for application definition
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents:
-   :hidden:
+**Possible features**
 
-   samples
+1) Integration with IaC tools such as Terraform and Ansible for environment definition
