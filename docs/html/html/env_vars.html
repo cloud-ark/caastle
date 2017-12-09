@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Deployment to GKE" href="deployments.html" />
+    <link rel="next" title="CloudARK Architecture" href="architecture.html" />
     <link rel="prev" title="Application" href="application.html" /> 
   </head>
   <body>
@@ -30,7 +30,7 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Deployment to GKE"
+          <a href="architecture.html" title="CloudARK Architecture"
              accesskey="N">next</a></li>
         <li class="right" >
           <a href="application.html" title="Application"
@@ -44,8 +44,8 @@
   <p class="topless"><a href="application.html"
                         title="previous chapter">Application</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="deployments.html"
-                        title="next chapter">Deployment to GKE</a></p>
+  <p class="topless"><a href="architecture.html"
+                        title="next chapter">CloudARK Architecture</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -78,20 +78,25 @@ would be defined in the standard approach in the respective yaml file of the tar
     <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
 </pre></div>
 </div>
-<p>For binding application container with managed services defined in the environment
-following format is defined: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;*.
+<p>Environment variables are defined as key:value pairs.</p>
+<p>An application is bound to managed services in the environment through the environment variables
+following the <a class="reference external" href="https://12factor.net/config">12-factor design principles</a>.</p>
+<p>The value of the parameter that needs to be bound to some resource’s specific attribute in an environment
+is set as a <em>interpolated value</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
-Output attributes available for a resource can be obtained by querying the resource
-using <em>cld resource show {env_name}</em> command.</p>
+All the output attributes available for a resource can be obtained by querying the resource
+using ‘cld resource show env_name’ command.</p>
 <p>In the above example, by defining the value of the PASSWORD environment variable as
-$CLOUDARK_RDS_MasterUserPassword, the value will be set to the MasterUserPassword of
-the RDS instance provisioned in the environment in which the application is deployed.
-For instance, if you have created two environments <em>test</em> and <em>staging</em> then when
-you deploy the application in <em>test</em> environment (using cld app deploy myapp test app.yaml),
-the value of PASSWORD will be set to the value of RDS instance in the test environment.
-On the other hand, if you deploy it in <em>staging</em> environment (using cld app deploy myapp staging app.yaml),
-the value will be set as per the value of RDS instance in the staging environment.</p>
+a interpolated value of $CLOUDARK_RDS_MasterUserPassword,
+CloudARK will set the value of the PASSWORD to the MasterUserPassword of
+the RDS instance provisioned in the environment in which the application is deployed.</p>
+<p>Mechanism of interpolated variables makes the application definition reusable across environments.
+For instance, suppose you have created two environments <em>test</em> and <em>staging</em>. When
+you deploy the application in <em>test</em> environment (using ‘cld app deploy myapp test app.yaml’),
+the value of PASSWORD will be set to the value of MasterUserPassword of the RDS instance in the test environment.
+On the other hand, if you deploy the application in <em>staging</em> environment (using ‘cld app deploy myapp staging app.yaml’),
+the value will be set as per the value of MasterUserPassword of the RDS instance in the staging environment.</p>
 </div>
 
 
@@ -104,7 +109,7 @@ the value will be set as per the value of RDS instance in the staging environmen
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Deployment to GKE"
+          <a href="architecture.html" title="CloudARK Architecture"
              >next</a></li>
         <li class="right" >
           <a href="application.html" title="Application"
