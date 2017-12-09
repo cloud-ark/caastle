@@ -36,7 +36,7 @@ clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <gcloud, gke>, etc.
 CloudARK environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
 managed cloud services and COE cluster from any hosting provider of their choice. The framework is extensible to accommodate even third-party managed cloud services.
 
-An environment is created using *cld environment create env-name env.yaml* command.
+An environment is created using 'cld environment create env-name env.yaml' command.
 
 **Currently supported Google Cloud resource types**
 
