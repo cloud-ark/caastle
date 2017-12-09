@@ -41,7 +41,14 @@ Key elements of CloudARK:
 
 - *Platform element association*:
 
-  Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment with appropriate platform elements associations.
+  Integrated creation and binding of cloud resources with application containers provides view of the entire application run-time environment with
+  appropriate platform elements associations.
+
+- *Non-hosted implementation*:
+
+  CloudARK is a non-hosted implementation. There is no centralized server like PaaS implementations. CloudARK can be installed anywhere along with Docker.
+  This architecture enables effective local development with Docker environments setup on the individual workstations or laptops. 
+  The non-hosted nature also simplifies integration of CloudARK with any DevOps workflow.
 
 
 Use CloudARK to develop and deploy full-stack microservices on Google GKE and Amazon ECS:
