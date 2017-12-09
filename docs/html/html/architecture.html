@@ -69,35 +69,38 @@
 <p>CloudARK is implemented as extensible and modular architecture.
 There are two primary architectural components - <em>client</em> and <em>server</em>.
 When CloudARK is installed the client is installed in a Python virtual environment.
-The server is started in this virtual environment when the start-cloudark.sh script is run.</p>
+The server is started in this virtual environment when start-cloudark.sh script is run.
+The client and the server communicate over a REST API.</p>
 <p>Client is implemented using the <a class="reference external" href="https://docs.openstack.org/cliff/latest/">cliff</a> framework.</p>
 <p>The server is implemented as a modular architecture with separate packages for different
 clouds. Within each cloud package there are sub-packages for <em>coe</em> and <em>resource</em>.
-These packages are home for implementing coe-specific functionality and resource-specific functionality
-for that cloud. These modules are implemented using the <a class="reference external" href="https://pypi.python.org/pypi/stevedore">stevedore</a> extension mechanism.</p>
-<p>The Server-side uses Python threads to asynchronously handle incoming requests. Note that currently the thread
-package is available only in Python 2.7. We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK align with
-concurrency facilities available in latest versions of Python.</p>
-<p>For making calls against cloud endpoints, appropriate authorization credentials are needed.
-CloudARK provides commands to do the credential setup for Google cloud and AWS.</p>
-<p>Actual calls are made either as API requests through the appropriate SDK or direct CLI calls.
-For most of the calls we try to use native SDK first. But if the SDK is not supporting
-any particular call, we resort to using direct CLI calls.
-For using CLI we use Docker as the mechanism for making these CLI calls.
-We have base Docker images for AWS and Google CLIs that are used for this purpose.</p>
+These packages contain modules that implement coe-specific and resource-specific functionality
+for the cloud target. These modules are implemented as extensions of CloudARK. We use
+<a class="reference external" href="https://pypi.python.org/pypi/stevedore">stevedore</a> extension mechanism for this purpose.</p>
+<p>The server uses Python threads to asynchronously handle incoming requests. Currently CloudARK works
+with Python 2.7 only as the thread package is available only in Python 2.7.
+We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK use concurrency mechanisms available in latest versions of Python.</p>
+<p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.</p>
+<p>Actual calls are made either as API requests through the appropriate cloud SDK or using direct native cloud CLIs.
+For most of the calls we try to use the native SDK first. But if the SDK is not supporting
+any particular call, we resort to using native CLI calls.
+When using native CLIs, we use <em>Docker as the mechanism</em> for making these CLI calls.
+We have built base Docker images containing AWS and Google Cloud CLIs that are used for this purpose.</p>
 </div>
 <div class="section" id="extending-cloudark">
 <h1>Extending CloudARK</h1>
-<p>Its easy to extend CloudARK to add new functionality. If you need new client-side
+<p>It is straightforward to extend CloudARK to add new functionality. If you need new client-side
 command, add it in the client folder and hook it up with the rest of the client-side
 system by making entry for it in the setup.py client module.</p>
-<p>If you want to extend server-side functionality then the key places to look at are:</p>
+<p>If you want to extend server-side functionality, the key places to look at are:</p>
 <ul class="simple">
-<li>fmserver.py: This is the entry point for server-side processing</li>
-<li>server/server_plugins: This is the package for different cloud targets</li>
-<li>server/dbmoule: This package includes CloudARK’s state management functionality</li>
-<li>server/setup.py: This is the file for setting up stevedore entrypoints</li>
+<li>fmserver.py: This is the REST entry point for server-side processing.</li>
+<li>server/server_plugins: This is the package corresponding to different target clouds.</li>
+<li>server/setup.py: This is the module where stevedore entrypoints are set.</li>
+<li>server/dbmoule: This package includes CloudARK’s state management functionality.</li>
 </ul>
+<p><em>Known Issues</em></p>
+<p>Check <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">this</a> for known issues.</p>
 </div>
 
 
