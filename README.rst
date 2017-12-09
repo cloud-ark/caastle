@@ -245,27 +245,28 @@ Wordpress deployment on ECS
 Details
 --------
 
-**How is Platform-as-Code different from Platform-as-a-Service (PaaS)?**
+1) **How is Platform-as-Code different from Platform-as-a-Service (PaaS)?**
 
 Platform-as-Code is a *non-hosted* implementation of platform functionality.
 There is no private / public hosted central server like PaaSes. This approach helps improve dev/prod parity and ability to recreate application environments anywhere.
 
-**How is Platform-as-Code different from Infrastructure-as-Code (IaC) ?**
+2) **How is Platform-as-Code different from Infrastructure-as-Code (IaC) ?**
 
 Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
 In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
 
-`Deploying on Google GKE_`__
+3) `Deploying on Google GKE`__
 
 .. _GKE: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#deployment-to-gke
 
 __ GKE_
 
 
-**Deploying on Amazon ECS_**
+4) `Deploying on Amazon ECS`__
 
 .. _ECS: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#deployment-to-amazon-ecs
 
+__ ECS_
 
 
 Contact:
