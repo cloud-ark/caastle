@@ -60,15 +60,28 @@
   <div class="section" id="sample-deployments">
 <h1>Sample Deployments</h1>
 <p>Check this <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples">repository</a> to see examples of deploying applications using CloudARK.</p>
-<p><strong>Developer workflow when developing locally</strong></p>
+<p>Some typical workflows using CloudARK are presented below:</p>
+<p><strong>1) Developer workflow when developing locally:</strong></p>
 <p>Suppose the application is a single container application and needs MySQL for backend.</p>
 <ol class="arabic simple">
 <li>Write application code</li>
-<li>Create application-specific <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile">Dockerfile</a></li>
+<li>Create application-specific artifacts:<ul>
+<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile">Dockerfile</a></li>
+</ul>
+</li>
 </ol>
-<p><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml">env definition file (env.yaml)</a></p>
-<p>and <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml">app definition file (app.yaml)</a></p>
-<p>Ensure that app.yaml includes <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html">interpolated variables</a> corresponding to the environment variables that should be bound to cloud resources in the environment</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml">env definition file (env.yaml)</a></li>
+</ul>
+</div></blockquote>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml">app definition file (app.yaml)</a></li>
+</ul>
+</div></blockquote>
+<blockquote>
+<div>Ensure that app.yaml includes <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html">interpolated variables</a> corresponding to the environment variables that should be bound to cloud resources in the environment</div></blockquote>
 <ol class="arabic simple" start="3">
 <li>Create local environment: cld env create localenv env.yaml</li>
 <li>Create container: cld container create cont1 local</li>
@@ -79,15 +92,15 @@
 <li>Edit app.yaml to include image id obtained from output of ‘cld container show cont2’ command</li>
 <li>Deploy application: cld app deploy app2 localenv app.yaml</li>
 <li>Cleanup:<ul>
-<li>cld app delete app1</li>
-<li>cld app delete app2</li>
 <li>cld container delete cont1</li>
+<li>cld app delete app1</li>
 <li>cld container delete cont2</li>
+<li>cld app delete app2</li>
 <li>cld env delete localenv</li>
 </ul>
 </li>
 </ol>
-<p><strong>Developer workflow to test application on Public cloud</strong></p>
+<p><strong>2) Developer workflow to test application on Public cloud:</strong></p>
 <p>Suppose your deployment target is Google cloud.</p>
 <ol class="arabic simple">
 <li>Modify env.yaml to include Google cloud resources (cloudsql and gke)</li>
@@ -110,7 +123,7 @@
 </li>
 <li>Check-in following application artifacts to source control: env.yaml, app.yaml</li>
 </ol>
-<p><strong>Operator workflow to perform blue/green deployments</strong></p>
+<p><strong>3) Operator workflow to perform blue/green deployments:</strong></p>
 <ol class="arabic simple">
 <li>Create staging-env.yaml with appropriate resource attributes</li>
 <li>Create staging environment: cld env create staging staging-env.yaml</li>

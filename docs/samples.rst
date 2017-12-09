@@ -5,30 +5,33 @@ Check this `repository`_ to see examples of deploying applications using CloudAR
 
 .. _repository: https://github.com/cloud-ark/cloudark-samples
 
+Some typical workflows using CloudARK are presented below:
 
-**Developer workflow when developing locally**
+**1) Developer workflow when developing locally:**
 
 Suppose the application is a single container application and needs MySQL for backend.
 
 1) Write application code
 
-2) Create application-specific Dockerfile_
+2) Create application-specific artifacts:
+
+   - Dockerfile_
 
 .. _Dockerfile: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile
 
-`env definition file (env.yaml)`__
+   - `env definition file (env.yaml)`__
 
 .. _env: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml
 
 __ env_
 
-and `app definition file (app.yaml)`__
+   - `app definition file (app.yaml)`__
 
 .. _app: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml
 
 __ app_
 
-Ensure that app.yaml includes `interpolated variables`__ corresponding to the environment variables that should be bound to cloud resources in the environment
+   Ensure that app.yaml includes `interpolated variables`__ corresponding to the environment variables that should be bound to cloud resources in the environment
 
 .. _interpolation: https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html
 
@@ -51,19 +54,19 @@ __ interpolation_
 10) Deploy application: cld app deploy app2 localenv app.yaml
 
 11) Cleanup:
-    
-    - cld app delete app1
-
-    - cld app delete app2
 
     - cld container delete cont1
 
+    - cld app delete app1
+
     - cld container delete cont2
+
+    - cld app delete app2
 
     - cld env delete localenv
 
 
-**Developer workflow to test application on Public cloud**
+**2) Developer workflow to test application on Public cloud:**
 
 Suppose your deployment target is Google cloud.
 
@@ -98,7 +101,7 @@ Suppose your deployment target is Google cloud.
 10) Check-in following application artifacts to source control: env.yaml, app.yaml
 
 
-**Operator workflow to perform blue/green deployments**
+**3) Operator workflow to perform blue/green deployments:**
 
 1) Create staging-env.yaml with appropriate resource attributes
 
