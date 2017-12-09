@@ -16,18 +16,30 @@ An example of environment variable definition in application yaml is shown below
        HOST: $CLOUDARK_RDS_Address
        USER: $CLOUDARK_RDS_MasterUsername
 
-For binding application container with managed services defined in the environment
-following format is defined: $CLOUDARK_<TYPE>_<Attribute>*.
+Environment variables are defined as key:value pairs.
+
+An application is bound to managed services in the environment through the environment variables
+following the `12-factor design principles`__.
+
+.. _Twelve: https://12factor.net/config
+
+__ Twelve_
+
+The value of the parameter that needs to be bound to some resource's specific attribute in an environment
+is set as a *interpolated value*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
 The *TYPE* is one of the supported resource types (represented in uppercase).
 *Attribute* is the exact name of one of the output attributes of the provisioned resource.
-Output attributes available for a resource can be obtained by querying the resource
-using *cld resource show {env_name}* command.
+All the output attributes available for a resource can be obtained by querying the resource
+using 'cld resource show env_name' command.
 
 In the above example, by defining the value of the PASSWORD environment variable as
-$CLOUDARK_RDS_MasterUserPassword, the value will be set to the MasterUserPassword of
+a interpolated value of $CLOUDARK_RDS_MasterUserPassword,
+CloudARK will set the value of the PASSWORD to the MasterUserPassword of
 the RDS instance provisioned in the environment in which the application is deployed.
-For instance, if you have created two environments *test* and *staging* then when
-you deploy the application in *test* environment (using cld app deploy myapp test app.yaml),
-the value of PASSWORD will be set to the value of RDS instance in the test environment.
-On the other hand, if you deploy it in *staging* environment (using cld app deploy myapp staging app.yaml),
-the value will be set as per the value of RDS instance in the staging environment.
+
+Mechanism of interpolated variables makes the application definition reusable across environments.
+For instance, suppose you have created two environments *test* and *staging*. When
+you deploy the application in *test* environment (using 'cld app deploy myapp test app.yaml'),
+the value of PASSWORD will be set to the value of MasterUserPassword of the RDS instance in the test environment.
+On the other hand, if you deploy the application in *staging* environment (using 'cld app deploy myapp staging app.yaml'),
+the value will be set as per the value of MasterUserPassword of the RDS instance in the staging environment.
