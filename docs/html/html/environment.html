@@ -86,7 +86,6 @@ containing AWS RDS as cloud resource and AWS ECS as application deployment targe
 <p>The <em>resources</em> section consists of one or more resource definitions.
 A resource definition consists of the <em>type</em> attribute and an optional <em>configuration</em> directive.
 The <em>type</em> attribute identifies the type of the resource to provision.
-Currently supported types are ‘rds’, ‘dynamodb’.
 The <em>configuration</em> directive specifies how the resource should be configured.
 This directive is made up of key-value pairs where the keys are the attributes
 that are configurable on that resource.</p>
@@ -97,7 +96,49 @@ Using target and type attributes we are able to capture different combinations o
 clouds and COEs such as, &lt;aws, ecs&gt;, &lt;aws, kubernetes&gt;, &lt;gcloud, gke&gt;, etc.</p>
 <p>CloudARK environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
 managed cloud services and COE cluster from any hosting provider of their choice. The framework is extensible to accommodate even third-party managed cloud services.</p>
-<p>An environment is created using <em>cld environment create {env-name} {env.yaml}</em> command.</p>
+<p>An environment is created using <em>cld environment create env-name env.yaml</em> command.</p>
+<p><strong>Currently supported Google Cloud resource types</strong></p>
+<ol class="arabic">
+<li><p class="first">cloudsql:</p>
+<p><em>Configuration attributes: dbname, policy</em></p>
+<p>The policy attribute is used to control accessibility of the DB instance. This attribute contains
+a sub-attribute <em>access</em> whose value controls this aspect. If <em>access</em> is set to <em>open</em>, the RDS instance
+will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
+accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>.</p>
+<p>The db instance is created with db-n1-standard-1 tier type. We have an issue <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/123">open</a> to make this attribute settable.</p>
+</li>
+</ol>
+<ol class="arabic" start="2">
+<li><p class="first">gke:</p>
+<p><em>Configuration attributes: cluster_size, instance_type</em></p>
+<p>Default value for cluster_size is 1. Default value for instance_type is n1-standard-1</p>
+<p>The configuration attributes for gke are specified in the <em>app_deployment</em> section of the environment definition.</p>
+</li>
+</ol>
+<p><strong>Currently supported AWS resource types</strong></p>
+<ol class="arabic">
+<li><p class="first">rds:</p>
+<p><em>Configuration attributes: engine, flavor, policy</em></p>
+<p>Default value for engine attribute is ‘mysql’. Default value for flavor attribute is ‘db.t1.micro’</p>
+<p>Possible values for flavor attribute are the corresponding values for <a class="reference external" href="https://aws.amazon.com/rds/instance-types/">RDS</a></p>
+</li>
+</ol>
+<blockquote>
+<div>Support for additional rds <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/122">engines</a> is planned.</div></blockquote>
+<blockquote>
+<div>The policy attribute is used to control accessibility of the DB instance. This attribute contains
+a sub-attribute <em>access</em> whose value controls this aspect. If <em>access</em> is set to <em>open</em>, the RDS instance
+will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
+accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>.</div></blockquote>
+<blockquote>
+<div>The policy attribute is useful during development when you may want to connect to the RDS instance from your development machine.</div></blockquote>
+<ol class="arabic" start="2">
+<li><p class="first">ecs:</p>
+<p><em>Configuration attributes: cluster_size, instance_type</em></p>
+<p>Default value for cluster_size is 1. Default value for instance_type is t2.micro</p>
+<p>The configuration attributes for ecs are specified in the <em>app_deployment</em> section of the environment definition.</p>
+</li>
+</ol>
 </div>
 
 

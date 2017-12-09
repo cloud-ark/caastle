@@ -52,8 +52,8 @@ If you want to extend server-side functionality, the key places to look at are:
 - server/dbmoule: This package includes CloudARK's state management functionality.
 
 
-*Known Issues*
+**Known Issues**
 
-Check this_ for known issues.
+Check this_ for list of curretly known issues.
 
 .. _this: https://github.com/cloud-ark/cloudark/issues
