@@ -11,10 +11,10 @@ Client is implemented using the cliff_ framework.
 
 .. _cliff: https://docs.openstack.org/cliff/latest/
 
-The server is implemented as a modular architecture with separate packages for different
+The server is implemented as a extensible architecture with separate packages for different
 clouds. Within each cloud package there are sub-packages for *coe* and *resource*.
 These packages contain modules that implement coe-specific and resource-specific functionality
-for the cloud target. These modules are implemented as extensions of CloudARK. We use
+for the target cloud. These modules are implemented as extensions of CloudARK. We use
 stevedore_ extension mechanism for this purpose.
 
 .. _stevedore: https://pypi.python.org/pypi/stevedore
@@ -26,18 +26,39 @@ We have an open_ issue for making CloudARK use concurrency mechanisms available 
 .. _open: https://github.com/cloud-ark/cloudark/issues/34
 
 For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.
+More information about CloudARK's authorization needs is available in the `authorization details`__ section.
 
-Actual calls are made either as API requests through the appropriate cloud SDK or using direct native cloud CLIs.
-For most of the calls we try to use the native SDK first. But if the SDK is not supporting
-any particular call, we resort to using native CLI calls.
-When using native CLIs, we use *Docker as the mechanism* for making these CLI calls.
-We have built base Docker images containing AWS and Google Cloud CLIs that are used for this purpose.
+.. _auth: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#authorization-details
+
+__ auth_
+
+**Deployment mechanisms**
+
+CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
+SDKs have been our first choice as they allow us complete control over deployment steps.
+But for cases where SDK was not supporting particular call(s), we have used corresponding native CLI calls.
+For using native CLIs, we use *Docker* as the *mechanism* for invoking these CLIs.
+We have built `base Docker images`__ containing AWS and Google Cloud CLIs which we use for this purpose.
+
+.. _baseimages: https://hub.docker.com/r/lmecld/clis/tags/
+
+__ baseimages_
+
+We build customized Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
+are stored in application-specific folder inside ~/.cld/data/deployments directory.
+The benefit of this approach is that there is no need for the user to install native CLIs on his/her machine.
+In fact, we leverage this same mechanism to support `environment-specific shell`__.
+
+.. _envshell: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
+
+__ envshell_
+
 
 
 Extending CloudARK
 -------------------
 
-It is straightforward to extend CloudARK to add new functionality. If you need new client-side
+It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
 command, add it in the client folder and hook it up with the rest of the client-side
 system by making entry for it in the setup.py client module.
 
