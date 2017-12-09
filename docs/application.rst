@@ -27,7 +27,7 @@ Our yaml format for single container applications supports following attributes:
 Default value for host_port is 80.
 
 Application is deployed on an *environment*. The application deployment action takes
-the name of the environment as input ('cld app deploy app-name env-name app.yaml').
+the name of the environment as input ('cld app deploy <app-name> <env-name> <app yaml>').
 app.yaml contains definition of the application container image, the container port
 and any environment variables.
 
