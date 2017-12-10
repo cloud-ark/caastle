@@ -32,7 +32,7 @@ More information about CloudARK's authorization needs is available in the `autho
 
 __ auth_
 
-**Deployment mechanisms**
+**Docker as a deployment mechanism**
 
 CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
 SDKs have been our first choice as they allow us complete control over deployment steps.
@@ -44,7 +44,7 @@ We have built `base Docker images`__ containing AWS and Google Cloud CLIs which 
 
 __ baseimages_
 
-We build customized Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
+We build custom Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
 are stored in application-specific folder inside ~/.cld/data/deployments directory.
 The benefit of this approach is that there is no need for the user to install native CLIs on his/her machine.
 In fact, we leverage this same mechanism to support `environment-specific shell`__.

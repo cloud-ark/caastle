@@ -82,13 +82,13 @@ with Python 2.7 only as the thread package is available only in Python 2.7.
 We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK use concurrency mechanisms available in latest versions of Python.</p>
 <p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.
 More information about CloudARK’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#authorization-details">authorization details</a> section.</p>
-<p><strong>Deployment mechanisms</strong></p>
+<p><strong>Docker as a deployment mechanism</strong></p>
 <p>CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
 SDKs have been our first choice as they allow us complete control over deployment steps.
 But for cases where SDK was not supporting particular call(s), we have used corresponding native CLI calls.
 For using native CLIs, we use <em>Docker</em> as the <em>mechanism</em> for invoking these CLIs.
 We have built <a class="reference external" href="https://hub.docker.com/r/lmecld/clis/tags/">base Docker images</a> containing AWS and Google Cloud CLIs which we use for this purpose.</p>
-<p>We build customized Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
+<p>We build custom Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
 are stored in application-specific folder inside ~/.cld/data/deployments directory.
 The benefit of this approach is that there is no need for the user to install native CLIs on his/her machine.
 In fact, we leverage this same mechanism to support <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/faq.html">environment-specific shell</a>.</p>
