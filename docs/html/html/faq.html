@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Roadmap" href="roadmap.html" />
-    <link rel="prev" title="CloudARK Architecture" href="architecture.html" /> 
+    <link rel="prev" title="Deployment to GKE" href="deployments.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -33,7 +33,7 @@
           <a href="roadmap.html" title="Roadmap"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="deployments.html" title="Deployment to GKE"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
@@ -41,8 +41,8 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="architecture.html"
-                        title="previous chapter">CloudARK Architecture</a></p>
+  <p class="topless"><a href="deployments.html"
+                        title="previous chapter">Deployment to GKE</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="roadmap.html"
                         title="next chapter">Roadmap</a></p>
@@ -86,7 +86,9 @@ In contrast, Platform-as-Code offers application centric abstractions that simpl
 the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
 AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
 supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
-file a Github issue (<a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">https://github.com/cloud-ark/cloudark/issues</a>) and we will add it to CloudARK).</li>
+file a Github <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">issue</a> and we will add it to CloudARK).</li>
+</ul>
+<ul class="simple">
 <li>For microservices definition we take a two pronged approach. For applications that involve a single container, we
 support a simple application definition format. This format supports minimal set of attributes that are required
 to deploy the single container application. These include, <em>image uri</em>, <em>container_port</em>, <em>host_port</em>, <em>environment
@@ -136,7 +138,7 @@ In the future releases of CloudARK, the internal state will be synced with the s
           <a href="roadmap.html" title="Roadmap"
              >next</a></li>
         <li class="right" >
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="deployments.html" title="Deployment to GKE"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>

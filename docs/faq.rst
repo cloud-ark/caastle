@@ -23,7 +23,9 @@ CloudARK tries to balance the fine line between abstraction and control through 
   the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
   AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
   supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
-  file a Github issue (https://github.com/cloud-ark/cloudark/issues) and we will add it to CloudARK).
+  file a Github issue_ and we will add it to CloudARK).
+
+.. _issue: https://github.com/cloud-ark/cloudark/issues
 
 - For microservices definition we take a two pronged approach. For applications that involve a single container, we
   support a simple application definition format. This format supports minimal set of attributes that are required
