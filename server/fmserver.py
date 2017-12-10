@@ -217,6 +217,7 @@ class AppsRestResource(Resource):
                     app_data['version'] = app_version
                     app_data['dep_target'] = cloud
                     app_data['env_id'] = env_obj.id
+                    app_data['env_name'] = env_obj.name
                     app_id = app_db.App().insert(app_data)
                 except Exception as e:
                     fmlogging.debug(e)
@@ -515,7 +516,12 @@ class EnvironmentRestResource(Resource):
         response = jsonify(**resp_data)
         env = env_db.Environment().get_by_name(env_name)
         if env:
-            resp_data['data'] = env_db.Environment.to_json(env)
+            app_json = ''
+            app_list = app_db.App().get_apps_for_env(env.id)
+            if app_list:
+                app_json = [app_db.App.to_json_restricted(app) for app in app_list]
+
+            resp_data['data'] = env_db.Environment.to_json(env, app_json)
             response = jsonify(**resp_data)
             response.status_code = 200
         else:

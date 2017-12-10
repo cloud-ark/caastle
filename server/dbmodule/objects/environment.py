@@ -22,13 +22,15 @@ class Environment(db_base.Base):
         pass
 
     @classmethod
-    def to_json(self, env):
+    def to_json(self, env, app_json=''):
         env_json = {}
         env_json['name'] = env.name
         env_json['status'] = env.status
         env_json['env_definition'] = str(env.env_definition)
         env_json['output_config'] = str(env.output_config)
         env_json['location'] = env.location
+        if app_json:
+            env_json['apps'] = app_json
         return env_json
 
     def get_by_name(self, env_name):
