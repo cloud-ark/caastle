@@ -134,6 +134,44 @@ def resolve_environment(app_id, app_info):
     return new_env_var
 
 
+def resolve_environment_multicont(app_id, app_info):
+
+    resource_list = res_db.Resource().get_resources_for_env(app_info['env_id'])
+
+    app_dir = app_info['app_location']
+    app_folder_name = app_info['app_folder_name']
+    app_yaml_dir = app_dir + "/" + app_folder_name
+    app_yaml = app_info['app_yaml']
+
+    orig_file = app_yaml_dir + "/" + app_yaml
+    bak_file = orig_file + ".bak"
+    mv_cmd = ("mv {orig_file} {bak_file}").format(orig_file=orig_file, bak_file=bak_file)
+    os.system(mv_cmd)
+
+    fp_bak = open(bak_file, "r")
+    fp_new = open(orig_file, "w")
+
+    lines = fp_bak.readlines()
+
+    for line in lines:
+        if line.find("$CLOUDARK_") >= 0:
+            parts = line.split(":")
+            newline = []
+            value = ''
+            for part in parts:
+                if part.find("$CLOUDARK_") >= 0:
+                    value = _get_env_value(resource_list, part)
+                    newline.append(": ")
+                    newline.append(value)
+                    newline.append("\n")
+                else:
+                    newline.append(part)
+            fp_new.write(''.join(newline))
+        else:
+            fp_new.write(line)
+
+    fp_new.close()
+
 def is_app_ready(app_url, app_id='', timeout=300):
     ready = False
     count = 0
@@ -271,3 +309,14 @@ def execute_cmd(cmd):
     except Exception as e:
         fmlogging.error(e)
     return err, output
+
+
+def filter_error_output(output):
+    error_lines = []
+    output_lines = output.split("\n")
+    for line in output_lines:
+        if line.lower().find("error") >= 0:
+            error_lines.append(line)
+
+    error_output = ' '.join(error_lines)
+    return error_output
