@@ -11,7 +11,7 @@ This approach helps improve dev/prod parity and ability to recreate application 
 Q) **How is Platform-as-Code (PaC) different from Infrastructure-as-Code (IaC)?**
 
 Infrastructure-as-Code implementation treats every platform element as infrastructure resource. 
-In contrast, Platform-as-Code offers application centric abstractions that simplify modeling a deployment as per the application architecture.
+In contrast, Platform-as-Code offers application-centric abstractions that simplify modeling a deployment as per the application architecture.
 
 
 

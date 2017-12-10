@@ -37,7 +37,7 @@ __ auth_
 CloudARK uses combination of target cloud’s SDKs and CLIs as cloud interaction mechanisms.
 SDKs have been our first choice as they allow us complete control over interaction steps.
 But for cases where SDK was not supporting a particular requirement, we have used corresponding native CLI calls.
-For this, we use *Docker* as the *mechanism* for invoking these CLIs.
+For this, we use Docker as the *mechanism for invoking these CLIs*.
 We have built `base Docker images`__ containing AWS and Google Cloud CLIs which we use for this purpose.
 
 .. _baseimages: https://hub.docker.com/r/lmecld/clis/tags/
@@ -70,11 +70,11 @@ If you want to extend server-side functionality, the key places to look at are:
 
 - server/setup.py: This is the module where stevedore entrypoints are set.
 
-- server/dbmoule: This package includes CloudARK's state management functionality.
+- server/dbmodule: This package includes CloudARK's state management functionality.
 
 
 **Known Issues**
 
-Check this_ for list of curretly known issues.
+Check this_ for list of currently known issues.
 
 .. _this: https://github.com/cloud-ark/cloudark/issues
