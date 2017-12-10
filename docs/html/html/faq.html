@@ -80,26 +80,26 @@ In contrast, Platform-as-Code offers application centric abstractions that simpl
 <ol class="upperalpha simple" start="17">
 <li><strong>How does CloudARK strike balance between high-level abstractions and providing control when needed?</strong></li>
 </ol>
-<p>CloudARK tries to balance the fine line between abstraction and control through following aspects of its design:</p>
+<p>CloudARK tries to balance the fine line between abstraction and control through following three aspects of its design:</p>
 <ul class="simple">
-<li>For defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
+<li>First, for defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
 the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
 AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
 supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
 file a Github <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">issue</a> and we will add it to CloudARK).</li>
 </ul>
 <ul class="simple">
-<li>For microservices definition we take a two pronged approach. For applications that involve a single container, we
-support a simple application definition format. This format supports minimal set of attributes that are required
-to deploy the single container application. These include, <em>image uri</em>, <em>container_port</em>, <em>host_port</em>, <em>environment
+<li>Second, for microservices definition we take a two pronged approach. For applications that involve a single container, we
+support a simple application definition format that supports minimal set of attributes which would be typically used
+to deploy such applications. These attributes include, <em>image uri</em>, <em>container_port</em>, <em>host_port</em>, <em>environment
 variables</em>. For multi-container applications we support Kubernetes’s native yaml file. You can define your Pods, Services, Deployments,
 ReplicationControllers, etc. in Kubernetes’s standard format. Currently we require you to define a single file
 containing all your Kubernetes element definitions.</li>
-<li>We provide the mechanism of environment-specific shell (see below) through which you can execute native commands specific to the resources in the environment.
+<li>Third, we provide the mechanism of <em>environment-specific shell</em> (see below) through which you can execute native commands specific to the resources in the environment.
 For instance, when developing/deploying your applications on GKE, you might want to execute “kubectl get pods” to
 see if your application’s Pods have started up on the GKE cluster. Or you might want to execute “kubectl describe pods &lt;podname&gt;”
-to see what caused Pod from not starting up. The environment-specific shell allows you to execute all such commands
-<em>without</em> having to worry about obtaining GKE cluster credentials and setting up kubectl to use them.</li>
+to see what caused a Pod from not starting up. The environment-specific shell allows you to execute all such commands
+<em>without</em> requiring you to <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/architecture.html">install and setup cloud CLIs on your machines</a>.</li>
 </ul>
 <ol class="upperalpha simple" start="17">
 <li><strong>What is environment-specific shell in CloudARK?</strong></li>
