@@ -1,5 +1,5 @@
-Frequently Asked Questions
----------------------------
+Frequently Asked Questions (FAQ)
+---------------------------------
 
 Q) **How is Platform-as-Code (PaC) different from Platform-as-a-Service (PaaS)?**
 
