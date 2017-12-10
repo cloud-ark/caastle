@@ -32,12 +32,12 @@ More information about CloudARK's authorization needs is available in the `autho
 
 __ auth_
 
-**Docker as a deployment mechanism**
+**Docker as a command execution mechanism**
 
 CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
 SDKs have been our first choice as they allow us complete control over deployment steps.
 But for cases where SDK was not supporting particular call(s), we have used corresponding native CLI calls.
-For using native CLIs, we use *Docker* as the *mechanism* for invoking these CLIs.
+For this, we use *Docker* as the *mechanism* for invoking these CLIs.
 We have built `base Docker images`__ containing AWS and Google Cloud CLIs which we use for this purpose.
 
 .. _baseimages: https://hub.docker.com/r/lmecld/clis/tags/
