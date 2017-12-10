@@ -34,9 +34,9 @@ __ auth_
 
 **Docker as a command execution mechanism**
 
-CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
-SDKs have been our first choice as they allow us complete control over deployment steps.
-But for cases where SDK was not supporting particular call(s), we have used corresponding native CLI calls.
+CloudARK uses combination of target cloud’s SDKs and CLIs as cloud interaction mechanisms.
+SDKs have been our first choice as they allow us complete control over interaction steps.
+But for cases where SDK was not supporting a particular requirement, we have used corresponding native CLI calls.
 For this, we use *Docker* as the *mechanism* for invoking these CLIs.
 We have built `base Docker images`__ containing AWS and Google Cloud CLIs which we use for this purpose.
 
@@ -44,9 +44,9 @@ We have built `base Docker images`__ containing AWS and Google Cloud CLIs which 
 
 __ baseimages_
 
-We build custom Docker images corresponding to a CLI call. The Dockerfiles that are created for building these images
+We build custom Docker images corresponding to a CLI call. The corresponding Dockerfiles
 are stored in application-specific folder inside ~/.cld/data/deployments directory.
-The benefit of this approach is that there is no need for the user to install native CLIs on his/her machine.
+This approach has the benefit that there is no need for the user to install cloud CLIs on his/her machine.
 In fact, we leverage this same mechanism to support `environment-specific shell`__.
 
 .. _envshell: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html

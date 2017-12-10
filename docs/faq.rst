@@ -27,12 +27,14 @@ CloudARK tries to balance the fine line between abstraction and control through 
 
 .. _issue: https://github.com/cloud-ark/cloudark/issues
 
+
 - Second, for microservices definition we take a two pronged approach. For applications that involve a single container, we
   support a simple application definition format that supports minimal set of attributes which would be typically used
   to deploy such applications. These attributes include, *image uri*, *container_port*, *host_port*, *environment
   variables*. For multi-container applications we support Kubernetes's native yaml file. You can define your Pods, Services, Deployments,
   ReplicationControllers, etc. in Kubernetes's standard format. Currently we require you to define a single file
   containing all your Kubernetes element definitions.
+
 
 - Third, we provide the mechanism of *environment-specific shell* (see below) through which you can execute native commands specific to the resources in the environment.
   For instance, when developing/deploying your applications on GKE, you might want to execute "kubectl get pods" to
@@ -50,7 +52,7 @@ Q) **What is environment-specific shell in CloudARK?**
 CloudARK provides *cld env shell* command that can be used to get a *environment-specific* shell.
 This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in *that* environment.
 This shell can be quite handy when you are developing applications using CloudARK.
-It offers a great tool for traceability without having to setup number of CLI tools
+It offers a great tool for traceability without having to setup number of CLI tools.
 
 
 Q) **Where does CloudARK store its internal state?**
@@ -68,6 +70,6 @@ In the future releases of CloudARK, the internal state will be synced with the s
 
 Q) **What kind of application logs CloudARK collects?**
 
-CloudARK collects an application's deployment logs and runtime logs
+CloudARK collects an application's deployment logs and runtime logs.
 
 
