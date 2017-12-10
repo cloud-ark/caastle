@@ -411,7 +411,7 @@ class EnvironmentsRestResource(Resource):
         if len(cloud_setup_done) == 0:
             resp_data = {}
             err_msg = 'No cloud setup found.'
-            err_msg = err_msg + ' Run "cld setup aws" or "cld setup gcloud". Then restart cloudark server using the start.sh script.'
+            err_msg = err_msg + ' Run "cld setup aws" or "cld setup gcloud". Then restart cloudark server using the start-cloudark.sh script.'
             resp_data['error'] = err_msg
             response = jsonify(**resp_data)
             response.status_code = 412
@@ -426,6 +426,10 @@ class EnvironmentsRestResource(Resource):
                 env_version_stamp = common_functions.get_version_stamp()
                 env_location = (ENV_STORE_PATH + "/environments/{env_name}-{env_version_stamp}").format(env_name=environment_name,
                                                                                                         env_version_stamp=env_version_stamp)
+
+                mkdir_env_location = ("mkdir {env_dir}").format(env_dir=env_location)
+                os.system(mkdir_env_location)
+
                 env_data = {}
                 env_data['name'] = environment_name
                 env_data['location'] = env_location

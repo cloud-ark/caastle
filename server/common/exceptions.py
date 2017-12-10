@@ -14,12 +14,12 @@ class AppDeploymentValidationFailure(Exception):
 
 @six.add_metaclass(abc.ABCMeta)
 class AppDeploymentFailure(Exception):
-    def __init__(self):
-        pass
+    def __init__(self, message=''):
+        self.message = message
 
     @abc.abstractmethod
     def get_message(self):
-        pass
+        return self.message
 
 @six.add_metaclass(abc.ABCMeta)
 class EnvironmentDeleteFailure(Exception):

@@ -44,7 +44,8 @@ class GKEHandler(coe_base.COEBase):
 
     help_commands = ["kubectl get ",
                      "kubectl describe ",
-                     "kubectl logs "]
+                     "kubectl logs ",
+                     "kubectl delete "]
 
 
     def __init__(self):
@@ -120,9 +121,6 @@ class GKEHandler(coe_base.COEBase):
                 break
             except Exception as e:
                 fmlogger.error(e)
-                #env_update = {}
-                #env_update['output_config'] = str({'error': str(e)})
-                #env_db.Environment().update(env_id, env_update)
                 time.sleep(2)
                 count = count + 1
 
@@ -210,7 +208,7 @@ class GKEHandler(coe_base.COEBase):
         env_version_stamp = env_output_config['env_version_stamp']
 
         cluster_name = env_name + "-" + env_version_stamp
-        
+
         res_data = {}
         res_data['env_id'] = env_id
         res_data['cloud_resource_id'] = cluster_name

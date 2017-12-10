@@ -91,7 +91,9 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         cloudsql_status = 'unavailable'
         env_obj = env_db.Environment().get(env_id)
         res_type = resource_details['type']
-        project_name = resource_details['project']
+
+        env_details = ast.literal_eval(env_obj.env_definition)
+        project_name = env_details['environment']['app_deployment']['project']
 
         env_output_config = ast.literal_eval(env_obj.output_config)
         env_version_stamp = env_output_config['env_version_stamp']

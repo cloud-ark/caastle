@@ -68,10 +68,27 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         return only_pod
 
     def _get_pod_name(self, app_info):
-
         app_yaml = common_functions.read_app_yaml(app_info)
         pod_name = app_yaml['metadata']['name']
         return pod_name
+
+    def _get_container_port(self, app_info):
+        container_port = ''
+
+        app_dir = app_info['app_location']
+        app_folder_name = app_info['app_folder_name']
+        app_yaml_dir = app_dir + "/" + app_folder_name
+        app_yaml = app_info['app_yaml']
+
+        app_yaml_file = app_yaml_dir + "/" + app_yaml
+
+        fp = open(app_yaml_file, "r")
+        for line in fp.readlines():
+            if line.find("containerPort") >= 0:
+                parts = line.split("containerPort:")
+                container_port = parts[1].strip()
+                break
+        return container_port
 
     def _deploy_pod(self, app_id, app_info):
         df_file = self._get_kube_df_file(app_info)
@@ -82,13 +99,18 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         pod_name = self._get_pod_name(app_info)
         service_name = pod_name
 
+        container_port = self._get_container_port(app_info)
+        if not container_port:
+            container_port = 80
+
         df_file = df_file + ("\n"
                              "WORKDIR /src \n"
                              "RUN kubectl create -f {kubernetes_yaml} \ \n"
-                             " && kubectl expose pod {pod_name} --name {service_name} --type LoadBalancer --port 80 --protocol TCP").format(
+                             " && kubectl expose pod {pod_name} --name {service_name} --type LoadBalancer --port 80 --target-port={container_port} --protocol TCP").format(
                                  kubernetes_yaml=kubernetes_yaml,
                                  pod_name=pod_name,
-                                 service_name=service_name
+                                 service_name=service_name,
+                                 container_port=container_port
                             )
 
         cont_name = app_info['app_name'] + "-deploy"
@@ -108,9 +130,11 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         )
 
         if err:
+            error_output = common_functions.filter_error_output(output)
             error_msg = ("Error encountered in building Dockerfile.deploy {e}").format(e=err)
+            error_msg = error_msg + " " + error_output
             fmlogger.error(error_msg)
-            raise exceptions.AppDeploymentFailure()
+            raise exceptions.AppDeploymentFailure(error_msg)
 
         app_details = {}
         app_url, status = self._check_if_app_is_ready(app_id,
@@ -144,7 +168,7 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         self._copy_creds(app_info)
 
         app_data = {}
-        
+
         app_data['status'] = 'setting-up-kubernetes-config'
         app_db.App().update(app_id, app_data)
         try:
@@ -154,6 +178,7 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
             app_db.App().update(app_id, {'status': str(e)})
 
         # Resolve environment
+        common_functions.resolve_environment_multicont(app_id, app_info)
 
         app_details = {}
         app_data = {}
@@ -166,7 +191,7 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
             fmlogger.debug("Done deploying application %s" % app_info['app_name'])
         except exceptions.AppDeploymentFailure as e:
             fmlogger.error(str(e))
-            app_data['status'] = 'deployment-failed ' + str(e)
+            app_data['status'] = 'deployment-failed ' + str(e) + " " + e.get_message()
             app_db.App().update(app_id, app_data)
 
 
