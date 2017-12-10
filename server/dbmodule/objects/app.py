@@ -20,6 +20,7 @@ class App(db_base.Base):
     output_config = sa.Column(sa.Text)
     app_yaml_contents = sa.Column(sa.Text)
     env_id = sa.Column(sa.Integer)
+    env_name = sa.Column(sa.String)
 
     def __init__(self):
         pass
@@ -33,8 +34,19 @@ class App(db_base.Base):
         app_json['dep_target'] = app.dep_target
         app_json['status'] = app.status
         app_json['output_config'] = str(app.output_config)
-        app_json['env_id'] = app.env_id
         app_json['app_yaml_contents'] = app.app_yaml_contents
+        app_json['env_name'] = app.env_name
+        return app_json
+
+    @classmethod
+    def to_json_restricted(self, app):
+        app_json = {}
+        app_json['name'] = app.name
+        app_json['location'] = app.location
+        app_json['version'] = app.version
+        app_json['status'] = app.status
+        app_json['env_name'] = app.env_name
+        app_json['output_config'] = str(app.output_config)
         return app_json
 
     def get_by_name(self, app_name):
@@ -85,6 +97,7 @@ class App(db_base.Base):
         self.status = 'deploying'
         self.output_config = ''
         self.env_id = app_data['env_id']
+        self.env_name = app_data['env_name']
         try:
             session = db_base.get_session()
             session.add(self)
@@ -101,6 +114,7 @@ class App(db_base.Base):
         if 'status' in app_data: app.status = app_data['status']
         if 'output_config' in app_data: app.output_config = app_data['output_config']
         if 'env_id' in app_data: app.env_id = app_data['env_id']
+        if 'env_name' in app_data: app.env_name = app_data['env_name']
         if 'app_yaml_contents' in app_data: app.app_yaml_contents = app_data['app_yaml_contents']
         return app
 
