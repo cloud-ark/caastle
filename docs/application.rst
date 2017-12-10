@@ -7,7 +7,7 @@ CloudARK offers ‘cld container ’ set of commands to build your application c
 The container is appropriately tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.
 
 Application definition is done using our yaml format for single container applications or respective COE (Kubernetes / ECS) yaml format for multi-container applications. 
-Application definition includes URIs of the built containers from container registry, container interdependencies and any other run-time parameters to run each container.
+Application definition includes URIs of the built containers from container registry, container inter-dependencies and any other run-time parameters to run each container.
 Here is a sample app.yaml based application definition for a single container wordpress application.
 
 .. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings

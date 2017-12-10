@@ -14,7 +14,7 @@ In case of a containerized cloud application, platform elements generally includ
 
 - Container orchestration engine cluster
 
-- Required managed cloud services like database-as-a-service, load balancers etc.
+- Required managed cloud services like database-as-a-service, load balancers, etc.
 
 Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files. These platform definitions can be version controlled and follow software development lifecycle. Refer to our free whitepaper_ for more about Platform-as-Code (PaC) paradigm.
 
