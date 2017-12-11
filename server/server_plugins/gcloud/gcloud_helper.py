@@ -52,7 +52,7 @@ class GCloudHelper(object):
             raise Exception(error_msg)
 
         docker_image_id = output.strip()
-        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials.db {df_dir}/.").format(
+        copy_creds_file = ("docker cp {docker_img}:/root/.config/gcloud/credentials {df_dir}/.").format(
             docker_img=docker_image_id,
             df_dir=df_dir
         )
@@ -60,7 +60,7 @@ class GCloudHelper(object):
         os.system(copy_creds_file)
 
         access_token = ''
-        fp1 = open(df_dir + "/credentials.db")
+        fp1 = open(df_dir + "/credentials")
         lines = fp1.readlines()
         for line in lines:
             if line.find("access_token") >= 0:
