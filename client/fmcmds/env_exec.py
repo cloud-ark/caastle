@@ -1,3 +1,4 @@
+import ast
 import json
 from cliff.command import Command
 
@@ -24,6 +25,12 @@ class EnvironmentExec(Command):
         response = server.TakeAction().get_environment(env_name)
         if response:
             response_json = json.loads(response)
+            env_output_config = ast.literal_eval(response_json['data']['env_definition'])
+            type = env_output_config['environment']['app_deployment']['type']
+            if type == 'local-docker':
+                print("Shell functionality not available for local deployment target.")
+                print("You can use docker commands from command-line instead.")
+                exit()
             if response_json['data']['status'] == 'available':
                 response = server.TakeAction().run_command(env_name, command_string)
                 print(response)
