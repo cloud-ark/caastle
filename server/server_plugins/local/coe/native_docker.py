@@ -55,7 +55,7 @@ class NativeDockerHandler(coe_base.COEBase):
     
     def _check_app_status(self, app_url):
         app_status = ''
-        if common_functions.is_app_ready(app_url):
+        if common_functions.is_app_ready(app_url, timeout=40):
             fmlogger.debug("Application is ready.")
             app_status = constants.APP_DEPLOYMENT_COMPLETE
         else:
