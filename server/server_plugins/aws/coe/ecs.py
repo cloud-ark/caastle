@@ -464,7 +464,7 @@ class ECSHandler(coe_base.COEBase):
 
         if not os.path.exists(env_store_location):
             os.makedirs(env_store_location)
-            shutil.copytree(home_dir + "/.aws", env_store_location + "/aws-creds")
+        shutil.copytree(home_dir + "/.aws", env_store_location + "/aws-creds")
 
         vpc_details = ECSHandler.awshelper.get_vpc_details()
         vpc_id = vpc_details['vpc_id']

@@ -1,6 +1,6 @@
 flask
 flask-restful
-docker-py
+docker-py==1.7.2
 testtools
 requests
 gevent
@@ -15,4 +15,3 @@ entry_point_inspector
 kubernetes
 google-cloud-logging
 sphinx
-docker-py==1.7.2
