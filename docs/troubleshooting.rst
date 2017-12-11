@@ -58,6 +58,33 @@ Below is a list of things you can do to start troubleshooting issues/failures.
    Open another shell window, activate the freshinstall virtual environment, and then run client commands.
    Note that you need to be in the directory where Dockerfile is present to run client commands.
 
+6) AWS deployments
+
+   a) Logging in to ECS cluster instance: 
+ 
+      As part of ECS cluster creation CloudARK creates a ssh key-pair. You can use that to login
+      to the ECS cluster instance as follows:
+
+      - Find out location of the .pem file for your cluster
+        - cld environment show <env-name>
+
+      - cd into the directory where the .pem file is located
+
+      - Change permissions of the .pem file
+        - chmod 400 <pem file>
+
+      - Find out IP of the cluster instance (available from cld environment show command)
+
+      - SSH into the cluster instance
+        - ssh -i "<pem file>" ec2-user@<AWS cluster instance IP>
+
+   b) app_url vs. app_ip_url:
+
+      CloudARK creates an application load balancer (alb) for each deployment. app_url is formed
+      with this alb. app_ip_url is constructed using the IP address of the cluster node on which
+      the application is deployed. We have observed that the alb based app_url takes some time to
+      start responding. The app_ip_url can be used till then.
+
 
 Additionally, we would really appreciate if you create a issue_.
 

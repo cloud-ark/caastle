@@ -27,7 +27,7 @@ class EnvironmentShell(Command):
             type = env_output_config['environment']['app_deployment']['type']
             if type == 'local-docker':
                 print("Shell functionality not available for local deployment target.")
-                print("You can use direct docker commands from command-line instead.")
+                print("You can use docker commands from command-line instead.")
                 exit()
             if response_json['data']['status'] == 'available':
                 while True:

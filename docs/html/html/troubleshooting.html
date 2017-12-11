@@ -102,6 +102,30 @@ under “server.server_plugins” namespace. Some example commands to check exte
 <p>Open another shell window, activate the freshinstall virtual environment, and then run client commands.
 Note that you need to be in the directory where Dockerfile is present to run client commands.</p>
 </li>
+<li><p class="first">AWS deployments</p>
+<ol class="loweralpha">
+<li><p class="first">Logging in to ECS cluster instance:</p>
+<p>As part of ECS cluster creation CloudARK creates a ssh key-pair. You can use that to login
+to the ECS cluster instance as follows:</p>
+<ul class="simple">
+<li>Find out location of the .pem file for your cluster
+- cld environment show &lt;env-name&gt;</li>
+<li>cd into the directory where the .pem file is located</li>
+<li>Change permissions of the .pem file
+- chmod 400 &lt;pem file&gt;</li>
+<li>Find out IP of the cluster instance (available from cld environment show command)</li>
+<li>SSH into the cluster instance
+- ssh -i “&lt;pem file&gt;” ec2-user&#64;&lt;AWS cluster instance IP&gt;</li>
+</ul>
+</li>
+<li><p class="first">app_url vs. app_ip_url:</p>
+<p>CloudARK creates an application load balancer (alb) for each deployment. app_url is formed
+with this alb. app_ip_url is constructed using the IP address of the cluster node on which
+the application is deployed. We have observed that the alb based app_url takes some time to
+start responding. The app_ip_url can be used till then.</p>
+</li>
+</ol>
+</li>
 </ol>
 <p>Additionally, we would really appreciate if you create a <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues">issue</a>.</p>
 <p>Please include following information when creating the issue:</p>
