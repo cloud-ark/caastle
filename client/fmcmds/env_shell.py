@@ -1,3 +1,4 @@
+import json
 import readline
 
 from cliff.command import Command
@@ -19,10 +20,14 @@ class EnvironmentShell(Command):
 
         response = server.TakeAction().get_environment(env_name)
         if response:
-            while True:
-                command_string = raw_input('("exit" to quit, "help" to see commands) cld>')
-                command_string = command_string.strip()
-                if command_string == 'exit':
-                    break
-                response = server.TakeAction().run_command(env_name, command_string)
-                print(response)
+            response_json = json.loads(response)
+            if response_json['data']['status'] == 'available':
+                while True:
+                    command_string = raw_input('("exit" to quit, "help" to see commands) cld>')
+                    command_string = command_string.strip()
+                    if command_string == 'exit':
+                        break
+                    response = server.TakeAction().run_command(env_name, command_string)
+                    print(response)
+            else:
+                print("Environment %s is not in appropriate state." % env_name)

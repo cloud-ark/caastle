@@ -151,6 +151,8 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         app_data['output_config'] = str(app_details)
         app_db.App().update(app_id, app_data)
 
+        self.docker_handler.remove_container_image(cont_name)
+
     def _deploy_service(self, app_id, app_info):
         pass
 

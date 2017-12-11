@@ -97,6 +97,34 @@ class DockerLib(object):
         err, output = common_functions.execute_cmd(build_cmd)
         return err, output
 
+    def custom_docker_build(self):
+        from io import BytesIO
+        from docker import Client
+        import json
+        import re
+        doc_client = Client(base_url='unix://var/run/docker.sock', version='1.18')
+        df1 = open(df_name, "r").read()
+        f = BytesIO(df1.encode('utf-8'))
+        resp = [line for line in doc_client.build(fileobj=f, rm=False, tag=cont_name + "-1")]
+
+        try:
+            parsed_lines = [json.loads(e).get('stream', '') for e in resp]
+        except ValueError:
+                # sometimes all the data is sent on a single line ????
+                #
+                # ValueError: Extra data: line 1 column 87 - line 1 column
+                # 33268 (char 86 - 33267)
+                line = resp[0]
+                # This ONLY works because every line is formatted as
+                # {"stream": STRING}
+                parsed_lines = [
+                    json.loads(obj).get('stream', '') for obj in
+                    re.findall('{\s*"stream"\s*:\s*"[^"]*"\s*}', line)
+                ]
+        # -----
+
+        fmlogger.error(parsed_lines)
+
     def remove_container_image(self, cont_name, reason_phrase=''):
         """Remove container image."""
         fmlogging.debug("Removing container image %s. Reason: %s" % (cont_name, reason_phrase))

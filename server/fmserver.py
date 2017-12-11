@@ -205,7 +205,13 @@ class AppsRestResource(Resource):
                     response = jsonify(**resp_data)
                     response.status_code = 400
                     return response
-
+                if not env_obj.status or env_obj.status != 'available':
+                    message = 'Environment not ready.'
+                    fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
+                    response.status_code = 412
+                    return response
                 app_id = ''
                 app_location = ''
                 app_version = ''
@@ -228,13 +234,6 @@ class AppsRestResource(Resource):
                     resp_data = {'error': message}
                     response = jsonify(**resp_data)
                     response.status_code = 400
-                    return response
-                if not env_obj.status or env_obj.status != 'available':
-                    message = 'Environment not ready.'
-                    fmlogging.debug(message)
-                    resp_data = {'error': message}
-                    response = jsonify(**resp_data)
-                    response.status_code = 412
                     return response
                 app_tar_name = app_info['app_tar_name']
                 content = app_info['app_content']
