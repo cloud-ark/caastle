@@ -35,15 +35,21 @@ class ContainerCreate(Command):
         cont_name = parsed_args.container_name
         cont_info['cont_name'] = cont_name
 
-        repository = parsed_args.repository
+        repository = parsed_args.repository.strip()
         cont_info['dep_target'] = repository
+
+        if repository != 'gcr' and repository != 'ecr' and repository != 'local':
+            print("Incorrect repository destination specified. Should be one of: gcr, ecr, local")
+            exit()
         
         if repository == 'gcr':
+            project_id = ''
             if not parsed_args.project_id:
-                print("Project ID not specified.")
-                exit()
+                project_id = raw_input("Project ID>")
             else:
-                cont_info['project'] = parsed_args.project_id
+                project_id = parsed_args.project_id
+
+            cont_info['project'] = parsed_args.project_id
 
         cont_df_location = os.getcwd()
         cont_df_folder_name = common.get_app_folder_name(cont_df_location)

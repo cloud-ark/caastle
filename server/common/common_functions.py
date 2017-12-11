@@ -187,7 +187,6 @@ def is_app_ready(app_url, app_id='', timeout=300):
                     break
         except Exception as e:
             fmlogging.error(e)
-            continue
         count = count + 1
         time.sleep(3)
 

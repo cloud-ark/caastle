@@ -64,7 +64,7 @@ class TakeAction(object):
             data = {'cont_info': cont_info}
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
             cont_url = response.headers.get('location')
-            print("Request to create container accepted.")
+            print("Request to create container %s accepted." % cont_name)
         except Exception as e:
             error = e.read()
             print(error)
