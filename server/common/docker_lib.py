@@ -42,11 +42,11 @@ class DockerLib(object):
     def _google_df_snippet_for_token(self):
         cmd_1 = ("RUN sed -i "
                  "'s/{pat}access_token{pat}.*/{pat}access_token{pat}/' "
-                 "credentials.db \n").format(pat="\\\"")
+                 "credentials \n").format(pat="\\\"")
 
         cmd_2 = (" sed -i "
                  "\"s/{pat}access_token{pat}.*/{pat}access_token{pat}:{pat}$token{pat},/\" "
-                 "credentials.db \n").format(pat="\\\"")
+                 "credentials \n").format(pat="\\\"")
 
         fmlogging.debug("Sed pattern 1:%s" % cmd_1)
         fmlogging.debug("Sed pattern 2:%s" % cmd_2)
