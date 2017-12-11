@@ -55,7 +55,7 @@ setup(
             'container list = fmcmds.container_list:ContainerList',
             'app delete = fmcmds.app_delete:AppDelete',
             'app deploy = fmcmds.app_deploy:AppDeploy',
-            'app redeploy = fmcmds.app_redeploy:AppRedeploy',
+            #'app redeploy = fmcmds.app_redeploy:AppRedeploy',
             'app list = fmcmds.app_list:AppList',
             'app show = fmcmds.app_show:AppShow',
             'app logs = fmcmds.app_logs:AppLogs',

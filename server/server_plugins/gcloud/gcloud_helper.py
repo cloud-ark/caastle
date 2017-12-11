@@ -135,13 +135,17 @@ class GCloudHelper(object):
         fp1.write(command)
         fp1.close()
 
+        time1 = int(round(time.time() * 1000))
         resource_name = resource_obj.cloud_resource_id
         cont_name = resource_name + "_run_command"
+
         err, output = self.docker_handler.build_container_image(
             cont_name,
             df_name,
             df_context=df_dir
         )
+
+        time2 = int(round(time.time() * 1000))
 
         if err:
             error_msg = ("Error encountered in running command {e}").format(e=err)
@@ -149,6 +153,8 @@ class GCloudHelper(object):
             raise Exception(error_msg)
 
         err, output = self.docker_handler.run_container(cont_name)
+
+        time3 = int(round(time.time() * 1000))
 
         if err:
             error_msg = ("Error encountered in running command {e}").format(e=err)
@@ -158,10 +164,30 @@ class GCloudHelper(object):
         cont_id = output.strip()
 
         err, command_output = self.docker_handler.get_logs(cont_id)
+        time4 = int(round(time.time() * 1000))
 
         #self.docker_handler.stop_container(cont_id)
         self.docker_handler.remove_container(cont_id)
-        self.docker_handler.remove_container_image(cont_name)
+        time5 = int(round(time.time() * 1000))
+
+        #self.docker_handler.remove_container_image(cont_name)
+        time6 = int(round(time.time() * 1000))
+
+        build_time = time2 - time1
+        run_time = time3 - time2
+        logs_time = time4 - time3
+        remove_cont_time = time5 - time4
+        remove_image_time = time6 - time5
+
+        timings1 = ("Build time:{build_time}, Run time:{run_time}, logs time:{logs_time}").format(
+            build_time=build_time, run_time=run_time, logs_time=logs_time
+        )
+
+        timings2 = (" Cont remove time:{remove_cont_time}, Cont image remove time:{remove_image_time}").format(
+            remove_cont_time=remove_cont_time, remove_image_time=remove_image_time
+        )
+
+        fmlogger.error("Build time: %s %s" % (timings1, timings2))
 
         return command_output
 

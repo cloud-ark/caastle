@@ -1,3 +1,4 @@
+import json
 from cliff.command import Command
 
 import call_server as server
@@ -20,5 +21,11 @@ class EnvironmentExec(Command):
         
         command_string = parsed_args.command_string
 
-        response = server.TakeAction().run_command(env_name, command_string)
-        print(response)
+        response = server.TakeAction().get_environment(env_name)
+        if response:
+            response_json = json.loads(response)
+            if response_json['data']['status'] == 'available':
+                response = server.TakeAction().run_command(env_name, command_string)
+                print(response)
+            else:
+                print("Environment %s is not in appropriate state." % env_name)

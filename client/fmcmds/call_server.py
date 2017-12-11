@@ -272,6 +272,7 @@ class TakeAction(object):
         except urllib2.HTTPError as e:
             if e.getcode() == 404:
                 print("Environment with name %s not found." % env_name)
+                exit()
         return env_data
 
     def delete_environment(self, env_name, force_flag=''):
