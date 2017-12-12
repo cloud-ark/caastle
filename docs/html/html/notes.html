@@ -70,10 +70,7 @@
 <li><p class="first">AWS Cloud resources:</p>
 <p>CloudARK creates following AWS resources as part of environment creation
 and application deployment:
-- security group, load balancer, ssh keypairs, ECS cluster, task definitions,</p>
-<blockquote>
-<div><p>ECR repository</p>
-</div></blockquote>
+- security group, load balancer, ssh keypairs, ECS cluster, task definitions, ECR repository</p>
 <p>All these resources are deleted when the application and the environment are deleted.
 However, it will be a good idea to periodically verify this. If you find any stray
 resources corresponding to deleted applications and environments, manually
@@ -97,9 +94,9 @@ and application deployment:
 <p>CloudARK uses Docker as the mechanism for invoking native cloud CLI commands occassionally.
 The Docker containers created for this purpose are deleted by CloudARK. Once in a while it
 will be a good idea to verify this and do cleanup actions given below:</p>
-<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker stop
-$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker rm
-$ docker images | grep none | awk ‘{print $3}’ | xargs docker rmi</p>
+<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker stop</p>
+<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker rm</p>
+<p>$ docker images | grep none | awk ‘{print $3}’ | xargs docker rmi</p>
 <p>Repeate the docker rmi command as many times as required by changing the grepped value</p>
 </li>
 </ol>
