@@ -20,7 +20,11 @@ For single container applications on Google cloud, the container is deployed in 
 
 __ gkedefaultns_
 
-For each such deployment a new global VPC network is created. Initially we were using default VPC network for this. However, there arose a situation with one of our users where their account did not have default VPC network. So we are now creating custom VPC network for each application deployment.
+For each such deployment a new global VPC network is created. Initially we were using default VPC network for this. However, there arose a situation with one of our users where their account `did not have default VPC network`__. So we are now creating custom VPC network for each application deployment.
+
+.. _network: https://github.com/cloud-ark/cloudark/issues/162
+
+__ network_
 
 If an environment contains Cloud SQL as a platform element along with GKE cluster, the authorizedNetwork attribute of Cloud SQL is set to the IP address of the cluster node. This way only traffic arising from the cluster is able to connect and access the Google Cloud SQL instance. We are also planning to support the pattern of using `a sidecar proxy container`__ to establish connection between application container and Cloud SQL instance.
 
