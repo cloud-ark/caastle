@@ -35,8 +35,9 @@ Notes
 3) Local Docker resources:
 
    CloudARK uses Docker as the mechanism for invoking native cloud CLI commands occassionally.
-   The Docker containers created for this purpose are deleted by CloudARK. Once in a while it
-   will be a good idea to verify this and do cleanup actions given below:
+   Docker containers and Docker images created for this purpose are deleted by CloudARK.
+   However, once in a while it will be a good idea to verify this and do cleanup actions given below
+   if required:
 
    $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker stop
 
