@@ -77,7 +77,8 @@ class Environment(db_base.Base):
             session.commit()
             session.close()
         except IntegrityError as e:
-            fmlogger.debug(e)
+            fmlogger.error(e)
+            raise e
         return self.id
 
     def update(self, env_id, env_data):

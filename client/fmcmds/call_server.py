@@ -254,7 +254,7 @@ class TakeAction(object):
             response = urllib2.urlopen(req, json.dumps(data, ensure_ascii=True, encoding='ISO-8859-1'))
             print("Request to create environment %s accepted." % env_name)
         except Exception as e:
-            if e.code == 503 or e.code == 500 or e.code == 412:
+            if e.code == 503 or e.code == 500 or e.code == 412 or e.code == 400:
                 error = e.read()
                 print(error)
                 exit()

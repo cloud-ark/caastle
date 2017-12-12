@@ -532,8 +532,24 @@ class ECSHandler(coe_base.COEBase):
         err, image_id = self.docker_handler.build_container_image(cluster_name,
                                                                   env_store_location + "/Dockerfile.create-cluster",
                                                                   df_context=env_store_location)
+        if err:
+            error_output = common_functions.filter_error_output(image_id)
+            error_message = 'provisioning-failed: ' + error_output
+            res_data['status'] = error_message
+            res_db.Resource().update(res_id, res_data)
+            env_db.Environment().update(env_id, {'output_config': error_message})
+            return error_message
 
         err, cont_id = self.docker_handler.run_container(cluster_name)
+
+        if err:
+            error_output = common_functions.filter_error_output(err)
+            error_message = 'provisioning-failed: ' + error_output
+            res_data['status'] = error_message
+            res_db.Resource().update(res_id, res_data)
+            env_db.Environment().update(env_id, {'output_config': error_message})
+            return error_message
+
         cont_id = cont_id.rstrip().lstrip()
         fmlogger.debug("Checking status of ECS cluster %s" % cluster_name)
         is_active = False
@@ -552,6 +568,12 @@ class ECSHandler(coe_base.COEBase):
             time_out_count = time_out_count + 1
 
         res_db.Resource().update(res_id, {'status': cluster_status})
+
+        if not is_active:
+            cluster_status = 'provisioning-failure'
+            fmlogger.error("Failed to provision ECS cluster.")
+            res_db.Resource().update(res_id, {'status': cluster_status})
+            return cluster_status
 
         cp_cmd = ("docker cp {cont_id}:/src/{key_file}.pem {env_dir}/.").format(cont_id=cont_id,
                                                                                 env_dir=env_store_location,
