@@ -92,3 +92,6 @@ Additionally, CloudARK also generates a ssh key-pair when provisioning cluster i
 This key is stored in the environment-specific folder inside ~/.cld/data/deployments/environments directory. This key can be used to login to the ECS cluster instance using following command:
 
 ssh -i "<pem file>" ec2-user@<AWS cluster instance IP>
+
+
+
