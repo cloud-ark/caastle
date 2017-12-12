@@ -29,6 +29,8 @@ If an environment contains Cloud SQL as a platform element along with GKE cluste
 __ sidecarproxy_
 
 
+**Cloud Resources**
+
 CloudARK creates following resources as part of environment creation and application deployments.
 
 1) AWS resources:
