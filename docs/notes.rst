@@ -5,8 +5,7 @@ Notes
 
    CloudARK creates following AWS resources as part of environment creation
    and application deployment:
-   - security group, load balancer, ssh keypairs, ECS cluster, task definitions,
-     ECR repository
+   - security group, load balancer, ssh keypairs, ECS cluster, task definitions, ECR repository
 
    All these resources are deleted when the application and the environment are deleted.
    However, it will be a good idea to periodically verify this. If you find any stray
@@ -40,7 +39,9 @@ Notes
    will be a good idea to verify this and do cleanup actions given below:
 
    $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker stop
+
    $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker rm
+
    $ docker images | grep none | awk '{print $3}' | xargs docker rmi
 
    Repeate the docker rmi command as many times as required by changing the grepped value
