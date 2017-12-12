@@ -1,0 +1,143 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Implementation Details &#8212; CloudARK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Frequently Asked Questions (FAQ)" href="faq.html" />
+    <link rel="prev" title="Deployment to GKE" href="deployments.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="deployments.html" title="Deployment to GKE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="deployments.html"
+                        title="previous chapter">Deployment to GKE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="next chapter">Frequently Asked Questions (FAQ)</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="implementation-details">
+<h1>Implementation Details</h1>
+<p>Here are details of some of the implementation aspects of CloudARK.</p>
+<p><strong>Communication between Platform elements</strong></p>
+<p>CloudARK restricts the communication between various platform elements of an environment as follows.</p>
+<p>For AWS, all the resources are created in <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/4">Default VPC currently</a>. If an environment contains definition of RDS resource and ECS cluster resource, a security group
+is added for the RDS instance that allows traffic only from the CIDR address of the ECS cluster in that environment.</p>
+<p>For single container applications on Google cloud, the container is deployed in the <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/157">default namespace</a>.</p>
+<p>For each such deployment a new global VPC network is created. Initially we were using default VPC network for this. However, there arose a situation with one of our users where their account did not have default VPC network. So we are now creating custom VPC network for each application deployment.</p>
+<p>If an environment contains Cloud SQL as a platform element along with GKE cluster, the authorizedNetwork attribute of Cloud SQL is set to the IP address of the cluster node. This way only traffic arising from the cluster is able to connect and access the Google Cloud SQL instance. We are also planning to support the pattern of using <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/158">a sidecar proxy container</a> to establish connection between application container and Cloud SQL instance.</p>
+<p>CloudARK creates following resources as part of environment creation and application deployments.</p>
+<ol class="arabic">
+<li><p class="first">AWS resources:</p>
+<p>CloudARK creates following AWS resources as part of environment creation
+and application deployment:
+- ECS cluster, ssh key pairs, ECR repository, RDS instances, security groups, load balancer, ECS task definitions, ECS services</p>
+<p>All the resources are named using following pattern: &lt;env-name&gt;-&lt;timestamp&gt; or &lt;app-name&gt;-&lt;timestamp&gt;.</p>
+<p>All the resources are deleted when corresponding application or the environment is deleted.
+However, it will be a good idea to periodically verify this. If you find any stray
+resources corresponding to deleted applications or environments, manually
+delete them from the AWS web console.</p>
+</li>
+<li><p class="first">Google Cloud resources:</p>
+<p>CloudARK creates following Google cloud resources as part of environment creation
+and application deployment:
+- GKE cluster, Cloud SQL instance, GCR repository, VPC network, Kubernetes deployment, pods, services</p>
+<p>The resources are named using following pattern: &lt;env-name&gt;-&lt;timestamp&gt; or &lt;app-name&gt;-&lt;timestamp&gt;.</p>
+<p>All the resources are deleted when corresponding application or the environment is deleted.
+However, it will be a good idea to periodically verify this. If you find any stray
+resources corresponding to deleted applications or environments, manually
+delete them from the Google cloud web console.</p>
+<p>Note that custom VPC network for an application is <em>not getting deleted</em> currently.
+We have an open issue for <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/101">this</a></p>
+</li>
+</ol>
+<blockquote>
+<div><p>So when you delete the application, delete the VPC network from the Google cloud console</p>
+<p>Similary when you delete a container, the GCR repository for it is not getting <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/102">deleted</a>.</p>
+</div></blockquote>
+<blockquote>
+<div>Manually delete the repository after you have deleted the container.</div></blockquote>
+<ol class="arabic" start="3">
+<li><p class="first">Local Docker resources:</p>
+<p>Occassionally, CloudARK uses Docker as the mechanism for invoking native cloud CLI commands.
+Docker containers and Docker images created for this purpose are deleted by CloudARK.
+However, once in a while it will be a good idea to verify this and do cleanup actions given below,
+if required:</p>
+<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker stop</p>
+<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker rm</p>
+<p>$ docker images | grep none | awk ‘{print $3}’ | xargs docker rmi</p>
+<p>Repeate the docker rmi command as many times as required by changing the grepped value</p>
+</li>
+</ol>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+             >next</a></li>
+        <li class="right" >
+          <a href="deployments.html" title="Deployment to GKE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

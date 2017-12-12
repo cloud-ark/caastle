@@ -1,4 +1,4 @@
-Implementation details
+Implementation Details
 -----------------------
 
 Here are details of some of the implementation aspects of CloudARK.
