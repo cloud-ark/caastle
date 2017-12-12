@@ -130,8 +130,10 @@ class ECSHandler(coe_base.COEBase):
         if not cont_name:
             cont_name = app_info['app_name'] + "-" + app_info['app_version']
         memory = 250  # Default memory size of 250MB. This is hard limit
-        if 'memory' in app_info:
-            memory = int(app_info['memory'])
+        mem1 = common_functions.get_app_memory(app_info)
+        if mem1:
+            memory = int(mem1)
+
         family_name = app_info['app_name']
         task_def_arn = ''
         revision = str(int(round(time.time() * 1000)))
@@ -217,12 +219,16 @@ class ECSHandler(coe_base.COEBase):
                     for line in lines:
                         str1 = ' '.join(line.split())
                         parts = str1.split(" ")
-                        if parts[3].strip().find(task_name) >= 0:
-                            if parts[1].strip() == 'RUNNING':
-                                app_url_str = parts[2].strip()
-                                app_ip = app_url_str.split("->")[0].strip()
-                                app_url = "http://" + app_ip
-                                break
+                        if len(parts) >= 4:
+                            if parts[3].strip().find(task_name) >= 0:
+                                if parts[1].strip() == 'RUNNING':
+                                    app_url_str = parts[2].strip()
+                                    app_ip = app_url_str.split("->")[0].strip()
+                                    app_url = "http://" + app_ip
+                                    break
+                        else:
+                            app_url = "Could not get app url."
+                            break
                 self.docker_handler.remove_container(get_ip_cont_id)
         self.docker_handler.remove_container_image(cont_name)
         fmlogger.debug("App URL:%s" % app_url)

@@ -271,6 +271,14 @@ def get_app_memory(app_info):
     return app_memory
 
 
+def get_app_cpu(app_info):
+    app_cpu = ''
+    app_yaml_def = read_app_yaml(app_info)
+    if 'cpu' in app_yaml_def['app']:
+        app_cpu = app_yaml_def['app']['cpu']
+    return app_cpu
+
+
 def get_coe_type(env_id):
     coe_type = ''
     env_obj = env_db.Environment().get(env_id)

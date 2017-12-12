@@ -23,11 +23,11 @@ class ContainerCreate(Command):
                             help="Container name")
 
         parser.add_argument('repository',
-                            help="Name of repository to push container to. Supported options: 'ecr', 'gcr', 'local'.")
+                            help="Type of repository for storing the container. Supported options: 'ecr', 'gcr', 'local'.")
 
         parser.add_argument('--project-id',
                             dest='project_id',
-                            help="Project ID (Required only when repository = gcr")
+                            help="Project ID (Required when repository type is 'gcr')")
         return parser
 
     def take_action(self, parsed_args):
@@ -39,7 +39,7 @@ class ContainerCreate(Command):
         cont_info['dep_target'] = repository
 
         if repository != 'gcr' and repository != 'ecr' and repository != 'local':
-            print("Incorrect repository destination specified. Should be one of: gcr, ecr, local")
+            print("Incorrect repository destination specified. Should be one of: ecr, gcr, local")
             exit()
 
         if repository == 'gcr':
@@ -52,6 +52,9 @@ class ContainerCreate(Command):
             cont_info['project'] = project_id
 
         cont_df_location = os.getcwd()
+        if not os.path.exists(cont_df_location + "/Dockerfile"):
+            print("There is no Dockerfile in this directory. Exiting.")
+            exit()
         cont_df_folder_name = common.get_app_folder_name(cont_df_location)
         cont_info['cont_df_folder_name'] = cont_df_folder_name
 
