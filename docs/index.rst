@@ -34,6 +34,7 @@ There are two main abstractions in CloudARK - *Environment* and *Application*.
    env_vars
    architecture
    deployments
+   notes
    faq
    roadmap
    samples
