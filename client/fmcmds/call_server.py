@@ -287,6 +287,10 @@ class TakeAction(object):
             print("Request to delete env with name %s accepted." % env_name)
         if response.status_code == 412:
             print("Environment cannot be deleted as there are applications still running on it.")
+        if response.status_code == 303:
+            print("Request to delete env with name %s accepted." % env_name)
+            print("*** Please delete the VPC network from Google cloud console that was created for this environment ***.")
+            print("*** Check: https://github.com/cloud-ark/cloudark/issues/101 for details. ***")
         return response
 
     def get_environment_list(self):

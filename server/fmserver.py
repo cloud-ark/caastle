@@ -562,6 +562,12 @@ class EnvironmentRestResource(Resource):
 
             response.headers['location'] = ('/environments/{env_name}').format(env_name=environment_name)
             response.status_code = 202
+            
+            # Check if this was GKE environment. If so, notify user that the VPC network needs to be deleted manually.
+            env_dict = ast.literal_eval(environment_def)
+            cloud = env_dict['environment']['app_deployment']['target']
+            if cloud == 'gcloud':
+                response.status_code = 303
         else:
             response.status_code = 404
         return response
