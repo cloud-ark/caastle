@@ -435,7 +435,18 @@ class EnvironmentsRestResource(Resource):
                 env_data['location'] = env_location
                 env_data['env_version_stamp'] = env_version_stamp
                 env_data['env_definition'] = environment_def
-                env_id = env_db.Environment().insert(env_data)
+                env_id = ''
+                try:
+                    env_id = env_db.Environment().insert(env_data)
+                except Exception as e:
+                    fmlogging.error("Failed inserting environment data in db: %s" % str(e))
+                    message = ("Environment with name {env_name} already exists. Choose different name.").format(env_name=\
+environment_name)
+                    fmlogging.debug(message)
+                    resp_data = {'error': message}
+                    response = jsonify(**resp_data)
+                    response.status_code = 400
+                    return response
                 environment_info = {}
                 environment_info['name'] = environment_name
 
