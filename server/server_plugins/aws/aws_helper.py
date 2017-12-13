@@ -104,6 +104,7 @@ class AWSHelper(object):
             vpc_details['cidr_block'] = cidr_block
         except Exception as e:
             fmlogger.error("Encountered exception in getting vpc details %s" % e)
+            raise e
 
         return vpc_details
     
