@@ -1,0 +1,138 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Application type support matrix &#8212; CloudARK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Environment Variables" href="env_vars.html" />
+    <link rel="prev" title="Application" href="application.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="env_vars.html" title="Environment Variables"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="application.html" title="Application"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="application.html" accesskey="U">Application</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="application.html"
+                        title="previous chapter">Application</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="env_vars.html"
+                        title="next chapter">Environment Variables</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="application-type-support-matrix">
+<h1>Application type support matrix</h1>
+<p>Following table shows currently supported application types, application definition formats, and the target COEs.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="29%" />
+<col width="13%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Application definition format</th>
+<th class="head">COE</th>
+<th class="head">Example</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Single container</td>
+<td>app yaml (CloudARK format)</td>
+<td>ECS &amp; GKE</td>
+<td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world">hello-world</a></td>
+</tr>
+<tr class="row-odd"><td>Single cont + managed service</td>
+<td>app yaml (CloudARK format)</td>
+<td>ECS &amp; GKE</td>
+<td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress/php5.6/apache">wordpress</a></td>
+</tr>
+<tr class="row-even"><td>Single cont + managed service</td>
+<td>pod yaml (Kubernetes format)</td>
+<td>GKE</td>
+<td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a></td>
+</tr>
+<tr class="row-odd"><td>Multi-container</td>
+<td>pod yaml (Kubernetes format)</td>
+<td>GKE</td>
+<td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods">wordpress_kubernetes_pods</a></td>
+</tr>
+<tr class="row-even"><td>Multi-container + managed serv</td>
+<td>pod yaml (Kubernetes format)</td>
+<td>GKE</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p>Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="env_vars.html" title="Environment Variables"
+             >next</a></li>
+        <li class="right" >
+          <a href="application.html" title="Application"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="application.html" >Application</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

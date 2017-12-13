@@ -55,6 +55,12 @@ In fact, we leverage this same mechanism to support `environment-specific shell`
 __ envshell_
 
 
+.. toctree::
+   :maxdepth: 1
+   
+   implementation
+   extending   
+
 **Known Issues**
 
 Check this_ for list of currently known issues.
