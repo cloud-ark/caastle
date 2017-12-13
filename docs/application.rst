@@ -8,7 +8,7 @@ The container is appropriately tagged for AWS ECR or Google GCR to make it ready
 
 Application definition is done using our yaml format for single container applications or respective COE (Kubernetes / ECS) yaml format for multi-container applications. 
 Application definition includes URIs of the built containers from container registry, container inter-dependencies and any other run-time parameters to run each container.
-Here is a sample app.yaml based application definition for a single container wordpress application.
+Here is a sample app yaml definition for a single container wordpress application.
 
 .. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
 
@@ -46,21 +46,19 @@ __ scaling_
 Application Details
 --------------------
 
-Here is a table showing currently supported application types, application definition formats, and the target cloud. We also provide link to a sample application for each.
+Here is a table showing currently supported application types, application definition formats, and the target COE. We also provide link to a sample application for each case.
 
-+---------------------+-------------------------------+--------------+-------------------------------------------+
-| Type                | Application definition format | Target       |            Example                        |
-+=====================+===============================+==============+===========================================+
-| Single container    |    app yaml                   | ECS & GKE    |         hello-world_                      |
-+---------------------+-------------------------------+--------------+-------------------------------------------+
-| 1 cont + managed res|    app yaml                   | ECS & GKE    |         wordpress_                        |
-+---------------------+-------------------------------+--------------+-------------------------------------------+
-| 1 cont + managed res|    pod yaml                   |    GKE       |         greetings_                        |
-+---------------------+-------------------------------+--------------+-------------------------------------------+
-| Multi-container     |    pod yaml                   |    GKE       |   wordpress_kubernetes_pods_              |
-+---------------------+-------------------------------+--------------+-------------------------------------------+
-
-
++---------------------------------+-------------------------------+--------------+----------------------------+
+| Type                            | Application definition format |   COE        |            Example         |
++=================================+===============================+==============+============================+
+| Single container                |    app yaml                   | ECS & GKE    |         hello-world_       |
++---------------------------------+-------------------------------+--------------+----------------------------+
+| Single cont + a managed service |    app yaml                   | ECS & GKE    |         wordpress_         |
++---------------------------------+-------------------------------+--------------+----------------------------+
+| Single cont + a managed service |    pod yaml                   |    GKE       |         greetings_         |
++---------------------------------+-------------------------------+--------------+----------------------------+
+| Multi-container                 |    pod yaml                   |    GKE       |   wordpress_kubernetes_pod |
++---------------------------------+-------------------------------+--------------+----------------------------+
 
 
 .. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world

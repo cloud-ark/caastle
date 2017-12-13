@@ -71,7 +71,7 @@
 The container is appropriately tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.</p>
 <p>Application definition is done using our yaml format for single container applications or respective COE (Kubernetes / ECS) yaml format for multi-container applications.
 Application definition includes URIs of the built containers from container registry, container inter-dependencies and any other run-time parameters to run each container.
-Here is a sample app.yaml based application definition for a single container wordpress application.</p>
+Here is a sample app yaml definition for a single container wordpress application.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;image_uri&gt;</span>
   <span class="l l-Scalar l-Scalar-Plain">container_port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
@@ -95,18 +95,18 @@ defined in the environment.</p>
 </div>
 <div class="section" id="application-details">
 <h1>Application Details</h1>
-<p>Here is a table showing currently supported application types, application definition formats, and the target cloud. We also provide link to a sample application for each.</p>
+<p>Here is a table showing currently supported application types, application definition formats, and the target COE. We also provide link to a sample application for each case.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="19%" />
-<col width="28%" />
+<col width="31%" />
+<col width="29%" />
 <col width="13%" />
-<col width="39%" />
+<col width="26%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Type</th>
 <th class="head">Application definition format</th>
-<th class="head">Target</th>
+<th class="head">COE</th>
 <th class="head">Example</th>
 </tr>
 </thead>
@@ -116,12 +116,12 @@ defined in the environment.</p>
 <td>ECS &amp; GKE</td>
 <td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world">hello-world</a></td>
 </tr>
-<tr class="row-odd"><td>1 cont + managed res</td>
+<tr class="row-odd"><td>Single cont + a managed service</td>
 <td>app yaml</td>
 <td>ECS &amp; GKE</td>
 <td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress/php5.6/apache">wordpress</a></td>
 </tr>
-<tr class="row-even"><td>1 cont + managed res</td>
+<tr class="row-even"><td>Single cont + a managed service</td>
 <td>pod yaml</td>
 <td>GKE</td>
 <td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/greetings">greetings</a></td>
@@ -129,7 +129,7 @@ defined in the environment.</p>
 <tr class="row-odd"><td>Multi-container</td>
 <td>pod yaml</td>
 <td>GKE</td>
-<td><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods">wordpress_kubernetes_pods</a></td>
+<td>wordpress_kubernetes_pod</td>
 </tr>
 </tbody>
 </table>
