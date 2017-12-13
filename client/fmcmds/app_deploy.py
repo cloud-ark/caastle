@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from cliff.command import Command
 
@@ -27,6 +28,17 @@ class AppDeploy(Command):
         app_info['app_name'] = parsed_args.app_name
         app_info['env_name'] = parsed_args.env_name
         app_info['app_yaml'] = parsed_args.app_file
+
+        # Check if app_file contains container_port defined or not
+        try:
+            fp = open(parsed_args.app_file, "r")
+            app_def = yaml.load(fp.read())
+            if 'app' in app_def:
+                if 'container_port' not in app_def['app']:
+                    print("container_port is missing from app definition.")
+                    exit()
+        except Exception as e:
+            exit()
 
         app_location = os.getcwd()
         app_folder_name = common.get_app_folder_name(app_location)
