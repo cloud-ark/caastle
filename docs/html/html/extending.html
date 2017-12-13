@@ -1,0 +1,104 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Extending CloudARK &#8212; CloudARK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Google GKE setup" href="deployments.html" />
+    <link rel="prev" title="Implementation Details" href="implementation.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="deployments.html" title="Google GKE setup"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="implementation.html" title="Implementation Details"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="architecture.html" accesskey="U">CloudARK Architecture</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="implementation.html"
+                        title="previous chapter">Implementation Details</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="deployments.html"
+                        title="next chapter">Google GKE setup</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="extending-cloudark">
+<h1>Extending CloudARK</h1>
+<p>It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
+command, add it in the client folder and hook it up with the rest of the client-side
+system by making entry for it in the setup.py client module.</p>
+<p>If you want to extend server-side functionality, the key places to look at are:</p>
+<ul class="simple">
+<li>fmserver.py: This is the REST entry point for server-side processing.</li>
+<li>server/server_plugins: This is the package corresponding to different target clouds.</li>
+<li>server/setup.py: This is the module where stevedore entrypoints are set.</li>
+<li>server/dbmodule: This package includes CloudARK’s state management functionality.</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="deployments.html" title="Google GKE setup"
+             >next</a></li>
+        <li class="right" >
+          <a href="implementation.html" title="Implementation Details"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="architecture.html" >CloudARK Architecture</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

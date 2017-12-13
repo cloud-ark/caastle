@@ -1,12 +1,13 @@
 Application
 ------------
 
-An application can be composed of a single or multiple Docker containers in CloudARK.
+An application is composed of a single or multiple Docker containers in CloudARK.
 
-CloudARK offers ‘cld container ’ set of commands to build your application containers from your Docker files and push them to your registry of choice.
+CloudARK offers ‘cld container create’ command to build your application container/s from your Docker files and push them to your registry of choice.
 The container is appropriately tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.
 
-Application definition is done using our yaml format for single container applications or respective COE (Kubernetes / ECS) yaml format for multi-container applications. 
+Application definition is done using our yaml format for single container applications or respective COE yaml format such as Kubernetes yaml format for multi-container applications. Note that for Kubernetes yaml format, currently only Pod definitions are supported. Support for ECS task yaml is planned.
+
 Application definition includes URIs of the built containers from container registry, container inter-dependencies and any other run-time parameters to run each container.
 Here is a sample app yaml definition for a single container wordpress application.
 
@@ -26,12 +27,11 @@ Here is a sample app yaml definition for a single container wordpress applicatio
 Our yaml format for single container applications supports following attributes: *image*, *container_port*, *host_port*, *env*.
 Default value for host_port is 80.
 
-Application is deployed on an *environment*. The application deployment action takes
+Application is deployed in an *environment*. The application deployment action takes
 the name of the environment as input ('cld app deploy <app-name> <env-name> <app yaml>').
 app.yaml contains definition of the application container image, the container port
 and any environment variables.
-
-As part of the deployment step CloudARK binds the application container(s) to cloud resources
+As part of the deployment steps CloudARK binds the application container(s) to cloud resources
 defined in the environment.
 
 For single container applications currently a single instance of the application container is deployed on the cluster in the environment.
@@ -43,22 +43,24 @@ We have an issue open to support `scaling of application containers`__.
 __ scaling_
 
 
-Application Details
---------------------
+Application type support matrix
+--------------------------------
 
-Here is a table showing currently supported application types, application definition formats, and the target COE. We also provide link to a sample application for each case.
+Following table shows currently supported application types, application definition formats, and the target COEs. 
 
 +---------------------------------+-------------------------------+--------------+------------------------------+
 | Type                            | Application definition format |   COE        |            Example           |
 +=================================+===============================+==============+==============================+
-| Single container                |    app yaml                   | ECS & GKE    |         hello-world_         |
+| Single container                | app yaml (CloudARK format)    | ECS & GKE    |         hello-world_         |
 +---------------------------------+-------------------------------+--------------+------------------------------+
-| Single cont + a managed service |    app yaml                   | ECS & GKE    |         wordpress_           |
+| Single cont + managed service   | app yaml (CloudARK format)    | ECS & GKE    |         wordpress_           |
 +---------------------------------+-------------------------------+--------------+------------------------------+
-| Single cont + a managed service |    pod yaml                   |    GKE       |         greetings_           |
+| Single cont + managed service   | pod yaml (Kubernetes format)  |    GKE       |         greetings_           |
 +---------------------------------+-------------------------------+--------------+------------------------------+
-| Multi-container                 |    pod yaml                   |    GKE       |   wordpress_kubernetes_pods_ |
+| Multi-container                 | pod yaml (Kubernetes format)  |    GKE       |   wordpress_kubernetes_pods_ |
 +---------------------------------+-------------------------------+--------------+------------------------------+
+
+Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 
 
 .. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world

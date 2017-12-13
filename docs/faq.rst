@@ -14,7 +14,6 @@ Infrastructure-as-Code implementation treats every platform element as infrastru
 In contrast, Platform-as-Code offers application-centric abstractions that simplify modeling a deployment as per the application architecture.
 
 
-
 Q) **How does CloudARK strike balance between high-level abstractions and providing control when needed?**
 
 CloudARK tries to balance the fine line between abstraction and control through following three aspects of its design:
@@ -50,26 +49,38 @@ __ arch_
 Q) **What is environment-specific shell in CloudARK?**
 
 CloudARK provides *cld env shell* command that can be used to get a *environment-specific* shell.
-This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in *that* environment.
+This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in *that* environment, e.g. 'gcloud sql', 'aws rds', 'kubectl', etc. 
 This shell can be quite handy when you are developing applications using CloudARK.
 It offers a great tool for traceability without having to setup number of CLI tools.
 
 
-Q) **Where does CloudARK store its internal state?**
+Q) **Who are target users of CloudARK?**
 
-CloudARK stores its internal state in the home folder inside .cld directory.
-The database state is stored in ~/.cld/data/deployments/cld.sqlite.
-Environment, Container, and Application related creation files are stored in separate directories
-inside ~/.cld/data/deployments. You can view all the artifacts that CloudARK generates for each platform element inside
-the corresponding directory.
-
-Moreover, CloudARK aims to be a *soft state* system. There is no restriction if you want to 
-directly modify any platform element provisioned by CloudARK through the corresponding Cloud's web console.
-In the future releases of CloudARK, the internal state will be synced with the state of platform elements on the Cloud.
+Development teams developing containerized cloud applications that run on public like AWS or Google cloud.
 
 
-Q) **What kind of application logs CloudARK collects?**
+Q) **What are the typical use-cases of CloudARK?**
 
-CloudARK collects an application's deployment logs and runtime logs.
+CloudARK is targetted as a common tool between developers and operations engineers.
+CloudARK provides easy way for developers and ops to collaborate on declarative platform definitions.
+Developers can use CloudARK as local development environment, along with Docker.
+Ops engineers can integrate CloudARK-based application deployment workflow in their standard Jenkins like DevOps workflow.
+CloudARK's features of application-centric shell, full-stack platform elements association view,
+and environment change history (upcoming) are useful for developers and ops engineers alike when
+debugging application behaviors or managing environments.
 
+
+Q) How does CloudARK differ from Infrastructure-as-Code tools such as Terraform?
+
+Please refer to our `free whitepaper`__ on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
+
+.. _whitepaper:  https://cloudark.io/resources
+
+__ whitepaper_
+
+
+
+Q) How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?
+
+Please refer to our free whitepaper on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
 

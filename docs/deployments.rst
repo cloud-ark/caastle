@@ -1,5 +1,13 @@
-Google GKE setup
------------------
+Cloud Setup
+------------
+
+Before you start using CloudARK, you will need to do the appropriate cloud setup as explained in
+following sections. This setup allows CloudARK to make required calls to the target cloud
+as part of creating an environment and deploying an application.
+
+
+Google Setup
+-------------
 
 $ cld setup gcloud
 
@@ -12,8 +20,8 @@ You will need to pass it when creating container to be saved in GCR and when
 creating GKE environment.
 
 
-Amazon ECS setup
------------------
+Amazon Setup
+-------------
 
 $ cld setup aws
     
@@ -65,8 +73,8 @@ In the Policy Document enter following policy. Replace <account-id> with your ac
 Once the policy is created attach it to your user.
 
 
-Authorization Details
-----------------------
+Cloud Authorization Explained
+------------------------------
 
 CloudARK uses combination of target cloud's SDKs and CLIs as cloud deployment mechanisms.
 The reason for this two-pronged approach is explained in `architecture section`__.

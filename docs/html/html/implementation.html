@@ -22,18 +22,18 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Frequently Asked Questions (FAQ)" href="faq.html" />
-    <link rel="prev" title="Google GKE setup" href="deployments.html" /> 
+    <link rel="next" title="Extending CloudARK" href="extending.html" />
+    <link rel="prev" title="CloudARK Architecture" href="architecture.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+          <a href="extending.html" title="Extending CloudARK"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="deployments.html" title="Google GKE setup"
+          <a href="architecture.html" title="CloudARK Architecture"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
@@ -41,11 +41,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="deployments.html"
-                        title="previous chapter">Google GKE setup</a></p>
+  <p class="topless"><a href="architecture.html"
+                        title="previous chapter">CloudARK Architecture</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="faq.html"
-                        title="next chapter">Frequently Asked Questions (FAQ)</a></p>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending CloudARK</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -72,7 +72,7 @@
 <p>For AWS, all the resources are created in <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/4">Default VPC currently</a>. If an environment contains definition of RDS resource and ECS cluster resource, a security group
 is added for the RDS instance that allows traffic only from the CIDR address of the ECS cluster in that environment.</p>
 <p>For single container applications on Google cloud, the container is deployed in the <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/157">default namespace</a>.</p>
-<p>For each such deployment a new global VPC network is created. Initially we were using default VPC network for this. However, there arose a situation with one of our users where their account <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/162">did not have default VPC network</a>. So we are now creating custom VPC network for each application deployment.</p>
+<p>For each such deployment a new global VPC network is created. Initially we were using default VPC network for this. However, we experienced that one of our beta users <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/162">did not have default VPC network</a>. So we are now creating custom VPC network for each application deployment.</p>
 <p>If an environment contains Cloud SQL as a platform element along with GKE cluster, the authorizedNetwork attribute of Cloud SQL is set to the IP address of the cluster node. This way only traffic arising from the cluster is able to connect and access the Google Cloud SQL instance. We are also planning to support the pattern of using <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/158">a sidecar proxy container</a> to establish connection between application container and Cloud SQL instance.</p>
 <p><strong>Cloud Resources</strong></p>
 <p>CloudARK creates following resources as part of environment creation and application deployments.</p>
@@ -85,7 +85,8 @@ and application deployment:
 <p>All the resources are deleted when corresponding application or the environment is deleted.
 However, it will be a good idea to periodically verify this. If you find any stray
 resources corresponding to deleted applications or environments, manually
-delete them from the AWS web console.</p>
+delete them from the AWS web console. We encourage users to open a ticket so that we can fix such
+bugs in CloudARK.</p>
 </li>
 <li><p class="first">Google Cloud resources:</p>
 <p>CloudARK creates following Google cloud resources as part of environment creation
@@ -95,7 +96,8 @@ and application deployment:
 <p>All the resources are deleted when corresponding application or the environment is deleted.
 However, it will be a good idea to periodically verify this. If you find any stray
 resources corresponding to deleted applications or environments, manually
-delete them from the Google cloud web console.</p>
+delete them from the Google cloud web console. We encourage users to open a ticket so that we
+can fix such bugs in CloudARK.</p>
 <p>Note that custom VPC network for an application is <em>not getting deleted</em> currently.
 We have an open issue for <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/101">this</a></p>
 </li>
@@ -118,6 +120,16 @@ if required:</p>
 <p>Repeate the docker rmi command as many times as required by changing the grepped value</p>
 </li>
 </ol>
+<p><strong>CloudARK’s internal state</strong></p>
+<p>CloudARK stores its internal state in the home folder inside .cld directory.
+The database state is stored in ~/.cld/data/deployments/cld.sqlite.
+Environment, Container, and Application related files that are generated by CloudARK for deployment purpose are stored in separate directories inside ~/.cld/data/deployments. You can view all the artifacts that CloudARK generates for each platform element inside the corresponding directory.</p>
+<p>Moreover, CloudARK aims to be a <em>soft state</em> system. There is no restriction if you want to
+directly modify any platform element provisioned by CloudARK through the corresponding Cloud’s web console.
+In the future releases of CloudARK, the internal state will be synced with the state of platform elements on the Cloud.</p>
+<p><strong>Application logs</strong></p>
+<p>CloudARK provides ‘cld app logs &lt;app-name&gt;’ command to retrieve application’s deployment and runtime logs.</p>
+<p>The deployment logs are the logs generated by the target COE when it deploys the application container. Runtime logs on the other hand are the logs generated by the application itself. On GKE, deployment logs are obtained using ‘kubectl describe pods &lt;pod-name&gt;’ command and runtime logs are obtained using ‘kubectl logs &lt;pod-name&gt;’ command. On AWS, deployment logs correspond to the logs generated by the ecs agent running on a cluster instance. The runtime logs correspond to the logs generated by the application docker container running on a cluster instance. Both these logs are fetched from the cluster instance remotely.</p>
 </div>
 
 
@@ -130,10 +142,10 @@ if required:</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+          <a href="extending.html" title="Extending CloudARK"
              >next</a></li>
         <li class="right" >
-          <a href="deployments.html" title="Google GKE setup"
+          <a href="architecture.html" title="CloudARK Architecture"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
