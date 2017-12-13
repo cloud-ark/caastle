@@ -70,9 +70,9 @@ and environment change history (upcoming) are useful for developers and ops engi
 debugging application behaviors or managing environments.
 
 
-Q) **How does CloudARK differ from Infrastructure-as-Code tools such as Terraform or CloudFormation ?**
+Q) **How does CloudARK differ from Infrastructure-as-Code tools such as Terraform or AWS CloudFormation?**
 
-Please refer to our `free whitepaper`__ on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
+Please refer to our `free whitepaper`__ that compares Platform-as-Code approach with PaaSes and Infrastructure-as-Code.
 
 .. _whitepaper:  https://cloudark.io/resources
 
@@ -82,5 +82,5 @@ __ whitepaper_
 
 Q) **How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?**
 
-Please refer to our free whitepaper on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
+Please refer to our free whitepaper (linked above) that compares Platform-as-Code approach with PaaSes and Infrastructure-as-Code.
 
