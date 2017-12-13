@@ -1,9 +1,10 @@
 Environment Variables
 ----------------------
 
-The environment variables are defined in application yaml file under *env* section for
-single container applications. For multi-container applications environment variables
-would be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).
+CloudARK application definition format: 
+
+Environment variables are defined in application yaml file under *env* section for
+single container applications. 
 
 An example of environment variable definition in application yaml is shown below:
 
@@ -16,17 +17,50 @@ An example of environment variable definition in application yaml is shown below
        HOST: $CLOUDARK_RDS_Address
        USER: $CLOUDARK_RDS_MasterUsername
 
+
+Kubernetes format:
+
+For multi-container applications environment variables
+can be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).
+
+An example of environment variable definition for Kubernetes pods is shown below:
+
+.. code-block:: yaml
+
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: greetings1
+     labels:
+       name: greetings1
+   spec:
+     containers:
+       - image: us.gcr.io/cloudark-test-gke/greetpod:1512924392448
+         name: wordpress
+         ports:
+         - containerPort: 5000
+         env:
+           - name: "PASSWORD"
+             value: $CLOUDARK_CLOUDSQL_Password
+           - name: "DB"
+             value: $CLOUDARK_CLOUDSQL_DBName
+           - name: "HOST"
+             value: $CLOUDARK_CLOUDSQL_Address
+           - name: "USER"
+             value: $CLOUDARK_CLOUDSQL_Username
+
+
 Environment variables are defined as key:value pairs.
 
 An application is bound to managed services in the environment through the environment variables
-following the `12-factor design principles`__.
+following `12-factor design principles`__.
 
 .. _Twelve: https://12factor.net/config
 
 __ Twelve_
 
-The value of the parameter that needs to be bound to some resource's specific attribute in an environment
-is set as a *interpolated variables*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
+The value of the parameter that needs to be bound to an attribute of the cloud resource in an environment
+is set as an *interpolated variables*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
 The *TYPE* is one of the supported resource types (represented in uppercase).
 *Attribute* is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource

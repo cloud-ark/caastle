@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Roadmap" href="roadmap.html" />
-    <link rel="prev" title="Deployment to GKE" href="deployments.html" /> 
+    <link rel="prev" title="Cloud Setup" href="deployments.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -33,7 +33,7 @@
           <a href="roadmap.html" title="Roadmap"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="deployments.html" title="Deployment to GKE"
+          <a href="deployments.html" title="Cloud Setup"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
@@ -42,7 +42,7 @@
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="deployments.html"
-                        title="previous chapter">Deployment to GKE</a></p>
+                        title="previous chapter">Cloud Setup</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="roadmap.html"
                         title="next chapter">Roadmap</a></p>
@@ -105,24 +105,31 @@ to see what caused a Pod from not starting up. The environment-specific shell al
 <li><strong>What is environment-specific shell in CloudARK?</strong></li>
 </ol>
 <p>CloudARK provides <em>cld env shell</em> command that can be used to get a <em>environment-specific</em> shell.
-This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in <em>that</em> environment.
+This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in <em>that</em> environment, e.g. ‘gcloud sql’, ‘aws rds’, ‘kubectl’, etc.
 This shell can be quite handy when you are developing applications using CloudARK.
 It offers a great tool for traceability without having to setup number of CLI tools.</p>
 <ol class="upperalpha simple" start="17">
-<li><strong>Where does CloudARK store its internal state?</strong></li>
+<li><strong>Who are target users of CloudARK?</strong></li>
 </ol>
-<p>CloudARK stores its internal state in the home folder inside .cld directory.
-The database state is stored in ~/.cld/data/deployments/cld.sqlite.
-Environment, Container, and Application related creation files are stored in separate directories
-inside ~/.cld/data/deployments. You can view all the artifacts that CloudARK generates for each platform element inside
-the corresponding directory.</p>
-<p>Moreover, CloudARK aims to be a <em>soft state</em> system. There is no restriction if you want to
-directly modify any platform element provisioned by CloudARK through the corresponding Cloud’s web console.
-In the future releases of CloudARK, the internal state will be synced with the state of platform elements on the Cloud.</p>
+<p>Development teams developing containerized cloud applications that run on public like AWS or Google cloud.</p>
 <ol class="upperalpha simple" start="17">
-<li><strong>What kind of application logs CloudARK collects?</strong></li>
+<li><strong>What are the typical use-cases of CloudARK?</strong></li>
 </ol>
-<p>CloudARK collects an application’s deployment logs and runtime logs.</p>
+<p>CloudARK is targetted as a common tool between developers and operations engineers.
+CloudARK provides easy way for developers and ops to collaborate on declarative platform definitions.
+Developers can use CloudARK as local development environment, along with Docker.
+Ops engineers can integrate CloudARK-based application deployment workflow in their standard Jenkins like DevOps workflow.
+CloudARK’s features of application-centric shell, full-stack platform elements association view,
+and environment change history (upcoming) are useful for developers and ops engineers alike when
+debugging application behaviors or managing environments.</p>
+<ol class="upperalpha simple" start="17">
+<li>How does CloudARK differ from Infrastructure-as-Code tools such as Terraform?</li>
+</ol>
+<p>Please refer to our <a class="reference external" href="https://cloudark.io/resources">free whitepaper</a> on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.</p>
+<ol class="upperalpha simple" start="17">
+<li>How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?</li>
+</ol>
+<p>Please refer to our free whitepaper on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.</p>
 </div>
 
 
@@ -138,7 +145,7 @@ In the future releases of CloudARK, the internal state will be synced with the s
           <a href="roadmap.html" title="Roadmap"
              >next</a></li>
         <li class="right" >
-          <a href="deployments.html" title="Deployment to GKE"
+          <a href="deployments.html" title="Cloud Setup"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>

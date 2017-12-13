@@ -66,9 +66,9 @@
             
   <div class="section" id="environment-variables">
 <h1>Environment Variables</h1>
-<p>The environment variables are defined in application yaml file under <em>env</em> section for
-single container applications. For multi-container applications environment variables
-would be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).</p>
+<p>CloudARK application definition format:</p>
+<p>Environment variables are defined in application yaml file under <em>env</em> section for
+single container applications.</p>
 <p>An example of environment variable definition in application yaml is shown below:</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
@@ -78,11 +78,38 @@ would be defined in the standard approach in the respective yaml file of the tar
     <span class="l l-Scalar l-Scalar-Plain">USER</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUsername</span>
 </pre></div>
 </div>
+<p>Kubernetes format:</p>
+<p>For multi-container applications environment variables
+can be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).</p>
+<p>An example of environment variable definition for Kubernetes pods is shown below:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">greetings1</span>
+  <span class="l l-Scalar l-Scalar-Plain">labels</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">greetings1</span>
+<span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">containers</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">us.gcr.io/cloudark-test-gke/greetpod:1512924392448</span>
+      <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">wordpress</span>
+      <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">containerPort</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
+      <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="s">&quot;PASSWORD&quot;</span>
+          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_CLOUDSQL_Password</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="s">&quot;DB&quot;</span>
+          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_CLOUDSQL_DBName</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="s">&quot;HOST&quot;</span>
+          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_CLOUDSQL_Address</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="s">&quot;USER&quot;</span>
+          <span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_CLOUDSQL_Username</span>
+</pre></div>
+</div>
 <p>Environment variables are defined as key:value pairs.</p>
 <p>An application is bound to managed services in the environment through the environment variables
-following the <a class="reference external" href="https://12factor.net/config">12-factor design principles</a>.</p>
-<p>The value of the parameter that needs to be bound to some resource’s specific attribute in an environment
-is set as a <em>interpolated variables</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
+following <a class="reference external" href="https://12factor.net/config">12-factor design principles</a>.</p>
+<p>The value of the parameter that needs to be bound to an attribute of the cloud resource in an environment
+is set as an <em>interpolated variables</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource

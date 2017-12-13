@@ -20,7 +20,7 @@ Platform-as-Code paradigm offers ability to define all platform elements of a co
 
 .. _whitepaper:  https://cloudark.io/resources
 
-CloudARK is implementation of Platform-as-Code (PaC) paradigm.
+CloudARK is an implementation of Platform-as-Code (PaC) paradigm.
 
 There are two main abstractions in CloudARK - *Environment* and *Application*.
 
@@ -33,8 +33,9 @@ There are two main abstractions in CloudARK - *Environment* and *Application*.
    application
    env_vars
    architecture
-   deployments
    implementation
+   extending
+   deployments
    faq
    roadmap
    samples
