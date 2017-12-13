@@ -34,8 +34,14 @@ class AppDeploy(Command):
             fp = open(parsed_args.app_file, "r")
             app_def = yaml.load(fp.read())
             if 'app' in app_def:
+                if app_def['app'] is None:
+                    print("app yaml cannot be empty.")
+                    exit()
                 if 'container_port' not in app_def['app']:
-                    print("container_port is missing from app definition.")
+                    print("'container_port' attribute is missing from app definition.")
+                    exit()
+                elif 'image' not in app_def['app']:
+                    print("'image' attribute is missing from app definition.")
                     exit()
         except Exception as e:
             exit()
