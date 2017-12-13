@@ -57,7 +57,7 @@ Here is a table showing currently supported application types, application defin
 +---------------------+-------------------------------+--------------+-------------------------------------------+
 | 1 cont + managed res|    pod yaml                   |    GKE       |         greetings_                        |
 +---------------------+-------------------------------+--------------+-------------------------------------------+
-| Multi-container     |    pod yaml                   |    GKE       |         wordpress_kube_pods_              |
+| Multi-container     |    pod yaml                   |    GKE       |   wordpress_kubernetes_pods_              |
 +---------------------+-------------------------------+--------------+-------------------------------------------+
 
 
@@ -67,6 +67,6 @@ Here is a table showing currently supported application types, application defin
 
 .. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
 
-.. _wordpress: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress
+.. _wordpress: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress/php5.6/apache
 
-.. _wordpress_kube_pods: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods
+.. _wordpress_kubernetes_pods: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods
