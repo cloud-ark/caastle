@@ -41,3 +41,32 @@ We have an issue open to support `scaling of application containers`__.
 .. _scaling: https://github.com/cloud-ark/cloudark/issues/5
 
 __ scaling_
+
+
+Application Details
+--------------------
+
+Here is a table showing currently supported application types, application definition formats, and the target cloud. We also provide link to a sample application for each.
+
++---------------------+-------------------------------+--------------+-------------------------------------------+
+| Type                | Application definition format | Target       |            Example                        |
++=====================+===============================+==============+===========================================+
+| Single container    |    app yaml                   | ECS & GKE    |         hello-world_                      |
++---------------------+-------------------------------+--------------+-------------------------------------------+
+| 1 cont + managed res|    app yaml                   | ECS & GKE    |         wordpress_                        |
++---------------------+-------------------------------+--------------+-------------------------------------------+
+| 1 cont + managed res|    pod yaml                   |    GKE       |         greetings_                        |
++---------------------+-------------------------------+--------------+-------------------------------------------+
+| Multi-container     |    pod yaml                   |    GKE       |         wordpress_kube_pods_              |
++---------------------+-------------------------------+--------------+-------------------------------------------+
+
+
+
+
+.. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world
+
+.. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
+
+.. _wordpress: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress
+
+.. _wordpress_kube_pods: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods
