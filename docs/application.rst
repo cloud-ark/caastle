@@ -48,17 +48,17 @@ Application Details
 
 Here is a table showing currently supported application types, application definition formats, and the target COE. We also provide link to a sample application for each case.
 
-+---------------------------------+-------------------------------+--------------+----------------------------+
-| Type                            | Application definition format |   COE        |            Example         |
-+=================================+===============================+==============+============================+
-| Single container                |    app yaml                   | ECS & GKE    |         hello-world_       |
-+---------------------------------+-------------------------------+--------------+----------------------------+
-| Single cont + a managed service |    app yaml                   | ECS & GKE    |         wordpress_         |
-+---------------------------------+-------------------------------+--------------+----------------------------+
-| Single cont + a managed service |    pod yaml                   |    GKE       |         greetings_         |
-+---------------------------------+-------------------------------+--------------+----------------------------+
-| Multi-container                 |    pod yaml                   |    GKE       |   wordpress_kubernetes_pod |
-+---------------------------------+-------------------------------+--------------+----------------------------+
++---------------------------------+-------------------------------+--------------+------------------------------+
+| Type                            | Application definition format |   COE        |            Example           |
++=================================+===============================+==============+==============================+
+| Single container                |    app yaml                   | ECS & GKE    |         hello-world_         |
++---------------------------------+-------------------------------+--------------+------------------------------+
+| Single cont + a managed service |    app yaml                   | ECS & GKE    |         wordpress_           |
++---------------------------------+-------------------------------+--------------+------------------------------+
+| Single cont + a managed service |    pod yaml                   |    GKE       |         greetings_           |
++---------------------------------+-------------------------------+--------------+------------------------------+
+| Multi-container                 |    pod yaml                   |    GKE       |   wordpress_kubernetes_pods_ |
++---------------------------------+-------------------------------+--------------+------------------------------+
 
 
 .. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world
