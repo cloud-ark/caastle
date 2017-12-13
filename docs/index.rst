@@ -39,6 +39,7 @@ There are two main abstractions in CloudARK - *Environment* and *Application*.
    roadmap
    samples
    troubleshooting
+   installation
 
 
 ..   intro
