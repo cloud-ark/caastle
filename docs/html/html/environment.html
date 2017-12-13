@@ -104,7 +104,7 @@ managed cloud services and COE cluster from any hosting provider of their choice
 <p>The policy attribute is used to control accessibility of the DB instance. This attribute contains
 a sub-attribute <em>access</em> whose value controls this aspect. If <em>access</em> is set to <em>open</em>, the RDS instance
 will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
-accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>.</p>
+accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>. Note that this option is similar for cloudsql and rds.</p>
 <p>The db instance is created with db-n1-standard-1 tier type. We have an issue <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/123">open</a> to make this attribute settable.</p>
 </li>
 </ol>

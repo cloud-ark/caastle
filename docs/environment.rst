@@ -47,7 +47,7 @@ An environment is created using 'cld environment create <env-name> <env yaml>' c
    The policy attribute is used to control accessibility of the DB instance. This attribute contains
    a sub-attribute *access* whose value controls this aspect. If *access* is set to *open*, the RDS instance
    will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
-   accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen here_.
+   accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen here_. Note that this option is similar for cloudsql and rds.
 
    The db instance is created with db-n1-standard-1 tier type. We have an issue open_ to make this attribute settable.
 
