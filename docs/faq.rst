@@ -56,7 +56,7 @@ It offers a great tool for traceability without having to setup number of CLI to
 
 Q) **Who are target users of CloudARK?**
 
-Development teams developing containerized cloud applications that run on public like AWS or Google cloud.
+Development teams developing containerized cloud applications that run on public clouds like AWS or Google cloud.
 
 
 Q) **What are the typical use-cases of CloudARK?**
@@ -70,7 +70,7 @@ and environment change history (upcoming) are useful for developers and ops engi
 debugging application behaviors or managing environments.
 
 
-Q) How does CloudARK differ from Infrastructure-as-Code tools such as Terraform?
+Q) **How does CloudARK differ from Infrastructure-as-Code tools such as Terraform or CloudFormation ?**
 
 Please refer to our `free whitepaper`__ on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
 
@@ -80,7 +80,7 @@ __ whitepaper_
 
 
 
-Q) How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?
+Q) **How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?**
 
 Please refer to our free whitepaper on Platform-as-Code comparison with PaaSes and Infrastructure-as-Code.
 
