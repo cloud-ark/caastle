@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending CloudARK &#8212; CloudARK 0.0.1 documentation</title>
+    <title>Google Setup &#8212; CloudARK 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,31 +22,31 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Cloud Setup" href="deployments.html" />
-    <link rel="prev" title="Implementation Details" href="implementation.html" /> 
+    <link rel="next" title="Amazon Setup" href="ecs.html" />
+    <link rel="prev" title="Cloud Setup" href="deployments.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
+          <a href="ecs.html" title="Amazon Setup"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
+          <a href="deployments.html" title="Cloud Setup"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" accesskey="U">CloudARK Architecture</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="deployments.html" accesskey="U">Cloud Setup</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="implementation.html"
-                        title="previous chapter">Implementation Details</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="deployments.html"
-                        title="next chapter">Cloud Setup</a></p>
+                        title="previous chapter">Cloud Setup</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ecs.html"
+                        title="next chapter">Amazon Setup</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -65,18 +65,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="extending-cloudark">
-<h1>Extending CloudARK</h1>
-<p>It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
-command, add it in the client folder and hook it up with the rest of the client-side
-system by making entry for it in the setup.py client module.</p>
-<p>If you want to extend server-side functionality, the key places to look at are:</p>
-<ul class="simple">
-<li>fmserver.py: This is the REST entry point for server-side processing.</li>
-<li>server/server_plugins: This is the package corresponding to different target clouds.</li>
-<li>server/setup.py: This is the module where stevedore entrypoints are set.</li>
-<li>server/dbmodule: This package includes CloudARK’s state management functionality.</li>
-</ul>
+  <div class="section" id="google-setup">
+<h1>Google Setup</h1>
+<p>$ cld setup gcloud</p>
+<p>This will request OAuth authorizations for gcloud sdk and gcloud auth library. Follow the prompts and provide the required input.</p>
+<p>$ ./restart-cloudark.sh</p>
+<p>Create a project from Google Cloud console. Note down the Project ID.
+You will need to pass it when creating container to be saved in GCR and when
+creating GKE environment.</p>
 </div>
 
 
@@ -89,13 +85,13 @@ system by making entry for it in the setup.py client module.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
+          <a href="ecs.html" title="Amazon Setup"
              >next</a></li>
         <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
+          <a href="deployments.html" title="Cloud Setup"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" >CloudARK Architecture</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="deployments.html" >Cloud Setup</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

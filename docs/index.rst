@@ -26,15 +26,13 @@ There are two main abstractions in CloudARK - *Environment* and *Application*.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    environment
    application
    env_vars
    architecture
-   implementation
-   extending
    deployments
    cli
    faq

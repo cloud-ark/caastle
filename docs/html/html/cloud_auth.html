@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending CloudARK &#8212; CloudARK 0.0.1 documentation</title>
+    <title>Cloud Authorization Explained &#8212; CloudARK 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,31 +22,31 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Cloud Setup" href="deployments.html" />
-    <link rel="prev" title="Implementation Details" href="implementation.html" /> 
+    <link rel="next" title="CloudARK CLI" href="cli.html" />
+    <link rel="prev" title="Amazon Setup" href="ecs.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
+          <a href="cli.html" title="CloudARK CLI"
              accesskey="N">next</a></li>
         <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
+          <a href="ecs.html" title="Amazon Setup"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" accesskey="U">CloudARK Architecture</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="deployments.html" accesskey="U">Cloud Setup</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="implementation.html"
-                        title="previous chapter">Implementation Details</a></p>
+  <p class="topless"><a href="ecs.html"
+                        title="previous chapter">Amazon Setup</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="deployments.html"
-                        title="next chapter">Cloud Setup</a></p>
+  <p class="topless"><a href="cli.html"
+                        title="next chapter">CloudARK CLI</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -65,18 +65,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="extending-cloudark">
-<h1>Extending CloudARK</h1>
-<p>It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
-command, add it in the client folder and hook it up with the rest of the client-side
-system by making entry for it in the setup.py client module.</p>
-<p>If you want to extend server-side functionality, the key places to look at are:</p>
-<ul class="simple">
-<li>fmserver.py: This is the REST entry point for server-side processing.</li>
-<li>server/server_plugins: This is the package corresponding to different target clouds.</li>
-<li>server/setup.py: This is the module where stevedore entrypoints are set.</li>
-<li>server/dbmodule: This package includes CloudARK’s state management functionality.</li>
-</ul>
+  <div class="section" id="cloud-authorization-explained">
+<h1>Cloud Authorization Explained</h1>
+<p>CloudARK uses combination of target cloud’s SDKs and CLIs as cloud deployment mechanisms.
+The reason for this two-pronged approach is explained in <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/architecture.html">architecture section</a>.</p>
+<p>The deployment mechanism dictates the nature of authorizations needed by CloudARK.</p>
+<p>For Google cloud, CloudARK uses the Google cloud SDK, the Google cloud CLI and Kubernetes CLI (kubectl) for performing deployments.
+The Google cloud SDK and CLI need separate OAuth authorizations. When you run ‘cld setup gcloud’ command you will have to
+grant authorizations for both. Once the authorizations are granted, the auth information is stored in following directories:</p>
+<p>~/.config/gcloud and ~/.kube</p>
+<p>These are the standard directories where Google Cloud SDK/CLI and kubectl CLI expect authorization information.</p>
+<p>For AWS, authorization based on user’s access key is sufficient for both SDK and CLI.
+CloudARK uses the access key provided by the user and stores it in ~/.aws directory as part of ‘cld setup aws’ command.
+This is the standard directory in which AWS SDK and AWS CLI look for authorization credentials.
+Additionally, CloudARK also generates a ssh key-pair when provisioning cluster instances for an environment.
+This key is stored in the environment-specific folder inside ~/.cld/data/deployments/environments directory. This key can be used to login to the ECS cluster instance using following command:</p>
+<p>ssh -i “&lt;pem file&gt;” ec2-user&#64;&lt;AWS cluster instance IP&gt;</p>
 </div>
 
 
@@ -89,13 +93,13 @@ system by making entry for it in the setup.py client module.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
+          <a href="cli.html" title="CloudARK CLI"
              >next</a></li>
         <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
+          <a href="ecs.html" title="Amazon Setup"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" >CloudARK Architecture</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="deployments.html" >Cloud Setup</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
