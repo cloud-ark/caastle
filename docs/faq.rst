@@ -54,7 +54,7 @@ This shell can be quite handy when you are developing applications using CloudAR
 It offers a great tool for traceability without having to setup number of CLI tools.
 
 
-Q) **Who are target users of CloudARK?**
+Q) **Who are the target users of CloudARK?**
 
 Development teams developing containerized cloud applications that run on public clouds like AWS or Google cloud.
 
