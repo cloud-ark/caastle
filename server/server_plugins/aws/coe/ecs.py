@@ -466,7 +466,16 @@ class ECSHandler(coe_base.COEBase):
             os.makedirs(env_store_location)
         shutil.copytree(home_dir + "/.aws", env_store_location + "/aws-creds")
 
-        vpc_details = ECSHandler.awshelper.get_vpc_details()
+        vpc_id = ''
+        subnet_ids = ''
+        try:
+            vpc_details = ECSHandler.awshelper.get_vpc_details()
+        except Exception as e:
+            fmlogger.error("Error occurred when trying to get vpc details %s" + str(e))
+            error_message = 'provisioning-failed: ' + str(e)
+            env_db.Environment().update(env_id, {'output_config': error_message,
+                                                 'status': 'create-failed'})
+
         vpc_id = vpc_details['vpc_id']
         cidr_block = vpc_details['cidr_block']
         subnet_ids = ECSHandler.awshelper.get_subnet_ids(vpc_id)
