@@ -59,6 +59,8 @@ Following table shows currently supported application types, application definit
 +---------------------------------+-------------------------------+--------------+------------------------------+
 | Multi-container                 | pod yaml (Kubernetes format)  |    GKE       |   wordpress_kubernetes_pods_ |
 +---------------------------------+-------------------------------+--------------+------------------------------+
+| Multi-container + managed serv  | pod yaml (Kubernetes format)  |    GKE       |                              |
++---------------------------------+-------------------------------+--------------+------------------------------+
 
 Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 
