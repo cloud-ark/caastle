@@ -1,5 +1,5 @@
-Deployment to GKE
-------------------
+Google GKE setup
+-----------------
 
 $ cld setup gcloud
 
@@ -12,8 +12,8 @@ You will need to pass it when creating container to be saved in GCR and when
 creating GKE environment.
 
 
-Deployment to Amazon ECS
--------------------------
+Amazon ECS setup
+-----------------
 
 $ cld setup aws
     
