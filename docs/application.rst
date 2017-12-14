@@ -6,6 +6,14 @@ An application is composed of a single or multiple Docker containers in CloudARK
 CloudARK offers ‘cld container create’ command to build your application container/s from your Docker files and push them to your registry of choice.
 The container is appropriately tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.
 
+Note that for GCR currently all the images are stored in the us.gcr.io region_. We have an `issue open`__ to support different regions.
+
+.. _region: https://github.com/cloud-ark/cloudark/blob/master/server/server_plugins/gcloud/resource/gcr.py#L23
+
+.. _differentregs: https://github.com/cloud-ark/cloudark/issues/196
+
+__ differentregs_
+
 Application definition is done using our yaml format for single container applications or respective COE yaml format such as Kubernetes yaml format for multi-container applications. Note that for Kubernetes yaml format, currently only Pod definitions are supported. Support for ECS task yaml is planned.
 
 Application definition includes URIs of the built containers from container registry, container inter-dependencies and any other run-time parameters to run each container.
