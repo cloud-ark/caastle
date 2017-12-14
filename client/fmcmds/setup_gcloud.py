@@ -44,7 +44,7 @@ class GCloudSetup(Command):
         err, output = self._execute_cmd(run_cmd)
 
         if err:
-            clouprint("Error occurred in setting up Google cloud. Exiting.")
+            print("Error occurred in setting up Google cloud. %s " % err)
             exit()
 
         cont_id = ''
