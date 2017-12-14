@@ -1,5 +1,5 @@
-Cloud Setup
-------------
+CloudARK Setup
+---------------
 
 Before you start using CloudARK, you will need to do the appropriate cloud setup as explained in
 following sections. This setup allows CloudARK to make required calls to the target cloud
