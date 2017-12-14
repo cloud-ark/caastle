@@ -43,6 +43,9 @@ class ContainerCreate(Command):
             exit()
 
         if repository == 'gcr':
+            if not common.cloud_setup('gcloud'):
+                print("Cloud setup not done for Google cloud. Please run 'cld setup gcloud' and then ./<cloudark-dir>/restart-cloudark.sh")
+                exit()
             project_id = ''
             if not parsed_args.project_id:
                 project_id = raw_input("Project ID>")
@@ -50,6 +53,11 @@ class ContainerCreate(Command):
                 project_id = parsed_args.project_id
 
             cont_info['project'] = project_id
+
+        if repository == 'ecr':
+            if not common.cloud_setup('aws'):
+                print("Cloud setup not done for AWS cloud. Please run 'cld setup aws' and then ./<cloudark-dir>/restart-cloudark.sh")
+                exit()
 
         cont_df_location = os.getcwd()
         if not os.path.exists(cont_df_location + "/Dockerfile"):
