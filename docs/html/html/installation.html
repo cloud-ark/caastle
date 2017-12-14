@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extending CloudARK &#8212; CloudARK 0.0.1 documentation</title>
+    <title>Installation: &#8212; CloudARK 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,31 +22,23 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Cloud Setup" href="deployments.html" />
-    <link rel="prev" title="Implementation Details" href="implementation.html" /> 
+    <link rel="prev" title="Troubleshooting tips" href="troubleshooting.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
-             accesskey="N">next</a></li>
-        <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" accesskey="U">CloudARK Architecture</a> &#187;</li> 
+          <a href="troubleshooting.html" title="Troubleshooting tips"
+             accesskey="P">previous</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="implementation.html"
-                        title="previous chapter">Implementation Details</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="deployments.html"
-                        title="next chapter">Cloud Setup</a></p>
+  <p class="topless"><a href="troubleshooting.html"
+                        title="previous chapter">Troubleshooting tips</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -65,18 +57,36 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="extending-cloudark">
-<h1>Extending CloudARK</h1>
-<p>It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
-command, add it in the client folder and hook it up with the rest of the client-side
-system by making entry for it in the setup.py client module.</p>
-<p>If you want to extend server-side functionality, the key places to look at are:</p>
-<ul class="simple">
-<li>fmserver.py: This is the REST entry point for server-side processing.</li>
-<li>server/server_plugins: This is the package corresponding to different target clouds.</li>
-<li>server/setup.py: This is the module where stevedore entrypoints are set.</li>
-<li>server/dbmodule: This package includes CloudARK’s state management functionality.</li>
-</ul>
+  <div class="section" id="installation">
+<h1>Installation:</h1>
+<p>CloudARK requires Docker to be installed on the Host. Also, the effective user permissions of the shell
+in which CloudARK is running needs to be such that docker commands can be invoked without sudo.</p>
+<p><strong>Docker installation on Ubuntu</strong></p>
+<p>You will find detailed Docker installation steps on <a class="reference external" href="https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#set-up-the-repository">here</a>.</p>
+<p>Here are quick steps:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo apt-key fingerprint 0EBFCD88
+
+$ sudo add-apt-repository \
+    &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable&quot;
+
+$ sudo apt-get update
+
+$ sudo apt-get install docker-ce
+
+$ sudo usermod -aG docker $USER
+</pre></div>
+</div>
+<p>Exit from the shell and open another shell (or Logout and log back in).</p>
+<p>Verify that you are able to run docker commands without sudo:</p>
+<p>$ docker ps -a</p>
+<p><strong>Docker installation on Mac OS</strong></p>
+<p>Docker for Mac: <a class="reference external" href="https://docs.docker.com/docker-for-mac/install/">https://docs.docker.com/docker-for-mac/install/</a></p>
 </div>
 
 
@@ -89,13 +99,9 @@ system by making entry for it in the setup.py client module.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="deployments.html" title="Cloud Setup"
-             >next</a></li>
-        <li class="right" >
-          <a href="implementation.html" title="Implementation Details"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="architecture.html" >CloudARK Architecture</a> &#187;</li> 
+          <a href="troubleshooting.html" title="Troubleshooting tips"
+             >previous</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -12,19 +12,24 @@ You will find detailed Docker installation steps on here_.
 
 Here are quick steps:
 
-$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+.. code:: bash
 
-$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   $ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
 
-$ sudo apt-key fingerprint 0EBFCD88
+   $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu$(lsb_release -cs) stable"
+   $ sudo apt-key fingerprint 0EBFCD88
 
-$ sudo apt-get update
+   $ sudo add-apt-repository \
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+       $(lsb_release -cs) \
+       stable"
 
-$ sudo apt-get install docker-ce
+   $ sudo apt-get update
 
-$ sudo usermod -aG docker $USER
+   $ sudo apt-get install docker-ce
+
+   $ sudo usermod -aG docker $USER
 
 Exit from the shell and open another shell (or Logout and log back in).
 
