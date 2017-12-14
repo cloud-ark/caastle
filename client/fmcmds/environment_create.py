@@ -93,7 +93,8 @@ class EnvironmentCreate(Command):
         for cloud in cloud_list:
             if not common.cloud_setup(cloud):
                 setup_not_done = True
-                print("Setup not done for cloud %s. Run cld setup to do the setup." % cloud)
+                print("Setup not done for cloud %s. Run 'cld setup %s' to do the setup." % (cloud, cloud))
+                print("Once setup is done, restart cloudark server: ./<cloudark-dir>/restart-cloudark.sh")
 
         if setup_not_done:
             exit()

@@ -9,10 +9,20 @@ source $virtenv/bin/activate &>> $install_log
 ./$virtenv/bin/python server/setup.py install
 ./$virtenv/bin/python server/fmserver.py 1>>cld.log 2>&1 &
 
+# Delete previous error file
+
+if [[ -f "cloudark.error" ]]; then
+   rm -f "cloudark.error"
+fi 
+
 while [[ ! -f "cloudark.status" ]]
 do
-echo "Waiting for CloudARK server to start"
-sleep 5s
+  echo "Waiting for CloudARK server to start"
+  sleep 5s
+  if [[ -f "cloudark.error" ]]; then
+      echo "Error occurred in starting CloudARK server. Check cloudark.error"
+      exit
+  fi
 done
 
 sleep 1s

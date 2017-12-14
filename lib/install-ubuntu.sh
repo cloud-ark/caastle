@@ -5,6 +5,15 @@ truncate -s 0 install.log
 install_log="install.log"
 echo "Installing CloudARK. Installation logs stored in $install_log" 
 
+echo "Checking if Docker is installed or not.."
+
+docker_available=`docker ps | grep "CONTAINER ID"`
+
+if [[ -z "$docker_available" ]]; then
+   echo "Docker is not installed. Please install Docker and then run install.sh again."
+   exit
+fi
+
 sudo apt-get update && sudo apt-get install -y python-pip
 sudo pip install virtualenv
 
@@ -36,6 +45,7 @@ echo "export PYTHONPATH=$PYTHONPATH" >> ~/.bashrc
 echo "Installing CloudARK client done." &>> $install_log
 
 cd ..
+
 
 echo "Next steps:"
 echo "1) Do cloud setup using: "

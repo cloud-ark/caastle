@@ -1,21 +1,38 @@
 import threading
 
-import aws_handler
 from common import fm_logger
-import gcloud_handler
+
+fmlogging = fm_logger.Logging()
+
 import local_handler
 
 from server.dbmodule.objects import app as app_db
 
-fmlogging = fm_logger.Logging()
+try:
+    import aws_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading aws_handler %s" % str(e))
 
+try:
+    import gcloud_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading gcloud_handler %s " % str(e))
 
 class AppHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
-    registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
-    registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
+
     registered_cloud_handlers['local'] = local_handler.LocalHandler()
+
+    try:
+        registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
+
+    try:
+        registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
 
     def __init__(self, app_id, app_info, action=''):
         self.app_id = app_id
