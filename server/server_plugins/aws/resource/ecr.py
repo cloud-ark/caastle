@@ -35,6 +35,7 @@ class ECRHandler(resource_base.ResourceBase):
         username = ''
         password = ''
         repo_name = cont_info['cont_name']
+        decoded_auth_token = ''
         try:
             self.ecr_client.describe_repositories(repositoryNames=[repo_name])
         except Exception as e:
@@ -50,7 +51,8 @@ class ECRHandler(resource_base.ResourceBase):
             password = parts[1]
             proxy_endpoint = token_response['authorizationData'][0]['proxyEndpoint']
             fmlogger.debug("Done creating repository.")
-        return repo_name, proxy_endpoint, username, password
+
+        return repo_name, proxy_endpoint, username, password, decoded_auth_token
 
     def _set_up_docker_client(self, username, password, proxy_endpoint):
         err, output = self.docker_handler.docker_login(username, password, proxy_endpoint)
@@ -80,16 +82,33 @@ class ECRHandler(resource_base.ResourceBase):
         cont_details = {}
         cont_data = {}
 
-        cont_db.Container().update(cont_name, cont_data)
-
         cont_data['status'] = 'creating-ecr-repository'
-        cont_data['output_config'] = str(cont_details)
+
         cont_db.Container().update(cont_name, cont_data)
-        repo_name, proxy_endpoint, username, password = self._create_repository(cont_info)
+        repo_name, proxy_endpoint, username, password, decoded_auth_token = self._create_repository(cont_info)
+
+        if username == '':
+            try:
+                cont_obj = cont_db.Container().get(cont_name)
+                cont_output_config = ast.literal_eval(cont_obj.output_config)
+                repo_name = cont_output_config['repo_name']
+                proxy_endpoint = cont_output_config['proxy_endpoint']
+                username = cont_output_config['username']
+                password = cont_output_config['password']
+            except Exception as e:
+                fmlogger.error(str(e))
+                cont_data['status'] = 'Error encountered in building and tagging image.' + str(e)
+                cont_db.Container().update(cont_name, cont_data)
+                return
+
         cont_details['repo_name'] = repo_name
         cont_details['proxy_endpoint'] = proxy_endpoint
+        cont_details['decoded_auth_token'] = decoded_auth_token
 
         if username and password and proxy_endpoint:
+            cont_details['username'] = username
+            cont_details['password'] = password
+            cont_data['output_config'] = str(cont_details)
             err, output = self._set_up_docker_client(username, password, proxy_endpoint)
             if err and err.strip() != 'WARNING! Using --password via the CLI is insecure. Use --password-stdin.':
                 fmlogger.debug("Error encountered in executing docker login command. Not continuing with the request. %s" % err)
@@ -98,7 +117,7 @@ class ECRHandler(resource_base.ResourceBase):
         tag = str(int(round(time.time() * 1000)))
 
         cont_data['status'] = 'building-container'
-        cont_data['output_config'] = str(cont_details)
+
         cont_db.Container().update(cont_name, cont_data)
         err, output, image_name = self._build_container(cont_info, repo_name, proxy_endpoint, tag=tag)
         tagged_image = image_name + ":" + tag
@@ -108,7 +127,7 @@ class ECRHandler(resource_base.ResourceBase):
             cont_db.Container().update(cont_name, cont_data)
             return
 
-        cont_details = {'tagged_image': tagged_image}
+        cont_details['tagged_image'] = tagged_image
         cont_data['status'] = 'pushing-app-cont-to-ecr-repository'
         cont_data['output_config'] = str(cont_details)
         cont_db.Container().update(cont_name, cont_data)
