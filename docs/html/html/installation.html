@@ -22,23 +22,31 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Troubleshooting tips" href="troubleshooting.html" /> 
+    <link rel="next" title="Google Setup" href="gke.html" />
+    <link rel="prev" title="CloudARK Setup" href="deployments.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="troubleshooting.html" title="Troubleshooting tips"
-             accesskey="P">previous</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+          <a href="gke.html" title="Google Setup"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="deployments.html" title="CloudARK Setup"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="deployments.html" accesskey="U">CloudARK Setup</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="troubleshooting.html"
-                        title="previous chapter">Troubleshooting tips</a></p>
+  <p class="topless"><a href="deployments.html"
+                        title="previous chapter">CloudARK Setup</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gke.html"
+                        title="next chapter">Google Setup</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -64,13 +72,24 @@ in which CloudARK is running needs to be such that docker commands can be invoke
 <p><strong>Docker installation on Ubuntu</strong></p>
 <p>You will find detailed Docker installation steps on <a class="reference external" href="https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#set-up-the-repository">here</a>.</p>
 <p>Here are quick steps:</p>
-<p>$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common</p>
-<p>$ curl -fsSL <a class="reference external" href="https://download.docker.com/linux/ubuntu/gpg">https://download.docker.com/linux/ubuntu/gpg</a> | sudo apt-key add -</p>
-<p>$ sudo apt-key fingerprint 0EBFCD88</p>
-<p>$ sudo add-apt-repository “deb [arch=amd64] <a class="reference external" href="https://download.docker.com/linux/ubuntu">https://download.docker.com/linux/ubuntu</a> $(lsb_release -cs) stable”</p>
-<p>$ sudo apt-get update</p>
-<p>$ sudo apt-get install docker-ce</p>
-<p>$ sudo usermod -aG docker $USER</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo apt-key fingerprint 0EBFCD88
+
+$ sudo add-apt-repository \
+    &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable&quot;
+
+$ sudo apt-get update
+
+$ sudo apt-get install docker-ce
+
+$ sudo usermod -aG docker $USER
+</pre></div>
+</div>
 <p>Exit from the shell and open another shell (or Logout and log back in).</p>
 <p>Verify that you are able to run docker commands without sudo:</p>
 <p>$ docker ps -a</p>
@@ -88,9 +107,13 @@ in which CloudARK is running needs to be such that docker commands can be invoke
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="troubleshooting.html" title="Troubleshooting tips"
-             >previous</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+          <a href="gke.html" title="Google Setup"
+             >next</a></li>
+        <li class="right" >
+          <a href="deployments.html" title="CloudARK Setup"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="deployments.html" >CloudARK Setup</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
