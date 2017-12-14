@@ -81,6 +81,10 @@ class GCloudSetup(Command):
                 print("Incorrect region specified. Please choose one of above.")
 
         cloudark_google_setup_details_path = APP_STORE_PATH + "/google-creds-cloudark"
+        if not os.path.exists(APP_STORE_PATH):
+            mkdir_command = ("mkdir -p {app_store_path}").format(app_store_path=APP_STORE_PATH)
+            os.system(mkdir_command)
+
         fp = open(cloudark_google_setup_details_path, "w")
         fp.write("zone:%s" % zone.strip())
         fp.close()
