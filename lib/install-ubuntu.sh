@@ -38,11 +38,14 @@ echo "Installing CloudARK client done." &>> $install_log
 cd ..
 
 echo "Next steps:"
-echo "  - ./start-cloudark.sh"
-
+echo "1) Do cloud setup using: "
+echo "   $ cld setup aws - to do aws setup"
+echo "   $ cld setup gcloud - to do gcloud setup"
+echo "2) Start cloudark server"
+echo "   $ ./start-cloudark.sh"
 
 # Activate virtual environment
-#/bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"
+/bin/bash -c ". $virtenv/bin/activate; exec /bin/bash -i"
 
 
 
