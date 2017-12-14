@@ -659,9 +659,9 @@ class ECSHandler(coe_base.COEBase):
                 cont_name,
                 task_def_arn
             )
-        except exceptions.ECSServiceCreateTimeout as e:
+        except Exception as e: #exceptions.ECSServiceCreateTimeout as e:
             fmlogger.error(e)
-            app_details['error'] = e.get_message()
+            app_details['error'] = str(e) #e.get_message()
             app_data = {}
             app_data['output_config'] = str(app_details)
             app_db.App().update(app_id, app_data)

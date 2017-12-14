@@ -36,6 +36,7 @@ class AWSHelper(object):
             lb_arn = response['LoadBalancers'][0]['LoadBalancerArn']
         except Exception as e:
             fmlogger.error("Encountered exception in creating application load balancer:%s" % e)
+            raise e
 
         fmlogger.debug("Application load balancer creation done. LB DNS:%s" % lb_dns)
         return lb_arn, lb_dns
@@ -51,6 +52,7 @@ class AWSHelper(object):
             target_group_name = response['TargetGroups'][0]['TargetGroupName']
         except Exception as e:
             fmlogger.error("Encountered exception in creating target group:%s" % e)
+            raise e
         
         fmlogger.debug("lb target group creation done. target_group_arn:%s target_group_name:%s" % (target_group_arn, target_group_name))
         return target_group_arn, target_group_name
@@ -67,6 +69,7 @@ class AWSHelper(object):
             listener_arn = response['Listeners'][0]['ListenerArn']
         except Exception as e:
             fmlogger.error("Encountered exception in creating a lb listener %s" % e)
+            raise e
 
         fmlogger.debug("Done creating lb listener.")
         return listener_arn
@@ -128,6 +131,7 @@ class AWSHelper(object):
                     subnet_ids.append(subnet['SubnetId'])
         except Exception as e:
             fmlogger.error("Encountered exception in getting subnet details %s" % e)
+            raise e
 
         return subnet_ids
     
@@ -151,6 +155,7 @@ class AWSHelper(object):
             self.ec2_client.delete_security_group(GroupId=group_id, GroupName=group_name)
         except Exception as e:
             fmlogger.error("Encountered exception in deleting security group %s" % e)
+            raise e
 
     def setup_security_group(self, vpc_id, ip_range, sec_group_id, sec_group_name, port_list):
         for ip in ip_range:
@@ -176,6 +181,7 @@ class AWSHelper(object):
                                                                              'IpProtocol': protocol}])
         except Exception as e:
             fmlogger.debug("Encountered exception in adding rule to security group:%s" % e)
+            raise e
         return
 
     def get_container_port_from_taskdef(self, task_def_arn):
@@ -233,7 +239,12 @@ class AWSHelper(object):
         sec_group_list = [sec_group_id]
         lb_arn, lb_dns = self._create_application_lb(app_name, subnet_list, sec_group_list)
         target_group_arn, target_group_name = self._create_target_group(app_name, container_port, vpc_id)
-        listener_arn = self._create_lb_listener(host_port, lb_arn, target_group_arn)
+        listener_arn = ''
+        try:
+            listener_arn = self._create_lb_listener(host_port, lb_arn, target_group_arn)
+        except Exception as e:
+            fmlogging.error(str(e))
+            raise e
         desired_count = 1  # Number of tasks default to 1
 
         role_obj = self.iam_client.get_role(RoleName='EcsServiceRole')
@@ -251,7 +262,7 @@ class AWSHelper(object):
                                            role=role_arn)
         except Exception as e:
             fmlogger.debug("Exception encountered in creating ECS service for app %s" % e)
-            return
+            raise e
         fmlogger.debug("ECS service creation for app %s done." % app_name)
 
         service_available = False
