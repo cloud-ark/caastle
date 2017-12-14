@@ -73,7 +73,7 @@ CloudARK creates following resources as part of environment creation and applica
 
    So when you delete the application, delete the VPC network from the Google cloud console
 
-   Similary when you delete a container, the GCR repository for it is not getting deleted_.
+   Similarly when you delete a container, the GCR repository for it is not getting deleted_.
 
 .. _deleted: https://github.com/cloud-ark/cloudark/issues/102
 
@@ -82,7 +82,7 @@ CloudARK creates following resources as part of environment creation and applica
 
 3) Local Docker resources:
 
-   Occassionally, CloudARK uses Docker as the mechanism for invoking native cloud CLI commands.
+   Occasionally, CloudARK uses Docker as the mechanism for invoking native cloud CLI commands.
    Docker containers and Docker images created for this purpose are deleted by CloudARK.
    However, once in a while it will be a good idea to verify this and do cleanup actions given below,
    if required:
@@ -93,7 +93,7 @@ CloudARK creates following resources as part of environment creation and applica
 
    $ docker images | grep none | awk '{print $3}' | xargs docker rmi
 
-   Repeate the docker rmi command as many times as required by changing the grepped value
+   Repeat the docker rmi command as many times as required by changing the grepped value
  
 **CloudARK's internal state**
 

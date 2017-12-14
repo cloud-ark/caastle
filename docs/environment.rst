@@ -38,32 +38,10 @@ managed cloud services and COE cluster from any hosting provider of their choice
 
 An environment is created using 'cld environment create <env-name> <env yaml>' command.
 
-**Currently supported Google Cloud resource types**
-
-1) cloudsql:
-
-   *Configuration attributes: dbname, policy*
-
-   The policy attribute is used to control accessibility of the DB instance. This attribute contains
-   a sub-attribute *access* whose value controls this aspect. If *access* is set to *open*, the RDS instance
-   will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
-   accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen here_. Note that this option is similar for cloudsql and rds.
-
-   The db instance is created with db-n1-standard-1 tier type. We have an issue open_ to make this attribute settable.
-
-.. _open: https://github.com/cloud-ark/cloudark/issues/123
+Here are the currently supported resources in an environment definition in CloudARK.
 
 
-2) gke:
-
-   *Configuration attributes: cluster_size, instance_type*
-
-   Default value for cluster_size is 1. Default value for instance_type is n1-standard-1
-
-   The configuration attributes for gke are specified in the *app_deployment* section of the environment definition.
-
-
-**Currently supported AWS resource types**
+**AWS resource types**
 
 1) rds:
 
@@ -95,9 +73,36 @@ An environment is created using 'cld environment create <env-name> <env yaml>' c
    Default value for cluster_size is 1. Default value for instance_type is t2.micro
 
    The configuration attributes for ecs are specified in the *app_deployment* section of the environment definition.
-   
+
+   Here are examples of environment definitions showing use of cluster_size_ and instance_type_ attributes.
+
+.. _cluster_size: https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-size-2.yaml
+
+.. _instance_type: https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-instance-type.yaml
+
+   For the machine image, CloudARK uses AWS machine image that has ECS agent baked in.
 
 
+**Google Cloud resource types**
+
+1) cloudsql:
+
+   *Configuration attributes: dbname, policy*
+
+   The policy attribute is used to control accessibility of the DB instance. This attribute contains
+   a sub-attribute *access* whose value controls this aspect. If *access* is set to *open*, the RDS instance
+   will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
+   accessible only from IP address in that CIDR subnet. Note that this option is similar for cloudsql and rds as shown here_. 
+
+   The db instance is created with db-n1-standard-1 tier type. We have an issue open_ to make this attribute settable.
+
+.. _open: https://github.com/cloud-ark/cloudark/issues/123
 
 
+2) gke:
 
+   *Configuration attributes: cluster_size, instance_type*
+
+   Default value for cluster_size is 1. Default value for instance_type is n1-standard-1
+
+   The configuration attributes for gke are specified in the *app_deployment* section of the environment definition.

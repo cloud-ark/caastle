@@ -105,20 +105,20 @@ We have an open issue for <a class="reference external" href="https://github.com
 </ol>
 <blockquote>
 <div><p>So when you delete the application, delete the VPC network from the Google cloud console</p>
-<p>Similary when you delete a container, the GCR repository for it is not getting <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/102">deleted</a>.</p>
+<p>Similarly when you delete a container, the GCR repository for it is not getting <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/102">deleted</a>.</p>
 </div></blockquote>
 <blockquote>
 <div>Manually delete the repository after you have deleted the container.</div></blockquote>
 <ol class="arabic" start="3">
 <li><p class="first">Local Docker resources:</p>
-<p>Occassionally, CloudARK uses Docker as the mechanism for invoking native cloud CLI commands.
+<p>Occasionally, CloudARK uses Docker as the mechanism for invoking native cloud CLI commands.
 Docker containers and Docker images created for this purpose are deleted by CloudARK.
 However, once in a while it will be a good idea to verify this and do cleanup actions given below,
 if required:</p>
 <p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker stop</p>
 <p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker rm</p>
 <p>$ docker images | grep none | awk ‘{print $3}’ | xargs docker rmi</p>
-<p>Repeate the docker rmi command as many times as required by changing the grepped value</p>
+<p>Repeat the docker rmi command as many times as required by changing the grepped value</p>
 </li>
 </ol>
 <p><strong>CloudARK’s internal state</strong></p>

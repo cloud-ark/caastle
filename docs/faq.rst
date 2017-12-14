@@ -21,7 +21,7 @@ CloudARK tries to balance the fine line between abstraction and control through 
 - First, for defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
   the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
   AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
-  supporting all the setable attributes soon. (In the mean time if you are interested in any particular attribute,
+  supporting all the settable attributes soon. (In the mean time if you are interested in any particular attribute,
   file a Github issue_ and we will add it to CloudARK).
 
 .. _issue: https://github.com/cloud-ark/cloudark/issues
@@ -30,10 +30,12 @@ CloudARK tries to balance the fine line between abstraction and control through 
 - Second, for microservices definition we take a two pronged approach. For applications that involve a single container, we
   support a simple application definition format that supports minimal set of attributes which would be typically used
   to deploy such applications. These attributes include, *image uri*, *container_port*, *host_port*, *environment
-  variables*. For multi-container applications we support Kubernetes's native yaml file. You can define your Pods, Services, Deployments,
-  ReplicationControllers, etc. in Kubernetes's standard format. Currently we require you to define a single file
-  containing all your Kubernetes element definitions.
+  variables*. For multi-container applications we support Kubernetes's native yaml file. You can define your container Pods
+  in Kubernetes's standard format. We require you to define `a single file containing all your Pod definitions`__ in it.
 
+.. _podsonly: https://github.com/cloud-ark/cloudark/issues/200
+
+__ podsonly_
 
 - Third, we provide the mechanism of *environment-specific shell* (see below) through which you can execute native commands specific to the resources in the environment.
   For instance, when developing/deploying your applications on GKE, you might want to execute "kubectl get pods" to
@@ -61,7 +63,7 @@ Development teams developing containerized cloud applications that run on public
 
 Q) **What are the typical use-cases of CloudARK?**
 
-CloudARK is targetted as a common tool between developers and operations engineers.
+CloudARK is targeted as a common tool between developers and operations engineers.
 CloudARK provides easy way for developers and ops to collaborate on declarative platform definitions.
 Developers can use CloudARK as local development environment, along with Docker.
 Ops engineers can integrate CloudARK-based application deployment workflow in their standard Jenkins like DevOps workflow.
