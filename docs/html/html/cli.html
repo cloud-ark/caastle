@@ -66,60 +66,59 @@
             
   <div class="section" id="cloudark-cli">
 <h1>CloudARK CLI</h1>
-<p>(cloudark-virtenv) cld –help
-usage: cld [–version] [-v | -q] [–log-file LOG_FILE] [-h] [–debug]</p>
-<p>Platform-as-Code tool for full-stack microservices development for public
-clouds.</p>
-<dl class="docutils">
-<dt>optional arguments:</dt>
-<dd><table class="first last docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd><span class="option">--version</span></kbd></td>
-<td>show program’s version number and exit</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
-<td>Increase verbosity of output. Can be repeated.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-q</span>, <span class="option">--quiet</span></kbd></td>
-<td>Suppress output except warnings and errors.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--log-file <var>LOG_FILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Specify a file to log output. Disabled by default.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
-<td>Show help message and exit.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--debug</span></kbd></td>
-<td>Show tracebacks on errors.</td></tr>
-</tbody>
-</table>
-</dd>
-<dt>Commands:</dt>
-<dd><p class="first">app delete: Delete application</p>
-<p>app deploy: Deploy application in an environment using specified app yaml file</p>
-<p>app list: Show all applications in the system</p>
-<p>app logs: Retrieve application logs</p>
-<p>app show: Show application details</p>
-<p>container create: Create container to be stored in a target repository (‘local’, ‘ecr’, ‘gcr’)</p>
-<p>container delete: Delete container</p>
-<p>container list: Show all containers in the system</p>
-<p>container show: Show container details</p>
-<p>env create: Create environment using specified environment yaml file</p>
-<p>env delete: Delete environment</p>
-<p>env exec: Run the specified cloud-native cli command in the environment</p>
-<p>env list: Show all environments in the system</p>
-<p>env shell: Start an environment-specific shell to run cloud-native cli commands interactively</p>
-<p>env show: Show environment details</p>
-<p>resource list: Show all resources in the system</p>
-<p>resource show: Show resources for an environment</p>
-<p>setup aws      Set up aws.</p>
-<p class="last">setup gcloud   Set up gcloud.</p>
-</dd>
-</dl>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">cloudark</span><span class="o">-</span><span class="n">virtenv</span><span class="p">)</span> <span class="n">cld</span> <span class="o">--</span><span class="n">help</span>
+<span class="n">usage</span><span class="p">:</span> <span class="n">cld</span> <span class="p">[</span><span class="o">--</span><span class="n">version</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span> <span class="o">|</span> <span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">file</span> <span class="n">LOG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="p">]</span>
+
+<span class="n">Platform</span><span class="o">-</span><span class="k">as</span><span class="o">-</span><span class="n">Code</span> <span class="n">tool</span> <span class="k">for</span> <span class="n">full</span><span class="o">-</span><span class="n">stack</span> <span class="n">microservices</span> <span class="n">development</span> <span class="k">for</span> <span class="n">public</span> <span class="n">clouds</span><span class="o">.</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">--</span><span class="n">version</span>            <span class="n">show</span> <span class="n">program</span><span class="s1">&#39;s version number and exit</span>
+  <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">verbose</span>        <span class="n">Increase</span> <span class="n">verbosity</span> <span class="n">of</span> <span class="n">output</span><span class="o">.</span> <span class="n">Can</span> <span class="n">be</span> <span class="n">repeated</span><span class="o">.</span>
+  <span class="o">-</span><span class="n">q</span><span class="p">,</span> <span class="o">--</span><span class="n">quiet</span>          <span class="n">Suppress</span> <span class="n">output</span> <span class="k">except</span> <span class="n">warnings</span> <span class="ow">and</span> <span class="n">errors</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">file</span> <span class="n">LOG_FILE</span>  <span class="n">Specify</span> <span class="n">a</span> <span class="n">file</span> <span class="n">to</span> <span class="n">log</span> <span class="n">output</span><span class="o">.</span> <span class="n">Disabled</span> <span class="n">by</span> <span class="n">default</span><span class="o">.</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>           <span class="n">Show</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">debug</span>              <span class="n">Show</span> <span class="n">tracebacks</span> <span class="n">on</span> <span class="n">errors</span><span class="o">.</span>
+
+<span class="n">Commands</span><span class="p">:</span>
+  <span class="n">app</span> <span class="n">delete</span><span class="p">:</span> <span class="n">Delete</span> <span class="n">application</span>
+
+  <span class="n">app</span> <span class="n">deploy</span><span class="p">:</span> <span class="n">Deploy</span> <span class="n">application</span> <span class="ow">in</span> <span class="n">an</span> <span class="n">environment</span> <span class="n">using</span> <span class="n">specified</span> <span class="n">app</span> <span class="n">yaml</span> <span class="n">file</span>
+
+  <span class="n">app</span> <span class="nb">list</span><span class="p">:</span> <span class="n">Show</span> <span class="nb">all</span> <span class="n">applications</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">system</span>
+
+  <span class="n">app</span> <span class="n">logs</span><span class="p">:</span> <span class="n">Retrieve</span> <span class="n">application</span> <span class="n">logs</span>
+
+  <span class="n">app</span> <span class="n">show</span><span class="p">:</span> <span class="n">Show</span> <span class="n">application</span> <span class="n">details</span>
+
+  <span class="n">container</span> <span class="n">create</span><span class="p">:</span> <span class="n">Create</span> <span class="n">container</span> <span class="n">to</span> <span class="n">be</span> <span class="n">stored</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">target</span> <span class="n">repository</span> <span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;ecr&#39;</span><span class="p">,</span> <span class="s1">&#39;gcr&#39;</span><span class="p">)</span>
+
+  <span class="n">container</span> <span class="n">delete</span><span class="p">:</span> <span class="n">Delete</span> <span class="n">container</span>
+
+  <span class="n">container</span> <span class="nb">list</span><span class="p">:</span> <span class="n">Show</span> <span class="nb">all</span> <span class="n">containers</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">system</span>
+
+  <span class="n">container</span> <span class="n">show</span><span class="p">:</span> <span class="n">Show</span> <span class="n">container</span> <span class="n">details</span>
+
+  <span class="n">env</span> <span class="n">create</span><span class="p">:</span> <span class="n">Create</span> <span class="n">environment</span> <span class="n">using</span> <span class="n">specified</span> <span class="n">environment</span> <span class="n">yaml</span> <span class="n">file</span>
+
+  <span class="n">env</span> <span class="n">delete</span><span class="p">:</span> <span class="n">Delete</span> <span class="n">environment</span>
+
+  <span class="n">env</span> <span class="n">exec</span><span class="p">:</span> <span class="n">Run</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">cloud</span><span class="o">-</span><span class="n">native</span> <span class="n">cli</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">environment</span>
+
+  <span class="n">env</span> <span class="nb">list</span><span class="p">:</span> <span class="n">Show</span> <span class="nb">all</span> <span class="n">environments</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">system</span>
+
+  <span class="n">env</span> <span class="n">shell</span><span class="p">:</span> <span class="n">Start</span> <span class="n">an</span> <span class="n">environment</span><span class="o">-</span><span class="n">specific</span> <span class="n">shell</span> <span class="n">to</span> <span class="n">run</span> <span class="n">cloud</span><span class="o">-</span><span class="n">native</span> <span class="n">cli</span> <span class="n">commands</span> <span class="n">interactively</span>
+
+  <span class="n">env</span> <span class="n">show</span><span class="p">:</span> <span class="n">Show</span> <span class="n">environment</span> <span class="n">details</span>
+
+  <span class="n">resource</span> <span class="nb">list</span><span class="p">:</span> <span class="n">Show</span> <span class="nb">all</span> <span class="n">resources</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">system</span>
+
+  <span class="n">resource</span> <span class="n">show</span><span class="p">:</span> <span class="n">Show</span> <span class="n">resources</span> <span class="k">for</span> <span class="n">an</span> <span class="n">environment</span>
+
+  <span class="n">setup</span> <span class="n">aws</span><span class="p">:</span>      <span class="n">Set</span> <span class="n">up</span> <span class="n">aws</span><span class="o">.</span>
+
+  <span class="n">setup</span> <span class="n">gcloud</span><span class="p">:</span>   <span class="n">Set</span> <span class="n">up</span> <span class="n">gcloud</span><span class="o">.</span>
+</pre></div>
+</div>
 </div>
 
 

@@ -1,55 +1,56 @@
 CloudARK CLI
 -------------
 
-(cloudark-virtenv) cld --help
-usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
+.. code:: bash
 
-Platform-as-Code tool for full-stack microservices development for public
-clouds.
+   (cloudark-virtenv) cld --help
+   usage: cld [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
 
-optional arguments:
-  --version            show program's version number and exit
-  -v, --verbose        Increase verbosity of output. Can be repeated.
-  -q, --quiet          Suppress output except warnings and errors.
-  --log-file LOG_FILE  Specify a file to log output. Disabled by default.
-  -h, --help           Show help message and exit.
-  --debug              Show tracebacks on errors.
+   Platform-as-Code tool for full-stack microservices development for public clouds.
 
-Commands:
-  app delete: Delete application
+   optional arguments:
+     --version            show program's version number and exit
+     -v, --verbose        Increase verbosity of output. Can be repeated.
+     -q, --quiet          Suppress output except warnings and errors.
+     --log-file LOG_FILE  Specify a file to log output. Disabled by default.
+     -h, --help           Show help message and exit.
+     --debug              Show tracebacks on errors.
 
-  app deploy: Deploy application in an environment using specified app yaml file
+   Commands:
+     app delete: Delete application
 
-  app list: Show all applications in the system
+     app deploy: Deploy application in an environment using specified app yaml file
 
-  app logs: Retrieve application logs
+     app list: Show all applications in the system
 
-  app show: Show application details
+     app logs: Retrieve application logs
 
-  container create: Create container to be stored in a target repository ('local', 'ecr', 'gcr')
+     app show: Show application details
 
-  container delete: Delete container
+     container create: Create container to be stored in a target repository ('local', 'ecr', 'gcr')
 
-  container list: Show all containers in the system
+     container delete: Delete container
 
-  container show: Show container details
+     container list: Show all containers in the system
 
-  env create: Create environment using specified environment yaml file
+     container show: Show container details
 
-  env delete: Delete environment
+     env create: Create environment using specified environment yaml file
 
-  env exec: Run the specified cloud-native cli command in the environment
+     env delete: Delete environment
 
-  env list: Show all environments in the system
+     env exec: Run the specified cloud-native cli command in the environment
 
-  env shell: Start an environment-specific shell to run cloud-native cli commands interactively
+     env list: Show all environments in the system
 
-  env show: Show environment details
+     env shell: Start an environment-specific shell to run cloud-native cli commands interactively
 
-  resource list: Show all resources in the system
+     env show: Show environment details
 
-  resource show: Show resources for an environment
+     resource list: Show all resources in the system
 
-  setup aws      Set up aws.
+     resource show: Show resources for an environment
 
-  setup gcloud   Set up gcloud.
+     setup aws:      Set up aws.
+
+     setup gcloud:   Set up gcloud.
