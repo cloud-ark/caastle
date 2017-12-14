@@ -21,6 +21,7 @@ do
   sleep 5s
   if [[ -f "cloudark.error" ]]; then
       echo "Error occurred in starting CloudARK server. Check cloudark.error"
+      ./stop-cloudark.sh
       exit
   fi
 done
