@@ -101,7 +101,7 @@ Suppose your deployment target is Google cloud.
 10) Check-in following application artifacts to source control: env.yaml, app.yaml
 
 
-**3) Operator workflow to perform blue/green deployments:**
+**3) Operator workflow to perform staging/production deployments:**
 
 1) Create staging-env.yaml with appropriate resource attributes
 
