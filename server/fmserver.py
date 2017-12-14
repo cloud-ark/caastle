@@ -23,18 +23,45 @@ ENV_STORE_PATH = APP_STORE_PATH
 
 CLOUDARK_STATUS_FILE = "cloudark.status"
 
-import app_handler
-import container_handler
 from common import common_functions
-from common import exceptions
 from common import fm_logger
-from common import validator
+
+cloud_setup = common_functions.get_cloud_setup()
+
+if len(cloud_setup) == 0:
+    fm_logger.Logging().error("No cloud setup found.")
+    message = "No cloud setup found.\n"
+    message = message + "Please run cloud setup commands and then start-cloudark.sh\n"
+    message = message + "- cld setup aws\n"
+    message = message + "- cld setup gcloud\n" 
+    print(message)
+    fp = open("cloudark.error", "w")
+    fp.write(message)
+    fp.close()
+
+
 from dbmodule import db_main
 from dbmodule.objects import app as app_db
 from dbmodule.objects import container as cont_db
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
-import environment_handler
+from common import exceptions
+from common import validator
+
+try:
+    import environment_handler
+except Exception as e:
+    fm_logger.Logging().error(str(e))
+
+try:
+    import container_handler
+except Exception as e:
+    fm_logger.Logging().error(str(e))
+
+try:
+    import app_handler
+except Exception as e:
+    fm_logger.Logging().error(str(e))
 
 
 def start_thread(request_handler_thread):

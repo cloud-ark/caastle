@@ -1,21 +1,38 @@
 import threading
 
-import aws_handler
-import gcloud_handler
-import local_handler
 from common import fm_logger
+import local_handler
+
 from dbmodule.objects import environment as env_db
 from dbmodule.objects import resource as res_db
 
 fmlogging = fm_logger.Logging()
 
+try:
+    import aws_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading aws_handler %s" % str(e))
+
+try:
+    import gcloud_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading gcloud_handler %s " % str(e))
 
 class EnvironmentHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
-    registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
-    registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
+
     registered_cloud_handlers['local'] = local_handler.LocalHandler()
+
+    try:
+        registered_cloud_handlers['aws'] = aws_handler.AWSHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
+
+    try:
+        registered_cloud_handlers['gcloud'] = gcloud_handler.GCloudHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
 
     def __init__(self, env_id, environment_def, environment_info, action=''):
         self.env_id = env_id

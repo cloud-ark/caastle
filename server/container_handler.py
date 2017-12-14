@@ -1,19 +1,36 @@
 import threading
 
-import aws_handler
 from common import fm_logger
-import gcloud_handler
+
 import local_handler
 
 fmlogging = fm_logger.Logging()
+
+try:
+    import aws_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading aws_handler %s" % str(e))
+
+try:
+    import gcloud_handler
+except Exception as e:
+    fmlogging.error("Error occurred in loading gcloud_handler %s " % str(e))
 
 
 class ContainerHandler(threading.Thread):
 
     registered_cloud_handlers = dict()
-    registered_cloud_handlers['ecr'] = aws_handler.AWSHandler()
-    registered_cloud_handlers['gcr'] = gcloud_handler.GCloudHandler()
     registered_cloud_handlers['local'] = local_handler.LocalHandler()
+
+    try:
+        registered_cloud_handlers['ecr'] = aws_handler.AWSHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
+
+    try:
+        registered_cloud_handlers['gcr'] = gcloud_handler.GCloudHandler()
+    except Exception as e:
+        fmlogging.error(str(e))
 
     def __init__(self, cont_name, cont_info, action=''):
         self.cont_name = cont_name
