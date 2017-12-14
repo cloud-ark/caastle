@@ -11,6 +11,7 @@ docker_available=`docker ps | grep "CONTAINER ID"`
 
 if [[ -z "$docker_available" ]]; then
    echo "Docker is not installed. Please install Docker and then run install.sh again."
+   echo "https://cloud-ark.github.io/cloudark/docs/html/html/installation.html"
    exit
 fi
 

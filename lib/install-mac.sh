@@ -8,7 +8,17 @@ brew install python --with-brewed-openssl
 rm -rf install.log
 touch install.log
 install_log="install.log"
-echo "Installing CloudARK. Installation logs stored in $install_log" 
+echo "Installing CloudARK. Installation logs stored in $install_log"
+
+echo "Checking if Docker is installed or not.."
+
+docker_available=`docker ps | grep "CONTAINER ID"`
+
+if [[ -z "$docker_available" ]]; then
+   echo "Docker is not installed. Please install Docker and then run install.sh again."
+   echo "https://cloud-ark.github.io/cloudark/docs/html/html/installation.html"
+   exit
+fi
 
 curl -O http://python-distribute.org/distribute_setup.py
 python distribute_setup.py
