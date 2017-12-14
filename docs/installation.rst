@@ -1,5 +1,5 @@
-Installation:
---------------
+Installation
+-------------
 
 CloudARK requires Docker to be installed on the Host. Also, the effective user permissions of the shell
 in which CloudARK is running needs to be such that docker commands can be invoked without sudo.

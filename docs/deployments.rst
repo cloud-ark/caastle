@@ -8,6 +8,7 @@ as part of creating an environment and deploying an application.
 .. toctree::
    :maxdepth: 1
 
+   installation
    gke
    ecs
    cloud_auth
