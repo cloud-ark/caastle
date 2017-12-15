@@ -6,11 +6,11 @@ in which CloudARK is running needs to be such that docker commands can be invoke
 
 **Docker installation on Ubuntu**
 
-You will find detailed Docker installation steps on here_.
+You will find detailed Docker installation steps here_.
 
 .. _here: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#set-up-the-repository
 
-Here are quick steps:
+Here are those steps summarized:
 
 .. code:: bash
 

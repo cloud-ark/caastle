@@ -30,7 +30,7 @@ use concurrency mechanisms available in the latest versions of Python.
 For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.
 More information about CloudARK's authorization needs is available in the `authorization details`__ section.
 
-.. _auth: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#authorization-details
+.. _auth: https://cloud-ark.github.io/cloudark/docs/html/html/cloud_auth.html
 
 __ auth_
 
