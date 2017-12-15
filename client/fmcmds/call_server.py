@@ -283,7 +283,7 @@ class TakeAction(object):
         response = requests.delete(env_url)
         if response.status_code == 404:
             print("Environment with name %s not found." % env_name)
-        if response.status_code == 202:
+        if response.status_code == 202 or response.status_code == 200:
             print("Request to delete env with name %s accepted." % env_name)
         if response.status_code == 412:
             print("Environment cannot be deleted as there are applications still running on it.")

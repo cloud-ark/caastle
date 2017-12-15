@@ -151,13 +151,12 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
             return cloudsql_status
 
         available = False
-        timeout = 100
         i = 0
         etag = ''
 
         filtered_description = {}
         get_response = ''
-        while not available and i < timeout:
+        while not available and i < constants.TIMEOUT_COUNT:
             get_request = CloudSQLResourceHandler.service.instances().get(
                 project=project_name,
                 instance=instance_id
@@ -181,10 +180,15 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
             res_db.Resource().update(res_id, res_data)
             if status == 'RUNNABLE':
                 cloudsql_status = 'available'
-                break
+                available = True
             else:
                 i = i + 1
-                time.sleep(2)
+                time.sleep(3)
+
+        if i == constants.TIMEOUT_COUNT:
+            res_data['status'] = 'creation-timed-out'
+            res_db.Resource().update(res_id, res_data)
+            return cloudsql_status
 
         detailed_description['action_response'] = get_response
         filtered_description['Address'] = get_response['ipAddresses'][0]['ipAddress']

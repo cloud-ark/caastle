@@ -99,6 +99,9 @@ class EnvironmentCreate(Command):
         if setup_not_done:
             exit()
 
+        if 'app_deployment' not in environment_def['environment']:
+            print("app_deployment attribute missing from environment definition.")
+            exit()
         if environment_def['environment']['app_deployment']['target'] == 'gcloud':
             project_id = ''
             if not parsed_args.project_id:
