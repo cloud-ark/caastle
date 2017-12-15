@@ -115,12 +115,17 @@ We have an open issue for <a class="reference external" href="https://github.com
 Docker containers and Docker images created for this purpose are deleted by CloudARK.
 However, once in a while it will be a good idea to verify this and do cleanup actions given below,
 if required:</p>
-<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker stop</p>
-<p>$ docker ps -a | grep Exited | awk ‘{print $1}’  | xargs docker rm</p>
-<p>$ docker images | grep none | awk ‘{print $3}’ | xargs docker rmi</p>
-<p>Repeat the docker rmi command as many times as required by changing the grepped value</p>
 </li>
 </ol>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span> $ docker ps -a | grep Exited | awk &#39;{print $1}&#39;  | xargs docker stop
+
+ $ docker ps -a | grep Exited | awk &#39;{print $1}&#39;  | xargs docker rm
+
+ $ docker images | grep none | awk &#39;{print $3}&#39; | xargs docker rmi
+
+Repeat the docker rmi command as many times as required by changing the grepped value
+</pre></div>
+</div>
 <p><strong>CloudARK’s internal state</strong></p>
 <p>CloudARK stores its internal state in the home folder inside .cld directory.
 The database state is stored in ~/.cld/data/deployments/cld.sqlite.
