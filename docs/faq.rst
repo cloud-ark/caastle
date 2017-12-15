@@ -18,9 +18,8 @@ Q) **How does Platform-as-Code (PaC) approach compare with language-based deploy
 
 Metaparticle_ provides cloud deployment primitives that can be integrated directly within an application's code.
 It is essentially a reusable deployment library.
-Platform-as-Code (PaC) approach is language neutral. It provides high-level abstractions for modelling the
-full-stack of a containerized cloud application. It leverages existing popular declarative definition formats such as Kubernetes yaml format
-for application definition.
+Platform-as-Code (PaC) approach is language neutral. It provides high-level abstractions for defining the
+entire stack of a containerized cloud application. It leverages popular declarative definition formats such as Kubernetes yaml format for application definition.
 
 .. _Metaparticle: https://metaparticle.io/
 
