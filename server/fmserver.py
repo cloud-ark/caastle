@@ -201,6 +201,8 @@ class ContainerRestResource(Resource):
             response.status_code = 202
             # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
             if cont_obj.dep_target == 'gcr':
+                resp_data = {}
+                response = jsonify(**resp_data)
                 response.status_code = 303
         else:
             response.status_code = 404
@@ -391,6 +393,8 @@ class AppRestResource(Resource):
             response.status_code = 202
             # TODO(devdatta) Let the user know that the image for GCR needs to be deleted manually.
             if app_obj.dep_target == 'gcloud':
+                resp_data = {}
+                response = jsonify(**resp_data)
                 response.status_code = 303
         else:
             response.status_code = 404
@@ -569,8 +573,8 @@ class EnvironmentRestResource(Resource):
     def delete(self, env_name):
         fmlogging.debug("Received DELETE request for environment %s" % env_name)
         resp_data = {}
-
         response = jsonify(**resp_data)
+
         environment_info = {}
 
         env = env_db.Environment().get_by_name(env_name)
@@ -595,6 +599,8 @@ class EnvironmentRestResource(Resource):
             env_dict = ast.literal_eval(environment_def)
             cloud = env_dict['environment']['app_deployment']['target']
             if cloud == 'gcloud':
+                resp_data = {}
+                response = jsonify(**resp_data)
                 response.status_code = 303
         else:
             response.status_code = 404

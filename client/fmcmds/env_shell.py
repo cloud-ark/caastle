@@ -35,6 +35,7 @@ class EnvironmentShell(Command):
                     command_string = command_string.strip()
                     if command_string == 'exit':
                         break
+                    print("Running the command %s in the environment..." % command_string)
                     response = server.TakeAction().run_command(env_name, command_string)
                     print(response)
             else:
