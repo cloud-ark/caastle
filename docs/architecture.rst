@@ -21,8 +21,7 @@ stevedore_ extension mechanism for this purpose.
 .. _stevedore: https://pypi.python.org/pypi/stevedore
 
 The server uses Python threads to asynchronously handle incoming requests. We considered using
-queue-based approach. But because our goal was to create a non-hosted implementation, we rejected
-that approach and decided to go with thread-based approach. Currently CloudARK works with Python 2.7
+a queue-based approach. But because our goal was to create a *non-hosted* implementation, we rejected it for the simpler thread-based approach. Currently CloudARK works with Python 2.7
 only as the thread package is available only in Python 2.7. We have an open_ issue for making CloudARK
 use concurrency mechanisms available in the latest versions of Python.
 
