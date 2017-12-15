@@ -14,7 +14,7 @@ Infrastructure-as-Code implementation treats every platform element as infrastru
 In contrast, Platform-as-Code offers application-centric abstractions that simplify modeling a deployment as per the application architecture.
 
 
-Q) **How does Platform-as-Code (PaC) approach compare with language-based deployment approach of metaparticle**?
+Q) **How does Platform-as-Code (PaC) approach compare with language-based deployment approach of Metaparticle**?
 
 Metaparticle_ provides cloud deployment primitives that can be integrated directly within an application's code.
 It is essentially a reusable deployment library.

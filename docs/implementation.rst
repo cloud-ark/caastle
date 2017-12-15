@@ -87,11 +87,13 @@ CloudARK creates following resources as part of environment creation and applica
    However, once in a while it will be a good idea to verify this and do cleanup actions given below,
    if required:
 
-   $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker stop
+.. code:: bash
 
-   $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker rm
+    $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker stop
 
-   $ docker images | grep none | awk '{print $3}' | xargs docker rmi
+    $ docker ps -a | grep Exited | awk '{print $1}'  | xargs docker rm
+
+    $ docker images | grep none | awk '{print $3}' | xargs docker rmi
 
    Repeat the docker rmi command as many times as required by changing the grepped value
  

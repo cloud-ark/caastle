@@ -51,6 +51,6 @@ CloudARK CLI
 
      resource show: Show resources for an environment
 
-     setup aws:      Set up aws.
+     setup aws:      Set up aws
 
-     setup gcloud:   Set up gcloud.
+     setup gcloud:   Set up gcloud
