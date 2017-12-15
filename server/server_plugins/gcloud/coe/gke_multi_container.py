@@ -154,7 +154,8 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         self.docker_handler.remove_container_image(cont_name)
 
     def _deploy_service(self, app_id, app_info):
-        pass
+        app_data['status'] = 'File format not supported. Check https://github.com/cloud-ark/cloudark/issues/200'
+        app_db.App().update(app_id, app_data)
 
     def _deploy(self, app_id, app_info):
 

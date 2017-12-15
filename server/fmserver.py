@@ -38,6 +38,7 @@ if len(cloud_setup) == 0:
     fp = open("cloudark.error", "w")
     fp.write(message)
     fp.close()
+    exit()
 
 
 from dbmodule import db_main
