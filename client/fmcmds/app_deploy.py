@@ -29,6 +29,16 @@ class AppDeploy(Command):
         app_info['env_name'] = parsed_args.env_name
         app_info['app_yaml'] = parsed_args.app_file
 
+        is_valid_app_format = common.validate_app_format(parsed_args.app_file)
+
+        if not is_valid_app_format:
+            print("Invalid app format:")
+            print("Currently supported formats are:")
+            print("- CloudARK's app yaml")
+            print("- Kubernetes's format with Pod definitions only")
+            print("  - https://github.com/cloud-ark/cloudark/issues/200")
+            exit()
+
         # Check if app_file contains container_port defined or not
         try:
             fp = open(parsed_args.app_file, "r")
@@ -44,6 +54,7 @@ class AppDeploy(Command):
                     print("'image' attribute is missing from app definition.")
                     exit()
         except Exception as e:
+            print("Could not parse %s" % parsed_args.app_file)
             exit()
 
         app_location = os.getcwd()

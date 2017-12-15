@@ -27,6 +27,10 @@ fmlogging = fm_logger.Logging()
 
 def _validate_host_port(app_info, app_data, env_obj):
     app_yaml = common_functions.read_app_yaml(app_info)
+
+    # Currently only validating for CloudARK's yaml format
+    if 'app' not in app_yaml:
+        return
     apps = app_db.App().get_apps_for_env(env_obj.id)
     for app in apps:
         if app.output_config:
