@@ -78,9 +78,11 @@ clouds. Within each cloud package there are sub-packages for <em>coe</em> and <e
 These packages contain modules that implement coe-specific and resource-specific functionality
 for the target cloud. These modules are implemented as extensions of CloudARK. We use
 <a class="reference external" href="https://pypi.python.org/pypi/stevedore">stevedore</a> extension mechanism for this purpose.</p>
-<p>The server uses Python threads to asynchronously handle incoming requests. Currently CloudARK works
-with Python 2.7 only as the thread package is available only in Python 2.7.
-We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK use concurrency mechanisms available in latest versions of Python.</p>
+<p>The server uses Python threads to asynchronously handle incoming requests. We considered using
+queue-based approach. But because our goal was to create a non-hosted implementation, we rejected
+that approach and decided to go with thread-based approach. Currently CloudARK works with Python 2.7
+only as the thread package is available only in Python 2.7. We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK
+use concurrency mechanisms available in the latest versions of Python.</p>
 <p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.
 More information about CloudARK’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#authorization-details">authorization details</a> section.</p>
 <p><strong>Docker as a command execution mechanism</strong></p>
