@@ -32,8 +32,8 @@ class EnvironmentExec(Command):
                 print("You can use docker commands from command-line instead.")
                 exit()
             if response_json['data']['status'] == 'available':
-                response = server.TakeAction().run_command(env_name, command_string)
                 print("Running the command %s on the environment..." % command_string)
+                response = server.TakeAction().run_command(env_name, command_string)
                 print(response)
             else:
                 print("Environment %s is not in appropriate state." % env_name)

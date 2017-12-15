@@ -13,6 +13,6 @@ class AppLogs(Command):
     def take_action(self, parsed_args):
         app_name = parsed_args.app_name
 
-        response = server.TakeAction().get_app_logs(app_name)
         print("Retrieving application deployment and runtime logs from the COE...")
+        response = server.TakeAction().get_app_logs(app_name)
         print(response)
