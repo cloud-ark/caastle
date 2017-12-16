@@ -243,5 +243,5 @@ class GKESingleContainer(gke_app_base.GKEAppBase):
 
     def get_logs(self, app_id, app_info):
         fmlogger.debug("Retrieving logs for application %s %s" % (app_id, app_info['app_name']))
-        logs_path_list = self._retrieve_logs(app_info, app_info['app_name'])
+        logs_path_list = self._retrieve_logs(app_info, app_info['app_name'], app_name=app_info['app_name'])
         return logs_path_list

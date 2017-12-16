@@ -453,6 +453,10 @@ class ECSHandler(coe_base.COEBase):
                     key_name = instance['KeyName']
                     if key_name == cluster_name:
                         cluster_instance_ip_list.append(instance['PublicIpAddress'])
+
+        # Delete the container created for obtaining IP address
+        self.docker_handler.remove_container_image(get_ip_cont_image)
+
         return cluster_instance_ip_list
 
     def create_cluster(self, env_id, env_info):

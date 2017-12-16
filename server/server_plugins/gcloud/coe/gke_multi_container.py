@@ -226,6 +226,6 @@ class GKEMultiContainer(gke_app_base.GKEAppBase):
         pod_name_list = output_config['pod_name']
         log_list = []
         for pod in pod_name_list:      
-            logs_path_list = self._retrieve_logs(app_info, pod)
+            logs_path_list = self._retrieve_logs(app_info, pod, app_name=app_info['app_name'])
             log_list.extend(logs_path_list)
         return log_list

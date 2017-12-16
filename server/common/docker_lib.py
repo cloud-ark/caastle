@@ -191,8 +191,10 @@ class DockerLib(object):
 
         output = ''
         err = ''
-        count = 3
+        count = 5
 
+        # allows logs command to generate output
+        time.sleep(4)
         i = 0
         while not output and i < count:
             err, output = common_functions.execute_cmd(logs_cmd)
@@ -201,6 +203,7 @@ class DockerLib(object):
             else:
                 time.sleep(2)
                 i = i + 1
+
         return err, output
 
     def filter_output(self, output):

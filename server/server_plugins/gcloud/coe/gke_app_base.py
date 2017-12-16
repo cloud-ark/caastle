@@ -235,7 +235,22 @@ class GKEAppBase(app_base.AppBase):
             fmlogger.error(e)
             raise e
 
-    def _retrieve_runtime_logs(self, app_info, app_name):
+    def _get_container_names(self, app_name):
+        pod_name = ''
+        container_name_set = set()
+        app_obj = app_db.App().get_by_name(app_name)
+        app_yaml = ast.literal_eval(app_obj.app_yaml_contents)
+
+        if 'kind' in app_yaml and app_yaml['kind'] == 'Pod':
+            pod_name = app_yaml['metadata']['name']
+
+            # There could be multiple documents -- eventually
+            #for doc in app_yaml:
+            container_name_set = common_functions.get_cont_names(app_yaml,
+                                                                 container_name_set)
+        return container_name_set
+
+    def _retrieve_runtime_logs(self, app_info, pod_name, app_name):
         app_dir = app_info['app_location']
         app_folder_name = app_info['app_folder_name']
         df_dir = app_dir + "/" + app_folder_name
@@ -247,12 +262,29 @@ class GKEAppBase(app_base.AppBase):
         get_logs = "get-runtimelogs.sh"
         get_logs_wrapper = df_dir + "/" + get_logs
 
+        container_names = self._get_container_names(app_name)
+
+        logs_command_list = []
+        if len(container_names) > 0:
+            for cont_name in container_names:
+                echo_command = ('echo "-- Logs for container {cont_name} --" \n').format(cont_name=cont_name)
+                logs_command = ("kubectl logs {pod_name} {cont_name} \n").format(pod_name=pod_name,
+                                                                              cont_name=cont_name)
+                logs_command_list.append(echo_command)
+                logs_command_list.append(logs_command)
+        else:
+            logs_command = ("kubectl get pods | grep {pod_name} | awk '{{print $1}}' | xargs kubectl logs \n").format(
+                            pod_name=pod_name)
+            logs_command_list.append(logs_command)
+
         #if not os.path.exists(get_logs_wrapper):
         fp = open(get_logs_wrapper, "w")
-        file_content = ("#!/bin/bash \n"
-                        "kubectl get pods | grep {app_name} | awk '{{print $1}}' | xargs kubectl logs ").format(
-                         app_name=app_name)
+        file_content = ("#!/bin/bash \n")
         fp.write(file_content)
+
+        for cmd in logs_command_list:
+            fp.write(cmd)
+
         fp.flush()
         fp.close()
         change_perm_command = ("chmod +x {get_logs_wrapper}").format(get_logs_wrapper=get_logs_wrapper)
@@ -378,10 +410,10 @@ class GKEAppBase(app_base.AppBase):
                 logs_path.append(deploy_log_path)
         return logs_path
 
-    def _retrieve_logs(self, app_info, app_name):
+    def _retrieve_logs(self, app_info, pod_name, app_name=''):
         all_logs = []
-        deploy_logs = self._retrieve_deploy_logs(app_info, app_name)
-        runtime_logs = self._retrieve_runtime_logs(app_info, app_name)
+        deploy_logs = self._retrieve_deploy_logs(app_info, pod_name)
+        runtime_logs = self._retrieve_runtime_logs(app_info, pod_name, app_name)
         all_logs.extend(deploy_logs)
         all_logs.extend(runtime_logs)
         return all_logs

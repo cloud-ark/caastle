@@ -327,3 +327,18 @@ def filter_error_output(output):
 
     error_output = ' '.join(error_lines)
     return error_output
+
+def get_cont_names(doc, cont_name_set):
+    try:
+        if isinstance(doc, dict):
+            for k,v in doc.items():
+                if k == 'containers':
+                    for elem in v:
+                        cont_name = elem['name']
+                        cont_name_set.add(cont_name)
+                        fmlogging.debug("Container name:%s" % cont_name)
+                else:
+                    get_cont_names(v, cont_name_set)
+    except Exception as e:
+        fmlogging.error(str(e))
+    return cont_name_set

@@ -170,7 +170,7 @@ class GCloudHelper(object):
         self.docker_handler.remove_container(cont_id)
         time5 = int(round(time.time() * 1000))
 
-        #self.docker_handler.remove_container_image(cont_name)
+        self.docker_handler.remove_container_image(cont_name)
         time6 = int(round(time.time() * 1000))
 
         build_time = time2 - time1
