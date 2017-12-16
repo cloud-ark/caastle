@@ -146,8 +146,10 @@ class RDSResourceHandler(resource_base.ResourceBase):
             filtered_description['DBName'] = constants.DEFAULT_DB_NAME
             endpoint_address = instance_description['DBInstances'][0]['Endpoint']['Address']
             filtered_description['Address'] = endpoint_address
+        elif count == constants.TIMEOUT_COUNT:
+            status = 'create-timeout: ' + status
         else:
-            status = 'create-failed'
+            status = 'create-failure: ' + status
 
         res_data['status'] = status
         res_data['filtered_description'] = str(filtered_description)
