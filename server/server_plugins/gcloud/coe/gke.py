@@ -148,7 +148,7 @@ class GKEHandler(coe_base.COEBase):
         
         network_obj = ''
         count = 0
-        while not network_obj and count < GCLOUD_ACTION_TIMEOUT:
+        while not network_obj:
             try:
                 network_obj = self.compute_service.networks().get(
                     project=project,
@@ -163,7 +163,7 @@ class GKEHandler(coe_base.COEBase):
             if network_obj:
                 break
             else:
-                time.sleep(1)
+                time.sleep(2)
                 count = count + 1
  
         if count >= GCLOUD_ACTION_TIMEOUT:
@@ -209,6 +209,8 @@ class GKEHandler(coe_base.COEBase):
 
         cluster_name = env_name + "-" + env_version_stamp
 
+        filtered_description = {}
+
         res_data = {}
         res_data['env_id'] = env_id
         res_data['cloud_resource_id'] = cluster_name
@@ -240,6 +242,13 @@ class GKEHandler(coe_base.COEBase):
             res_db.Resource().update(res_id, res_data)
             return status
 
+        filtered_description['cluster_name'] = cluster_name
+        filtered_description['project'] = project
+        filtered_description['zone'] = zone
+        filtered_description['env_name'] = env_name
+        res_data['filtered_description'] = str(filtered_description)
+        res_db.Resource().update(res_id, res_data)
+
         instance_type = 'n1-standard-1'
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
@@ -268,19 +277,20 @@ class GKEHandler(coe_base.COEBase):
                                       "machineType": instance_type},
                                   "network": cluster_name}}
             ).execute()
+            fmlogger.debug(resp)
         except Exception as e:
             fmlogger.error(e)
 
             env_update = {}
             env_update['output_config'] = str({'error': str(e)})
             env_db.Environment().update(env_id, env_update)
+            # Cleanup
+            self._delete_firewall_rule(project, cluster_name)
             return
-    
-        fmlogger.debug(resp)
 
         count = 1
         available = False
-        while not available and count < constants.TIMEOUT_COUNT:
+        while not available:
             resp = self.gke_service.projects().zones().clusters().get(
                 projectId=project,
                 zone=zone,
@@ -304,40 +314,45 @@ class GKEHandler(coe_base.COEBase):
             cluster_status = 'unavailable ' + str(e)
         else:
             cluster_status = 'available'
-        env_output_config['cluster_ips'] = instance_ip_list
-        env_data = {}
-        env_data['output_config'] = str(env_output_config)
-        env_db.Environment().update(env_id, env_data)
-        res_data['status'] = cluster_status
-        filtered_description = {}
-        filtered_description['cluster_name'] = cluster_name
-        filtered_description['cluster_ips'] = instance_ip_list
-        filtered_description['project'] = project
-        filtered_description['zone'] = zone
-        filtered_description['env_name'] = env_name
-        res_data['filtered_description'] = str(filtered_description)
-        res_db.Resource().update(res_id, res_data)
-        fmlogger.debug("Done creating GKE cluster.")
+
+        if instance_ip_list:
+            env_output_config['cluster_ips'] = instance_ip_list
+            env_data = {}
+            env_data['output_config'] = str(env_output_config)
+            env_db.Environment().update(env_id, env_data)
+            res_data['status'] = cluster_status
+            filtered_description['cluster_ips'] = instance_ip_list
+            res_data['filtered_description'] = str(filtered_description)
+            res_db.Resource().update(res_id, res_data)
+            fmlogger.debug("Done creating GKE cluster.")
+        else:
+            resource_obj = res_db.Resource().get(res_id)
+            cluster_status = 'Could not get IP address of the cluster.. Not continuing.. Deleting cluster.'
+            res_data['status'] = cluster_status
+            res_db.Resource().update(res_id, res_data)
+            self.delete_cluster(env_id, env_info, resource_obj)
+            fmlogger.debug("Done deleting GKE cluster.")
         return cluster_status
 
     def delete_cluster(self, env_id, env_info, resource_obj):
         fmlogger.debug("Deleting GKE cluster")
 
         res_db.Resource().update(resource_obj.id, {'status': 'deleting'})
-
         try:
             filtered_description = ast.literal_eval(resource_obj.filtered_description)
             cluster_name = filtered_description['cluster_name']
             project = filtered_description['project']
             zone = filtered_description['zone']
 
-            try:
-                self._delete_network(project, cluster_name)
-            except Exception as e:
-                fmlogger.error("Exception deleting network %s " % str(e))
-                env_update = {}
-                env_update['output_config'] = str({'error': str(e)})
-                env_db.Environment().update(env_id, env_update)
+            # Network delete is not working for some reason. So temporarily
+            # commenting it out.
+            #try:
+            #    self._delete_network(project, cluster_name)
+            #except Exception as e:
+            #    fmlogger.error("Exception deleting network %s " % str(e))
+            #    env_update = {}
+            #    env_update['output_config'] = str({'error': str(e)})
+            #    env_db.Environment().update(env_id, env_update)
 
             self._delete_firewall_rule(project, cluster_name)
 
