@@ -68,7 +68,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
         create_accepted = False
         count = 1
-        while not create_accepted and count < constants.TIMEOUT_COUNT:
+        while not create_accepted:
             try:
                 insert_db_req.execute()
                 create_accepted = True
@@ -156,7 +156,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
 
         filtered_description = {}
         get_response = ''
-        while not available and i < constants.TIMEOUT_COUNT:
+        while not available:
             get_request = CloudSQLResourceHandler.service.instances().get(
                 project=project_name,
                 instance=instance_id
@@ -216,7 +216,7 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         insert_user_req.execute()
 
         # Give some time for Google to create the username/password
-        time.sleep(5)
+        time.sleep(10)
 
         dbname = ''
         try:
