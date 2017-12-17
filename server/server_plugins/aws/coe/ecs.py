@@ -354,8 +354,15 @@ class ECSHandler(coe_base.COEBase):
         container_port = ECSHandler.awshelper.get_container_port_from_taskdef(task_def_arn)
         return container_port
 
-    def delete_cluster(self, env_id, env_info, resource):
-        cluster_name = resource.cloud_resource_id
+    def delete_cluster(self, env_id, env_info, resource, available_cluster_name=''):
+        cluster_name = ''
+        if resource:
+            cluster_name = resource.cloud_resource_id
+        elif available_cluster_name:
+            cluster_name = available_cluster_name
+        else:
+            fmlogger.error("No cluster name given. Returning")
+            return
 
         df = self.docker_handler.get_dockerfile_snippet("aws")
         df = df + ("COPY . /src \n"
@@ -381,9 +388,11 @@ class ECSHandler(coe_base.COEBase):
 
         if err:
             fmlogger.debug("Error encountered in building container to delete cluster %s" % cluster_name)
+        else:
+            fmlogger.debug("Done deleting ECS cluster %s" % cluster_name)
+
         self.docker_handler.remove_container(cont_name)
         self.docker_handler.remove_container_image(cont_name)
-        fmlogger.debug("Done deleting ECS cluster %s" % cluster_name)
 
         ec2 = boto3.resource('ec2')
         key_pair = ec2.KeyPair(cluster_name)
@@ -425,6 +434,11 @@ class ECSHandler(coe_base.COEBase):
         err, output = self.docker_handler.build_container_image(get_ip_cont_image,
                                                                 env_store_location + "/Dockerfile.get-instance-ip",
                                                                 df_context=env_store_location)
+
+        if err:
+            fmlogger.error("Error encountered in building container image to get cluster IP address. %s " + str(err))
+            return
+
         output_lines = output.split('\n')
         json_lines = []
         start = False
@@ -469,13 +483,13 @@ class ECSHandler(coe_base.COEBase):
 
         cluster_name = env_name + "-" + env_version_stamp
         keypair_name = cluster_name
-
         env_store_location = env_info['location']
 
         if not os.path.exists(env_store_location):
             os.makedirs(env_store_location)
         shutil.copytree(home_dir + "/.aws", env_store_location + "/aws-creds")
-
+        
+        # 1) Cluster vpc details handling
         vpc_id = ''
         subnet_ids = ''
         try:
@@ -485,24 +499,56 @@ class ECSHandler(coe_base.COEBase):
             error_message = 'provisioning-failed: ' + str(e)
             env_db.Environment().update(env_id, {'output_config': error_message,
                                                  'status': 'create-failed'})
-
         vpc_id = vpc_details['vpc_id']
         cidr_block = vpc_details['cidr_block']
-        subnet_ids = ECSHandler.awshelper.get_subnet_ids(vpc_id)
+        subnet_ids = ''
+        try:
+            subnet_ids = ECSHandler.awshelper.get_subnet_ids(vpc_id)
+        except Exception as e:
+            fmlogger.error("Error occurred when trying to get subnet ids %s" + str(e))
+            error_message = 'provisioning-failed: ' + str(e)
+            env_db.Environment().update(env_id, {'output_config': error_message,
+                                                 'status': 'create-failed'})            
         subnet_list = ','.join(subnet_ids)
-
         sec_group_name = cluster_name + "-http-ssh"
-        sec_group_id = ECSHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
+        sec_group_id = ''
+        try:
+            sec_group_id = ECSHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
+        except Exception as e:
+            fmlogger.error("Error occurred when trying to create security group for vpc %s" + str(e))
+            error_message = 'provisioning-failed: ' + str(e)
+            env_db.Environment().update(env_id, {'output_config': error_message,
+                                                 'status': 'create-failed'})
+        env_output_config['subnets'] = subnet_list
+        env_output_config['vpc_id'] = vpc_id
+        env_output_config['cidr_block'] = cidr_block
+        env_output_config['http-and-ssh-group-name'] = sec_group_name
+        env_output_config['http-and-ssh-group-id'] = sec_group_id
+        env_update = {}
+        env_update['status'] = env_obj.status
+        env_update['output_config'] = str(env_output_config)
+        env_db.Environment().update(env_id, env_update)
 
         vpc_traffic_block = []
         internet_traffic = '0.0.0.0/0'
         vpc_traffic_block.append(internet_traffic)
         port_list = [22, 80]
-        ECSHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
-                                                  sec_group_id, sec_group_name, port_list)
-
+        try:
+            ECSHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
+                                                      sec_group_id, sec_group_name, port_list)
+        except Exception as e:
+            fmlogger.error("Error occurred when trying to setup security group for vpc %s" + str(e))
+            error_message = 'provisioning-failed: ' + str(e)
+            try:
+                ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                error_message = error_message + " + " + str(e1)
+                env_db.Environment().update(env_id, {'output_config': error_message,
+                                                     'status': 'create-failed'})            
+            
+        # 2) Creating the cluster
         region, access_key, secret_key = ECSHandler.get_aws_details()
-
         create_keypair_cmd = ("RUN aws ec2 create-key-pair --key-name "
                               "{key_name} --query 'KeyMaterial' --output text > {key_file}.pem").format(key_name=keypair_name,
                                                                                                         key_file=keypair_name)
@@ -556,6 +602,13 @@ class ECSHandler(coe_base.COEBase):
             error_message = 'provisioning-failed: ' + error_output
             res_data['status'] = error_message
             res_db.Resource().update(res_id, res_data)
+            try:
+                ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                error_message = error_message + " + " + str(e1)
+                env_db.Environment().update(env_id, {'output_config': error_message,
+                                                     'status': 'create-failed'})
             env_db.Environment().update(env_id, {'output_config': error_message})
             return error_message
 
@@ -566,14 +619,21 @@ class ECSHandler(coe_base.COEBase):
             error_message = 'provisioning-failed: ' + error_output
             res_data['status'] = error_message
             res_db.Resource().update(res_id, res_data)
+            try:
+                ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                error_message = error_message + " + " + str(e1)
+                env_db.Environment().update(env_id, {'output_config': error_message,
+                                                     'status': 'create-failed'})
             env_db.Environment().update(env_id, {'output_config': error_message})
             return error_message
 
         cont_id = cont_id.rstrip().lstrip()
         fmlogger.debug("Checking status of ECS cluster %s" % cluster_name)
         is_active = False
-        time_out_count = 0
-        while not is_active and time_out_count < 300:
+        failures = ''
+        while not is_active:
             try:
                 clusters_dict = self.ecs_client.describe_clusters(clusters=[cluster_name])
                 registered_instances_count = clusters_dict['clusters'][0]['registeredContainerInstancesCount']
@@ -581,18 +641,37 @@ class ECSHandler(coe_base.COEBase):
                     is_active = True
                     cluster_status = 'available'
                     break
+                
+                # Revisit the following code.
+                # Currently failures will never be set. We will need this only if describe_clusters ever
+                # encounters a failure.
+                #if 'failures' in clusters_dict:
+                #    failures = clusters_dict['failures']
+                #    break
             except Exception as e:
                 fmlogger.debug("Exception encountered in trying to describe clusters:%s" % e)
             time.sleep(2)
-            time_out_count = time_out_count + 1
 
         res_db.Resource().update(res_id, {'status': cluster_status})
 
-        if not is_active:
-            cluster_status = 'provisioning-failure'
+        if failures:
+            cluster_status = 'provisioning-failure' + str(failures)
             fmlogger.error("Failed to provision ECS cluster.")
             res_db.Resource().update(res_id, {'status': cluster_status})
+            
+            try:
+                ECSHandler.awshelper.delete_security_group_for_vpc(vpc_id, sec_group_id, sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                error_message = error_message + " + " + str(e1)
+                env_db.Environment().update(env_id, {'output_config': error_message,
+                                                     'status': 'create-failed'})            
             return cluster_status
+
+        env_output_config['cluster_name'] = cluster_name
+        env_update['output_config'] = str(env_output_config)
+        env_db.Environment().update(env_id, env_update)
+        env_db.Environment().update(env_id, env_update)
 
         cp_cmd = ("docker cp {cont_id}:/src/{key_file}.pem {env_dir}/.").format(cont_id=cont_id,
                                                                                 env_dir=env_store_location,
@@ -603,23 +682,26 @@ class ECSHandler(coe_base.COEBase):
         self.docker_handler.remove_container(cont_id)
         self.docker_handler.remove_container_image(cluster_name)
 
-        instance_ip_list = self._get_cluster_ips(cluster_name, env_store_location)
-
-        env_output_config['subnets'] = subnet_list
-        env_output_config['vpc_id'] = vpc_id
-        env_output_config['cidr_block'] = cidr_block
-        env_output_config['http-and-ssh-group-name'] = sec_group_name
-        env_output_config['http-and-ssh-group-id'] = sec_group_id
-        env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
-        env_output_config['cluster_ips'] = instance_ip_list
-        env_output_config['cluster_name'] = cluster_name
-
         env_update = {}
-        env_update['status'] = env_obj.status
+        env_output_config['key_file'] = env_store_location + "/" + keypair_name + ".pem"
         env_update['output_config'] = str(env_output_config)
         env_db.Environment().update(env_id, env_update)
-        fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
-        return cluster_status
+
+        instance_ip_list = self._get_cluster_ips(cluster_name, env_store_location)
+        if not instance_ip_list:
+            error_message = "Could not get Cluster instance IP. Not continuing with the request."
+            fmlogger.error(error_message)
+            env_update['status'] = error_message + " Deleting the cluster."
+            env_db.Environment().update(env_id, env_update)
+            self.delete_cluster(env_id, env_info, '', available_cluster_name=cluster_name)
+            return error_message
+        else:
+            env_output_config['cluster_ips'] = instance_ip_list
+            env_update['status'] = cluster_status
+            env_update['output_config'] = str(env_output_config)
+            env_db.Environment().update(env_id, env_update)
+            fmlogger.debug("Done creating ECS cluster %s" % cluster_name)
+            return cluster_status
 
     def deploy_application(self, app_id, app_info):
         self._copy_creds(app_info)

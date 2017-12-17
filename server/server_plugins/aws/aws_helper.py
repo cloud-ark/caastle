@@ -146,6 +146,7 @@ class AWSHelper(object):
             security_group_id = response['GroupId']
         except Exception as e:
             fmlogger.error("Encountered exception in creating security group %s" % e)
+            raise e
 
         return security_group_id
 

@@ -68,7 +68,12 @@ class RDSResourceHandler(resource_base.ResourceBase):
             vpc_traffic_block.append(vpc_details['cidr_block'])
 
         sec_group_name = instance_id + "-sql"
-        sec_group_id = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
+        sec_group_id = ''
+        try:
+            sec_group_id = RDSResourceHandler.awshelper.create_security_group_for_vpc(vpc_id, sec_group_name)
+        except Exception as e:
+            status = str(e)
+            return status
 
         port_list = [3306]
 
@@ -87,8 +92,20 @@ class RDSResourceHandler(resource_base.ResourceBase):
                 publicly_accessible = True
                 vpc_traffic_block.append('0.0.0.0/0')
 
-        RDSResourceHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
-                                                          sec_group_id, sec_group_name, port_list)
+        try:
+            RDSResourceHandler.awshelper.setup_security_group(vpc_id, vpc_traffic_block,
+                                                              sec_group_id, sec_group_name, port_list)
+        except Exception as e:
+            status = str(e)
+            try:
+                RDSResourceHandler.awshelper.delete_security_group_for_vpc(vpc_id,
+                                                                           sec_group_id,
+                                                                           sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                status = status + " + " + str(e1)
+            return status
+        
         try:
             self.client.create_db_instance(DBName=db_name,
                                            DBInstanceIdentifier=instance_id,
@@ -102,6 +119,15 @@ class RDSResourceHandler(resource_base.ResourceBase):
                                            Tags=[{"Key": "Tag1", "Value": "Value1"}])
         except Exception as e:
             fmlogger.error("Exception encountered in creating rds instance %s" % e)
+            status = str(e)
+            try:
+                RDSResourceHandler.awshelper.delete_security_group_for_vpc(vpc_id,
+                                                                           sec_group_id,
+                                                                           sec_group_name)
+            except Exception as e1:
+                fmlogger.error(e1)
+                status = status + " + " + str(e1)
+            return status
 
         status = constants.CREATION_REQUEST_RECEIVED
         count = 1
@@ -116,7 +142,7 @@ class RDSResourceHandler(resource_base.ResourceBase):
         res_data['status'] = status
         res_id = res_db.Resource().insert(res_data)
 
-        while count < constants.TIMEOUT_COUNT and status.lower() is not 'available':
+        while status.lower() is not 'available':
             try:
                 instance_description = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
                 status = instance_description['DBInstances'][0]['DBInstanceStatus']
@@ -146,8 +172,6 @@ class RDSResourceHandler(resource_base.ResourceBase):
             filtered_description['DBName'] = constants.DEFAULT_DB_NAME
             endpoint_address = instance_description['DBInstances'][0]['Endpoint']['Address']
             filtered_description['Address'] = endpoint_address
-        elif count == constants.TIMEOUT_COUNT:
-            status = 'create-timeout: ' + status
         else:
             status = 'create-failure: ' + status
 
@@ -171,7 +195,7 @@ class RDSResourceHandler(resource_base.ResourceBase):
         db_obj = res_db.Resource().get_by_cloud_resource_id(instance_id)
         deleted = False
         count = 1
-        while count < constants.TIMEOUT_COUNT and not deleted:
+        while not deleted:
             try:
                 status_dict = self.client.describe_db_instances(DBInstanceIdentifier=instance_id)
                 status = status_dict['DBInstances'][0]['DBInstanceStatus']
@@ -217,9 +241,3 @@ class RDSResourceHandler(resource_base.ResourceBase):
         output_lines = command_output.split("\n")
 
         return output_lines
-
-
-class RDS(object):
-    @staticmethod
-    def verify_cli_options(self):
-        print("Verifying CLI Options for RDS")
