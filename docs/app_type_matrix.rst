@@ -29,3 +29,14 @@ Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 .. _wordpress: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress/php5.6/apache
 
 .. _wordpress_kubernetes_pods: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods
+
+
+
+Videos:
+--------
+
+1) CloudARK setup: https://youtu.be/88kClIy8qp4
+
+
+2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU
+
