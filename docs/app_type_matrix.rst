@@ -32,8 +32,8 @@ Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 
 
 
-Videos:
---------
+Demo Videos
+-----------
 
 1) CloudARK setup: https://youtu.be/88kClIy8qp4
 
