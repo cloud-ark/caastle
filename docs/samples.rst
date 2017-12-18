@@ -131,8 +131,8 @@ Suppose your deployment target is Google cloud.
 12) Update application's canonical DNS entry to point to IP address of prodapp
 
 
-Videos:
---------
+Demo Videos
+-----------
 
 1) CloudARK setup: https://youtu.be/88kClIy8qp4
 
