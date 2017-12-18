@@ -5,6 +5,8 @@ Check this `repository`_ to see examples of deploying applications using CloudAR
 
 .. _repository: https://github.com/cloud-ark/cloudark-samples
 
+
+
 Some typical workflows using CloudARK are presented below:
 
 **1) Developer workflow when developing locally:**
@@ -127,3 +129,12 @@ Suppose your deployment target is Google cloud.
 11) Get application URL and IP address from output of: cld app show prodapp
 
 12) Update application's canonical DNS entry to point to IP address of prodapp
+
+
+Videos:
+--------
+
+1) CloudARK setup: https://youtu.be/88kClIy8qp4
+
+
+2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU
