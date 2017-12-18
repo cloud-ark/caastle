@@ -8,11 +8,12 @@ Here are details of some of the implementation aspects of CloudARK.
 CloudARK restricts the communication between various platform elements of an environment as follows.
 
 For AWS, all the resources are created in `Default VPC currently`__. If an environment contains definition of RDS resource and ECS cluster resource, a security group
-is added for the RDS instance that allows traffic only from the CIDR address of the ECS cluster in that environment.
+is added for the RDS instance that allows traffic only from the CIDR address of the ECS cluster in that environment. CloudARK currently uses the default Docker bridge networking mode for ECS tasks that are created for an application. We will revisit this choice when we add support for Fargate launch type for ECS deployments.
 
 .. _defvpc: https://github.com/cloud-ark/cloudark/issues/4 
 
 __ defvpc_
+
 
 For single container applications on Google cloud, the container is deployed in the `default namespace`__.
 
@@ -31,6 +32,12 @@ If an environment contains Cloud SQL as a platform element along with GKE cluste
 .. _sidecarproxy: https://github.com/cloud-ark/cloudark/issues/158
 
 __ sidecarproxy_
+
+If a cloud provider has implemented a `Service Broker`__, CloudARK's extensible architecture can accommodate it for provisioning of required resources.
+
+.. _servicebroker: https://www.openservicebrokerapi.org
+
+__ servicebroker_
 
 
 **Cloud Resources**
