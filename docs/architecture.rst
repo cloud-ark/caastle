@@ -34,6 +34,18 @@ More information about CloudARK's authorization needs is available in the `autho
 
 __ auth_
 
+We want CloudARK to be at least as reliable as the underlying Cloud. This led us to not use any timeouts
+for cloud resource creation actions. After CloudARK initiates a creation call to the cloud, it periodically
+reads the status of the resource and updates its internal state. CloudARK terminates this polling only if
+the resource becomes available or if the cloud indicates that the resource provisioning has failed. There
+are no timeouts within CloudARK around these polling checks.
+
+CloudARK strives to provide atomicity around resource provisioning. As part of provisioning a top-level resource,
+other resources are created. For example, when creating a ECS cluster, first appropriate security groups are created and a ssh key pair is created. If cluster creation fails, these resources are deleted thus ensuring
+atomicity of cluster create action. Similar approach is used when provisioning of database resources (RDS,
+Cloud SQL). 
+
+
 **Docker as a command execution mechanism**
 
 CloudARK uses combination of target cloud’s SDKs and CLIs as cloud interaction mechanisms.
