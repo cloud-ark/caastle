@@ -175,14 +175,14 @@ Commands:
   setup gcloud
 
 
-Videos:
---------
+Demo Videos:
+------------
 
 1) CloudARK setup: https://youtu.be/88kClIy8qp4
 
-
 2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU
 
+3) Wordpress deployment on ECS: https://youtu.be/psgFyCa2PQA
 
 
 Wordpress deployment on ECS

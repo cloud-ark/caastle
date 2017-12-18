@@ -138,3 +138,7 @@ Demo Videos
 
 
 2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU
+
+
+3) Wordpress deployment on ECS: https://youtu.be/psgFyCa2PQA
+
