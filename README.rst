@@ -14,7 +14,7 @@ These platform definitions can be version controlled and follow software develop
    :scale: 75%
    :align: center
 
-Blog article aboud Platform-as-Code paradigm:
+Blog article about Platform-as-Code paradigm:
 
 https://medium.com/@cloudark/introducing-platform-as-code-b6677c699b4
 
