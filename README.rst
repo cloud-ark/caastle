@@ -14,6 +14,10 @@ These platform definitions can be version controlled and follow software develop
    :scale: 75%
    :align: center
 
+Blog article aboud Platform-as-Code paradigm:
+
+https://medium.com/@cloudark/introducing-platform-as-code-b6677c699b4
+
 
 CloudARK - Platform-as-Code implementation
 -------------------------------------------
@@ -63,6 +67,9 @@ Use CloudARK to develop and deploy full-stack microservices on Google GKE and Am
 - Non-hosted implementation for simplicity and usability.
 
 .. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
+
+
+
 
 
 Read this_ for more details about CloudARK
