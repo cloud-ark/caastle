@@ -1,7 +1,12 @@
 CloudARK Architecture
 ----------------------
 
-CloudARK is implemented as extensible and modular architecture.
+CloudARK is implemented as extensible and modular architecture as shown in following diagram:
+
+   .. image:: ./docs/architecture.jpg
+      :scale: 125%
+
+
 There are two primary architectural components - *client* and *server*.
 To offer the non-hosted functionality, both these components run on the same machine.
 When CloudARK is installed the client is installed in a Python virtual environment.
