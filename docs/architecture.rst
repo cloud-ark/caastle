@@ -3,7 +3,7 @@ CloudARK Architecture
 
 CloudARK is implemented as extensible and modular architecture as shown in following diagram:
 
-   .. image:: ./docs/architecture.jpg
+   .. image:: architecture.jpg
       :scale: 125%
 
 
