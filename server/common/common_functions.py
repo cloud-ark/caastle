@@ -13,6 +13,7 @@ import fm_logger
 from server.dbmodule.objects import app as app_db
 from server.dbmodule.objects import environment as env_db
 from server.dbmodule.objects import resource as res_db
+from __builtin__ import False
 
 home_dir = expanduser("~")
 
@@ -342,3 +343,31 @@ def get_cont_names(doc, cont_name_set):
     except Exception as e:
         fmlogging.error(str(e))
     return cont_name_set
+
+def are_new_log_lines(logs, log_lines_list):
+    new_lines_found = False
+
+    new_lines = []
+    lines = logs[0].split("\n")
+    for line in lines:
+        if line not in log_lines_list:
+            new_lines.append(line)
+
+    if new_lines:
+        new_lines_found = True
+    return new_lines_found, new_lines
+
+def is_error_in_log_lines(logs):
+    error_found = False
+    error_line = ''
+    lines = logs[0].split('\n')
+    for line in lines:
+        if ( line.lower().find("error") >= 0 or
+             line.lower().find("failure") >= 0 or
+             line.lower().find("failed") >= 0 or
+             line.lower().find("rollback") >= 0):
+            error_found = True
+            error_line = line
+            break
+
+    return error_found, error_line

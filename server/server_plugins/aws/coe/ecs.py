@@ -630,6 +630,24 @@ class ECSHandler(coe_base.COEBase):
             return error_message
 
         cont_id = cont_id.rstrip().lstrip()
+
+        log_lines = []
+        error_found = False
+        new_lines_found = True
+        while new_lines_found:
+            logs = self.docker_handler.get_logs(cont_id)
+            new_lines_found, new_lines = common_functions.are_new_log_lines(logs, log_lines)
+            log_lines.extend(new_lines)
+            error_found, error_message = common_functions.is_error_in_log_lines(logs)
+            if error_found:
+                env_db.Environment().update(env_id, {'output_config': error_message,
+                                                     'status': 'create-failed'})
+                return error_message
+            else:
+                status_message = ', '.join(log_lines)
+                env_db.Environment().update(env_id, {'output_config': status_message,
+                                                     'status': 'provisioning'})
+
         fmlogger.debug("Checking status of ECS cluster %s" % cluster_name)
         is_active = False
         failures = ''

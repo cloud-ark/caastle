@@ -483,7 +483,12 @@ environment_name)
                 environment_info['name'] = environment_name
 
                 environment_info['location'] = env_location
-                request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def, environment_info, action='create')
+                request_handler_thread = environment_handler.EnvironmentHandler(env_id, environment_def,
+                                                                                environment_info, action='create')
+
+                # Check permissions here
+                # permission_list = request_handler_thread.check_permissions()
+
                 thread.start_new_thread(start_thread, (request_handler_thread, ))
 
                 response.headers['location'] = ('/environments/{env_name}').format(env_name=environment_name)
