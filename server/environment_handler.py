@@ -176,3 +176,7 @@ class EnvironmentHandler(threading.Thread):
                                                                                                     resource,
                                                                                                     command_string)
         return command_output
+
+    def check_permissions(self):
+        permission_list = aws_handler.AWSHandler().check_permissions()
+        return permission_list

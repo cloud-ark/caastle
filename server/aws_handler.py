@@ -137,3 +137,7 @@ class AWSHandler(object):
             if name == coe_type:
                 log_lines = ext.obj.get_logs(app_id, app_info)
         return log_lines
+
+    def check_permissions(self):
+        permission_list = AWSHandler.awshelper.get_attached_policies()
+        return permission_list

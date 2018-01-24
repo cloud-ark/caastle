@@ -412,3 +412,42 @@ class AWSHelper(object):
                 type = value
 
         return type
+
+    def get_attached_policies(self):
+        attached_policies_list = []
+
+        resp1 = self.iam_client.get_account_authorization_details()
+
+        user_list = resp1['UserDetailList']
+        if user_list:
+            user_policy_list = resp1['UserDetailList'][0]['UserPolicyList']
+            for policy in user_policy_list:
+                #print(policy['PolicyName'])
+                attached_policies_list.append(policy['PolicyName'])
+
+            attached_managed_policy_list = resp1['UserDetailList'][0]['AttachedManagedPolicies']
+            for policy in attached_managed_policy_list:
+                attached_policies_list.append(policy['PolicyName'])
+
+        group_detail_list = resp1['GroupDetailList']
+        if group_detail_list:
+            group_policy_list = group_detail_list[0]['GroupPolicyList']
+            for policy in group_policy_list:
+                attached_policies_list.append(policy['PolicyName'])
+
+            attached_managed_policy_list = group_detail_list[0]['AttachedManagedPolicies']
+            for policy in attached_managed_policy_list:
+                attached_policies_list.append(policy['PolicyName'])
+
+        role_detail_list = resp1['RoleDetailList']
+        if role_detail_list:
+            for role in role_detail_list:
+                role_policy_list = role['RolePolicyList']
+                for policy in role_policy_list:
+                    attached_policies_list.append(policy['PolicyName'])
+
+                attached_managed_policy_list = role['AttachedManagedPolicies']
+                for policy in attached_managed_policy_list:
+                    attached_policies_list.append(policy['PolicyName'])
+
+        return attached_policies_list
