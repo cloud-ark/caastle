@@ -10,6 +10,8 @@ from kubernetes import client, config
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
+from google.oauth2 import service_account
+
 from server.common import constants
 from server.common import common_functions
 from server.common import docker_lib
@@ -25,6 +27,8 @@ from __builtin__ import True
 home_dir = expanduser("~")
 
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
+
+SERVICE_ACCOUNT_FILE = APP_AND_ENV_STORE_PATH + "gcp-service-account-key.json"
 
 fmlogger = fm_logger.Logging()
 
@@ -49,7 +53,8 @@ class GKEHandler(coe_base.COEBase):
 
 
     def __init__(self):
-        credentials = GoogleCredentials.get_application_default()
+        #credentials = GoogleCredentials.get_application_default()
+        credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
         self.gke_service = discovery.build('container', 'v1',
                                            credentials=credentials)
         self.compute_service = discovery.build('compute', 'v1',
@@ -253,17 +258,22 @@ class GKEHandler(coe_base.COEBase):
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
 
-        try:
-            self._create_network(env_id, project, cluster_name)
-        except Exception as e:
-            fmlogger.error(e)
-            return
+        network = ''
+        if 'network' in env_details['environment']['app_deployment']:
+            network = env_details['environment']['app_deployment']['network']
+        if not network or network != 'default':
+            network = cluster_name
+            try:
+                self._create_network(env_id, project, cluster_name)
+            except Exception as e:
+                fmlogger.error(e)
+                return
 
-        try:
-            self._create_firewall_rule(env_id, project, cluster_name)
-        except Exception as e:
-            fmlogger.error(e)
-            return
+            try:
+                self._create_firewall_rule(env_id, project, cluster_name)
+            except Exception as e:
+                fmlogger.error(e)
+                return
 
         resp = ''
         try:
@@ -275,7 +285,7 @@ class GKEHandler(coe_base.COEBase):
                                   "nodeConfig": {
                                       "oauthScopes": "https://www.googleapis.com/auth/devstorage.read_only",
                                       "machineType": instance_type},
-                                  "network": cluster_name}}
+                                  "network": network}}
             ).execute()
             fmlogger.debug(resp)
         except Exception as e:
@@ -344,17 +354,25 @@ class GKEHandler(coe_base.COEBase):
             project = filtered_description['project']
             zone = filtered_description['zone']
 
-            # Network delete is not working for some reason. So temporarily
-            # commenting it out.
-            #try:
-            #    self._delete_network(project, cluster_name)
-            #except Exception as e:
-            #    fmlogger.error("Exception deleting network %s " % str(e))
-            #    env_update = {}
-            #    env_update['output_config'] = str({'error': str(e)})
-            #    env_db.Environment().update(env_id, env_update)
+            env_obj = env_db.Environment().get(env_id)
+            env_name = env_obj.name
+            env_details = ast.literal_eval(env_obj.env_definition)
 
-            self._delete_firewall_rule(project, cluster_name)
+            network = ''
+            if 'network' in env_details['environment']['app_deployment']:
+                network = env_details['environment']['app_deployment']['network']
+            if not network or network != 'default':
+                # Network delete is not working for some reason. So temporarily
+                # commenting it out.
+                #try:
+                #    self._delete_network(project, cluster_name)
+                #except Exception as e:
+                #    fmlogger.error("Exception deleting network %s " % str(e))
+                #    env_update = {}
+                #    env_update['output_config'] = str({'error': str(e)})
+                #    env_db.Environment().update(env_id, env_update)
+
+                self._delete_firewall_rule(project, cluster_name)
 
             try:
                 resp = self.gke_service.projects().zones().clusters().delete(

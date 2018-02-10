@@ -24,6 +24,8 @@ home_dir = expanduser("~")
 
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
+SERVICE_ACCOUNT_FILE = APP_AND_ENV_STORE_PATH + "gcp-service-account-key.json"
+
 fmlogger = fm_logger.Logging()
 
 GCR = "us.gcr.io"

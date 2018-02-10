@@ -55,10 +55,13 @@ class GCRHandler(resource_base.ResourceBase):
     def _push_container(self, cont_info, tagged_image):
         access_token = self._get_access_token(cont_info)
 
-        self.docker_handler.docker_login("oauth2accesstoken",
-                                         access_token, "https://" + GCR)
+        err, output = self.docker_handler.docker_login("oauth2accesstoken",
+                                                       access_token, "https://" + GCR)
 
-        self.docker_handler.push_container(tagged_image)
+        if not err:
+            err, output = self.docker_handler.push_container(tagged_image)
+
+        return err, output
 
     def _delete_container(self, tagged_image, cont_info):
         err, output = self.docker_handler.remove_container_image(tagged_image)
@@ -118,11 +121,18 @@ class GCRHandler(resource_base.ResourceBase):
         cont_data['status'] = 'pushing-cont-to-gcr-repository'
 
         cont_db.Container().update(cont_name, cont_data)
+        err = ''
         try:
-            self._push_container(cont_info, tagged_image)
+            err, output = self._push_container(cont_info, tagged_image)
         except Exception as e:
             fmlogger.error("Exception encountered in pushing container to gcr %s" % e)
             cont_data['status'] = 'error-in-container-push-to-gcr:' + str(e)
+            cont_db.Container().update(cont_name, cont_data)
+            return
+
+        if err:
+            fmlogger.error("Exception encountered in pushing container to gcr %s" % err)
+            cont_data['status'] = 'error-in-container-push-to-gcr:' + str(err)
             cont_db.Container().update(cont_name, cont_data)
             return
 
