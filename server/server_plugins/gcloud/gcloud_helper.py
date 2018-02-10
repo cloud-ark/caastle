@@ -23,6 +23,8 @@ home_dir = expanduser("~")
 
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
+GOOGLE_CREDS_FILE = APP_AND_ENV_STORE_PATH + "google-creds-cloudark"
+
 fmlogger = fm_logger.Logging()
 
 GCR = "us.gcr.io"
@@ -75,6 +77,29 @@ class GCloudHelper(object):
         return access_token
 
     def get_deployment_details(self, env_id):
+        project = ''
+        zone = ''
+        account = ''
+
+        if 'app_deployment' in env_details['environment']:
+            project = env_details['environment']['app_deployment']['project']
+            zone = env_details['environment']['app_deployment']['zone']
+        else:
+            project = env_details['environment']['resources']['gcloud'][0]['resource']['project']
+            zone = env_details['environment']['resources']['gcloud'][0]['resource']['zone']
+
+        fp = open(GOOGLE_CREDS_FILE, "r")
+        lines = fp.readlines()
+        for line in lines:
+            parts = line.split(":")
+            if parts[0].strip() == 'zone':
+                zone = parts[1].strip()
+            if parts[0].strip() == 'account':
+                account = parts[1].strip()
+
+        return account, project, zone
+
+    def get_deployment_details_bak(self, env_id):
         env_obj = env_db.Environment().get(env_id)
         env_details = ast.literal_eval(env_obj.env_definition)
         project = ''

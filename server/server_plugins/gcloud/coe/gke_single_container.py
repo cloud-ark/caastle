@@ -9,6 +9,8 @@ from kubernetes import client, config
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
+from google.oauth2 import service_account
+
 from server.common import constants
 from server.common import common_functions
 from server.common import docker_lib
@@ -24,6 +26,8 @@ home_dir = expanduser("~")
 
 APP_AND_ENV_STORE_PATH = ("{home_dir}/.cld/data/deployments/").format(home_dir=home_dir)
 
+SERVICE_ACCOUNT_FILE = APP_AND_ENV_STORE_PATH + "gcp-service-account-key.json"
+
 fmlogger = fm_logger.Logging()
 
 GCR = "us.gcr.io"
@@ -34,7 +38,8 @@ class GKESingleContainer(gke_app_base.GKEAppBase):
     gcloudhelper = gcloud_helper.GCloudHelper()
     
     def __init__(self):
-        credentials = GoogleCredentials.get_application_default()
+        #credentials = GoogleCredentials.get_application_default()
+        credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
         self.gke_service = discovery.build('container', 'v1',
                                            credentials=credentials)
         self.compute_service = discovery.build('compute', 'v1',
