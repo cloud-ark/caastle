@@ -1,14 +1,13 @@
-=================
-Platform-as-Code
-=================
+=========
+CaaStle
+=========
 
-Platform of an application is the run-time environment in which the application runs.
-It includes application code/containers, application/web servers, container orchestration engine clusters,
+Platform of containerized applications/microservices includes application/web servers, container orchestration engine clusters,
 and application’s external resource dependencies such as managed database servers.
 Platform-as-Code_ paradigm offers ability to define all such platform elements of a containerized cloud application using declarative configuration files.
 These platform definitions can be version controlled and follow software development lifecycle.
 
-.. _Platform-as-Code: https://cloudark.io/resources
+.. _Platform-as-Code: https://cloudark.io
 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 75%
@@ -19,13 +18,10 @@ Blog article about Platform-as-Code paradigm:
 https://medium.com/@cloudark/introducing-platform-as-code-b6677c699b4
 
 
-CloudARK - Platform-as-Code implementation
--------------------------------------------
+CaaStle is a **full-stack microservices development and deployment tool** that is implemented using Platform-as-Code principles.
+Currently CaaStle supports Google Cloud and Amazon AWS.
 
-CloudARK is a **full-stack microservices development and deployment tool** that is implemented using Platform-as-Code principles.
-Currently CloudARK supports Google Cloud and Amazon AWS.
-
-Key elements of CloudARK:
+Key elements of CaaStle
 
 - **Intelligent abstractions**:
 
@@ -51,12 +47,12 @@ Key elements of CloudARK:
 
 - **Non-hosted implementation**:
 
-  CloudARK is a non-hosted implementation. There is no centralized server like PaaS implementations. CloudARK can be installed anywhere alongside Docker.
+  CaaStle is a non-hosted implementation. There is no centralized server like PaaS implementations. CaaStle can be installed anywhere alongside Docker.
   This architecture enables effective local development with Docker environments setup on the individual workstations or laptops.
-  The non-hosted nature also simplifies integration of CloudARK with any DevOps workflow.
+  The non-hosted nature also simplifies integration of CaaStle with any DevOps workflow.
 
 
-Use CloudARK to develop and deploy full-stack microservices on Google GKE and Amazon ECS:
+Use CaaStle to develop and deploy full-stack microservices on Google GKE and Amazon ECS:
 
 - Common language between developers and Ops to share the platform definition of a containerized cloud application. 
 
@@ -70,23 +66,21 @@ Use CloudARK to develop and deploy full-stack microservices on Google GKE and Am
 
 
 
+Read this_ for more details about CaaStle
 
+.. _this: https://cloud-ark.github.io/caastle/docs/html/html/index.html
 
-Read this_ for more details about CloudARK
+CaaStle FAQ_
 
-.. _this: https://cloud-ark.github.io/cloudark/docs/html/html/index.html
+.. _FAQ: https://cloud-ark.github.io/caastle/docs/html/html/faq.html
 
-CloudARK FAQ_
+CaaStle Roadmap_
 
-.. _FAQ: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
-
-CloudARK Roadmap_
-
-.. _Roadmap: https://cloud-ark.github.io/cloudark/docs/html/html/roadmap.html
+.. _Roadmap: https://cloud-ark.github.io/caastle/docs/html/html/roadmap.html
 
 
 
-Try CloudARK
+Try CaaStle
 -------------
 
 Developed and Tested on:
@@ -101,11 +95,11 @@ Requires:
 
 - Python 2.7
 
-CloudARK requires Docker to be installed. If you do not have Docker, you can install it following steps from:
+CaaStle requires Docker to be installed. If you do not have Docker, you can install it following steps from:
 
 https://docs.docker.com/engine/installation/
 
-On Mac OS, make sure the command shell from which you are installing CloudARK is able to run docker commands
+On Mac OS, make sure the command shell from which you are installing CaaStle is able to run docker commands
 without sudo. You can achieve this by executing following command in the shell once Docker VM is up and running:
 
 eval "$(docker-machine env default)"
@@ -116,7 +110,7 @@ Once you have installed Docker follow these steps:
 
 1) Clone this repository
 
-2) Install CloudARK
+2) Install CaaStle
 
    $ ./install.sh
 
@@ -126,7 +120,7 @@ Once you have installed Docker follow these steps:
 
    $ cld setup gcloud
 
-4) Start CloudARK server
+4) Start CaaStle server
 
    $ ./start-cloudark.sh
 
@@ -185,7 +179,7 @@ Commands:
 Demo Videos:
 ------------
 
-1) CloudARK setup: https://youtu.be/88kClIy8qp4
+1) CaaStle setup: https://youtu.be/88kClIy8qp4
 
 2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU
 
@@ -274,14 +268,14 @@ In contrast, Platform-as-Code offers *application-centric abstractions* that sim
 
 3) `Deploying on Google GKE`__
 
-.. _GKE: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#deployment-to-gke
+.. _GKE: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-gke
 
 __ GKE_
 
 
 4) `Deploying on Amazon ECS`__
 
-.. _ECS: https://cloud-ark.github.io/cloudark/docs/html/html/deployments.html#deployment-to-amazon-ecs
+.. _ECS: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-amazon-ecs
 
 __ ECS_
 
