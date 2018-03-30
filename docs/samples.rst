@@ -1,10 +1,9 @@
 Sample Deployments
 -------------------
 
-Check this `repository`_ to see examples of deploying applications using CaaStle.
+Check examples_ directory of deploying applications using CaaStle.
 
-.. _repository: https://github.com/cloud-ark/cloudark-samples
-
+.. _examples: https://github.com/cloud-ark/caastle/tree/master/examples
 
 
 Some typical workflows using CaaStle are presented below:
@@ -19,23 +18,23 @@ Suppose the application is a single container application and needs MySQL for ba
 
    - Dockerfile_
 
-.. _Dockerfile: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile
+.. _Dockerfile: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/Dockerfile
 
    - `env definition file (env.yaml)`__
 
-.. _env: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml
+.. _env: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/environment-local.yaml
 
 __ env_
 
    - `app definition file (app.yaml)`__
 
-.. _app: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml
+.. _app: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/app-local.yaml
 
 __ app_
 
    Ensure that app.yaml includes `interpolated variables`__ corresponding to the environment variables that should be bound to cloud resources in the environment
 
-.. _interpolation: https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html
+.. _interpolation: https://cloud-ark.github.io/caastle/docs/html/html/env_vars.html
 
 __ interpolation_
 

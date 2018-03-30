@@ -62,7 +62,7 @@ Use CaaStle to develop and deploy full-stack microservices on Google GKE and Ama
 
 - Non-hosted implementation for simplicity and usability.
 
-.. _parity: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/README.txt
+.. _parity: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/README.txt
 
 
 
@@ -124,9 +124,7 @@ Once you have installed Docker follow these steps:
 
    $ ./start-cloudark.sh
 
-5) Clone the cloudark-samples repository (https://github.com/cloud-ark/cloudark-samples.git)
-
-6) Choose a sample application and follow the steps in the included README
+5) Choose a sample application from examples folder and follow the steps in the included README
 
 
 Sample commands

@@ -53,7 +53,7 @@ __ podsonly_
   to see what caused a Pod from not starting up. The environment-specific shell allows you to execute all such commands
   *without* requiring you to `install and setup cloud CLIs on your machines`__.
 
-.. _arch: https://cloud-ark.github.io/cloudark/docs/html/html/architecture.html
+.. _arch: https://cloud-ark.github.io/caastle/docs/html/html/architecture.html
 
 __ arch_
 

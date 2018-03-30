@@ -62,7 +62,7 @@ Here are the currently supported resources in an environment definition in CaaSt
    will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
    accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen here_.
 
-.. _here: https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml
+.. _here: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/environment-rds-local.yaml
 
    The policy attribute is useful during development when you may want to connect to the RDS instance from your development machine.
 
@@ -76,9 +76,9 @@ Here are the currently supported resources in an environment definition in CaaSt
 
    Here are examples of environment definitions showing use of cluster_size_ and instance_type_ attributes.
 
-.. _cluster_size: https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-size-2.yaml
+.. _cluster_size: https://github.com/cloud-ark/caastle/blob/master/examples/hello-world/environment-ecs-size-2.yaml
 
-.. _instance_type: https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-instance-type.yaml
+.. _instance_type: https://github.com/cloud-ark/caastle/blob/master/examples/hello-world/environment-ecs-instance-type.yaml
 
    For the machine image, CaaStle uses AWS machine image that has ECS agent baked in.
 
