@@ -1,8 +1,8 @@
 Installation
 -------------
 
-CloudARK requires Docker to be installed on the Host. Also, the effective user permissions of the shell
-in which CloudARK is running needs to be such that docker commands can be invoked without sudo.
+CaaStle requires Docker to be installed on the Host. Also, the effective user permissions of the shell
+in which CaaStle is running needs to be such that docker commands can be invoked without sudo.
 
 **Docker installation on Ubuntu**
 

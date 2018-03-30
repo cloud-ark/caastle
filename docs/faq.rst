@@ -24,15 +24,15 @@ entire stack of a containerized cloud application. It leverages popular declarat
 .. _Metaparticle: https://metaparticle.io/
 
 
-Q) **How does CloudARK strike balance between high-level abstractions and providing control when needed?**
+Q) **How does CaaStle strike balance between high-level abstractions and providing control when needed?**
 
-CloudARK tries to balance the fine line between abstraction and control through following three aspects of its design:
+CaaStle tries to balance the fine line between abstraction and control through following three aspects of its design:
 
-- First, for defining platform elements in environment yaml file, CloudARK plans to support all the attributes that
-  the corresponding cloud resource exposes. For the platform elements that are currently supported in CloudARK - AWS RDS,
+- First, for defining platform elements in environment yaml file, CaaStle plans to support all the attributes that
+  the corresponding cloud resource exposes. For the platform elements that are currently supported in CaaStle - AWS RDS,
   AWS ECS, Google Cloud SQL, Google GKE - limited set of attributes are supported in the yaml file. But we will be
   supporting all the settable attributes soon. (In the mean time if you are interested in any particular attribute,
-  file a Github issue_ and we will add it to CloudARK).
+  file a Github issue_ and we will add it to CaaStle).
 
 .. _issue: https://github.com/cloud-ark/cloudark/issues
 
@@ -58,41 +58,40 @@ __ podsonly_
 __ arch_
 
 
-Q) **What is environment-specific shell in CloudARK?**
+Q) **What is environment-specific shell in CaaStle?**
 
-CloudARK provides *cld env shell* command that can be used to get a *environment-specific* shell.
+CaaStle provides *cld env shell* command that can be used to get a *environment-specific* shell.
 This shell allows you to execute cloud-native CLI commands corresponding to the platform elements in *that* environment, e.g. 'gcloud sql', 'aws rds', 'kubectl', etc. 
-This shell can be quite handy when you are developing applications using CloudARK.
+This shell can be quite handy when you are developing applications using CaaStle.
 It offers a great tool for traceability without having to setup number of CLI tools.
 
 
-Q) **Who are the target users of CloudARK?**
+Q) **Who are the target users of CaaStle?**
 
 Development teams developing containerized cloud applications that run on public clouds like AWS or Google cloud.
 
 
-Q) **What are the typical use-cases of CloudARK?**
+Q) **What are the typical use-cases of CaaStle?**
 
-CloudARK is targeted as a common tool between developers and operations engineers.
-CloudARK provides easy way for developers and ops to collaborate on declarative platform definitions.
-Developers can use CloudARK as local development environment, along with Docker.
-Ops engineers can integrate CloudARK-based application deployment workflow in their standard Jenkins like DevOps workflow.
-CloudARK's features of application-centric shell, full-stack platform elements association view,
+CaaStle is targeted as a common tool between developers and operations engineers.
+CaaStle provides easy way for developers and ops to collaborate on declarative platform definitions.
+Developers can use CaaStle as local development environment, along with Docker.
+Ops engineers can integrate CaaStle-based application deployment workflow in their standard Jenkins like DevOps workflow.
+CaaStle's features of application-centric shell, full-stack platform elements association view,
 and environment change history (upcoming) are useful for developers and ops engineers alike when
 debugging application behaviors or managing environments.
 
 
-Q) **How does CloudARK differ from Infrastructure-as-Code tools such as Terraform or AWS CloudFormation?**
-
-Please refer to our `free whitepaper`__ that compares Platform-as-Code approach with PaaSes and Infrastructure-as-Code.
-
-.. _whitepaper:  https://cloudark.io/resources
-
-__ whitepaper_
+Q) **How does CaaStle differ from Infrastructure-as-Code tools such as Terraform or AWS CloudFormation?**
 
 
-Q) **How does CloudARK differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?**
+CaaStle provides application-centric abstractions whereas IaC tools work with infrastructure abstractions.
 
-Please refer to our free whitepaper (linked above) that compares Platform-as-Code approach with PaaSes and Infrastructure-as-Code.
+
+Q) **How does CaaStle differ from cloud native PaaSes like AWS Elastic Beanstalk or Google App Engine?**
+
+CaaStle is a non-hosted implementation of platform functionality. It integrates with Cloud-based
+container orchestration engine systems directly from your laptop. PaaSes introduce an additional hosted indirection which makes them opaque for application developers.
+
 
 

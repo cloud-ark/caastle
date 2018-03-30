@@ -1,13 +1,13 @@
 Sample Deployments
 -------------------
 
-Check this `repository`_ to see examples of deploying applications using CloudARK.
+Check this `repository`_ to see examples of deploying applications using CaaStle.
 
 .. _repository: https://github.com/cloud-ark/cloudark-samples
 
 
 
-Some typical workflows using CloudARK are presented below:
+Some typical workflows using CaaStle are presented below:
 
 **1) Developer workflow when developing locally:**
 
@@ -134,7 +134,7 @@ Suppose your deployment target is Google cloud.
 Demo Videos
 -----------
 
-1) CloudARK setup: https://youtu.be/88kClIy8qp4
+1) CaaStle setup: https://youtu.be/88kClIy8qp4
 
 
 2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU

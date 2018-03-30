@@ -8,9 +8,9 @@ Following table shows currently supported application types, application definit
 +---------------------------------+-------------------------------+--------------+------------------------------+
 | Type                            | Application definition format |   COE        |            Example           |
 +=================================+===============================+==============+==============================+
-| Single container                | app yaml (CloudARK format)    | ECS & GKE    |         hello-world_         |
+| Single container                | app yaml (CaaStle format)     | ECS & GKE    |         hello-world_         |
 +---------------------------------+-------------------------------+--------------+------------------------------+
-| Single cont + managed service   | app yaml (CloudARK format)    | ECS & GKE    |         wordpress_           |
+| Single cont + managed service   | app yaml (CaaStle format)     | ECS & GKE    |         wordpress_           |
 +---------------------------------+-------------------------------+--------------+------------------------------+
 | Single cont + managed service   | pod yaml (Kubernetes format)  |    GKE       |         greetings_           |
 +---------------------------------+-------------------------------+--------------+------------------------------+
@@ -20,7 +20,6 @@ Following table shows currently supported application types, application definit
 +---------------------------------+-------------------------------+--------------+------------------------------+
 
 Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
-
 
 .. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world
 
@@ -35,7 +34,7 @@ Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 Demo Videos
 -----------
 
-1) CloudARK setup: https://youtu.be/88kClIy8qp4
+1) CaaStle setup: https://youtu.be/88kClIy8qp4
 
 
 2) Wordpress deployment on GKE: https://youtu.be/c7pO7TO0KzU

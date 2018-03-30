@@ -1,4 +1,4 @@
-CloudARK CLI
+CaaStle CLI
 -------------
 
 .. code:: bash

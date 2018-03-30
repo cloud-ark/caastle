@@ -4,38 +4,29 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Environment Variables &#8212; CloudARK 0.0.1 documentation</title>
+    <title>Environment Variables &#8212; CaaStle 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  false,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CloudARK Architecture" href="architecture.html" />
+    <link rel="next" title="CaaStle Architecture" href="architecture.html" />
     <link rel="prev" title="Application type support matrix" href="app_type_matrix.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="architecture.html" title="CaaStle Architecture"
              accesskey="N">next</a></li>
         <li class="right" >
           <a href="app_type_matrix.html" title="Application type support matrix"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -45,15 +36,17 @@
                         title="previous chapter">Application type support matrix</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="architecture.html"
-                        title="next chapter">CloudARK Architecture</a></p>
+                        title="next chapter">CaaStle Architecture</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -66,11 +59,11 @@
             
   <div class="section" id="environment-variables">
 <h1>Environment Variables</h1>
-<p>CloudARK application definition format:</p>
+<p>CaaStle application definition format:</p>
 <p>Environment variables are defined in application yaml file under <em>env</em> section for
 single container applications.</p>
 <p>An example of environment variable definition in application yaml is shown below:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">app</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span>
     <span class="l l-Scalar l-Scalar-Plain">PASSWORD</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_MasterUserPassword</span>
     <span class="l l-Scalar l-Scalar-Plain">DB</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">$CLOUDARK_RDS_DBName</span>
@@ -82,7 +75,7 @@ single container applications.</p>
 <p>For multi-container applications environment variables
 can be defined in the standard approach in the respective yaml file of the target system (GKE or ECS).</p>
 <p>An example of environment variable definition for Kubernetes pods is shown below:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="l l-Scalar l-Scalar-Plain">kind</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
 <span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">greetings1</span>
@@ -109,14 +102,14 @@ can be defined in the standard approach in the respective yaml file of the targe
 <p>An application is bound to managed services in the environment through the environment variables
 following <a class="reference external" href="https://12factor.net/config">12-factor design principles</a>.</p>
 <p>The value of the parameter that needs to be bound to an attribute of the cloud resource in an environment
-is set as an <em>interpolated variables</em>. CloudARK defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
+is set as an <em>interpolated variables</em>. CaaStle defines following format for this purpose: $CLOUDARK_&lt;TYPE&gt;_&lt;Attribute&gt;.
 The <em>TYPE</em> is one of the supported resource types (represented in uppercase).
 <em>Attribute</em> is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource
 using ‘cld resource show &lt;env-name&gt;’ command.</p>
 <p>In the above example, by defining the value of the PASSWORD environment variable as
 a interpolated value of $CLOUDARK_RDS_MasterUserPassword,
-CloudARK will set the value of the PASSWORD to the MasterUserPassword of
+CaaStle will set the value of the PASSWORD to the MasterUserPassword of
 the RDS instance provisioned in the environment in which the application is deployed.</p>
 <p>Mechanism of interpolated variables makes the application definition reusable across environments.
 For instance, suppose you have created two environments <em>test</em> and <em>staging</em>. When
@@ -136,12 +129,12 @@ the value will be set as per the value of MasterUserPassword of the RDS instance
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="architecture.html" title="CloudARK Architecture"
+          <a href="architecture.html" title="CaaStle Architecture"
              >next</a></li>
         <li class="right" >
           <a href="app_type_matrix.html" title="Application type support matrix"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

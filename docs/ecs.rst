@@ -10,7 +10,7 @@ Follow the prompts and provide the required input.
 $ ./restart-cloudark.sh
 
 
-Your AWS user will need to have following managed policies in order to do deployments using CloudARK.
+Your AWS user will need to have following managed policies in order to do deployments using CaaStle.
 
 - AmazonEC2FullAccess
 - AmazonEC2ContainerRegistryFullAccess

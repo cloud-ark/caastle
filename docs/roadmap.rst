@@ -1,12 +1,12 @@
 Roadmap
 --------
 
-Here is current roadmap for CloudARK. We follow agile approach for deciding next set of deliverables.
+Here is current roadmap for CaaStle. We follow agile approach for deciding next set of deliverables.
 So feel free to let us know_ if you need a specific feature/function on priority. 
 
 .. _know: https://github.com/cloud-ark/cloudark/issues
 
-We will be happy to work with you_ to add your requested feature to CloudARK roadmap.
+We will be happy to work with you_ to add your requested feature to CaaStle roadmap.
 
 .. _you: https://cloudark.io/contact
 
@@ -43,6 +43,6 @@ We will be happy to work with you_ to add your requested feature to CloudARK roa
 
 (We are gathering inputs to evaluate if these features will add further value to our users. So pls drop us a line if you have any suggestions on these.)
 
-1) Support for Terraform tf definitions for environment definition (alternative to CloudARK's environment yaml definition format) 
+1) Support for Terraform tf definitions for environment definition (alternative to CaaStle's environment yaml definition format) 
 
 2) Support for Helm charts for application definition

@@ -4,28 +4,19 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CloudARK Architecture &#8212; CloudARK 0.0.1 documentation</title>
+    <title>CaaStle Architecture &#8212; CaaStle 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  false,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Implementation Details" href="implementation.html" />
     <link rel="prev" title="Environment Variables" href="env_vars.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -35,7 +26,7 @@
         <li class="right" >
           <a href="env_vars.html" title="Environment Variables"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -48,12 +39,14 @@
                         title="next chapter">Implementation Details</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -64,40 +57,40 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="cloudark-architecture">
-<h1>CloudARK Architecture</h1>
-<p>CloudARK is implemented as extensible and modular architecture as shown in following diagram:</p>
+  <div class="section" id="caastle-architecture">
+<h1>CaaStle Architecture</h1>
+<p>CaaStle is implemented as extensible and modular architecture as shown in following diagram:</p>
 <blockquote>
-<div><a class="reference internal image-reference" href="_images/architecture.jpg"><img alt="_images/architecture.jpg" src="_images/architecture.jpg" style="width: 800.0px; height: 450.0px;" /></a>
+<div><a class="reference internal image-reference" href="_images/architecture.jpg"><img alt="_images/architecture.jpg" src="_images/architecture.jpg" style="width: 896.0px; height: 504.0px;" /></a>
 </div></blockquote>
 <p>There are two primary architectural components - <em>client</em> and <em>server</em>.
 To offer the non-hosted functionality, both these components run on the same machine.
-When CloudARK is installed the client is installed in a Python virtual environment.
+When CaaStle is installed the client is installed in a Python virtual environment.
 The server is started in this virtual environment when start-cloudark.sh script is run.
 The client and the server communicate over a REST API locally.</p>
 <p>Client is implemented using the <a class="reference external" href="https://docs.openstack.org/cliff/latest/">cliff</a> framework.</p>
 <p>The server is implemented as an extensible architecture with separate packages for different
 clouds. Within each cloud package there are sub-packages for <em>coe</em> and <em>resource</em>.
 These packages contain modules that implement coe-specific and resource-specific functionality
-for the target cloud. These modules are implemented as extensions of CloudARK. We use
+for the target cloud. These modules are implemented as extensions of CaaStle. We use
 <a class="reference external" href="https://pypi.python.org/pypi/stevedore">stevedore</a> extension mechanism for this purpose.</p>
 <p>The server uses Python threads to asynchronously handle incoming requests. We considered using
-a queue-based approach. But because our goal was to create a <em>non-hosted</em> implementation, we rejected it for the simpler thread-based approach. Currently CloudARK works with Python 2.7
-only as the thread package is available only in Python 2.7. We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CloudARK
+a queue-based approach. But because our goal was to create a <em>non-hosted</em> implementation, we rejected it for the simpler thread-based approach. Currently CaaStle works with Python 2.7
+only as the thread package is available only in Python 2.7. We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CaaStle
 use concurrency mechanisms available in the latest versions of Python.</p>
-<p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CloudARK provides commands to do the credential setup.
-More information about CloudARK’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/cloud_auth.html">authorization details</a> section.</p>
-<p>We want CloudARK to be at least as reliable as the underlying Cloud. This led us to not use any timeouts
-for cloud resource creation actions. After CloudARK initiates a creation call to the cloud, it periodically
-reads the status of the resource and updates its internal state. CloudARK terminates this polling only if
+<p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CaaStle provides commands to do the credential setup.
+More information about CaaStle’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/cloud_auth.html">authorization details</a> section.</p>
+<p>We want CaaStle to be at least as reliable as the underlying Cloud. This led us to not use any timeouts
+for cloud resource creation actions. After CaaStle initiates a creation call to the cloud, it periodically
+reads the status of the resource and updates its internal state. CaaStle terminates this polling only if
 the resource becomes available or if the cloud indicates that the resource provisioning has failed. There
-are no timeouts within CloudARK around these polling checks.</p>
-<p>CloudARK strives to provide atomicity around resource provisioning. As part of provisioning a top-level resource,
+are no timeouts within CaaStle around these polling checks.</p>
+<p>CaaStle strives to provide atomicity around resource provisioning. As part of provisioning a top-level resource,
 other resources are created. For example, when creating a ECS cluster, first appropriate security groups are created and a ssh key pair is created. If cluster creation fails, these resources are deleted thus ensuring
 atomicity of cluster create action. Similar approach is used when provisioning of database resources (RDS,
 Cloud SQL).</p>
 <p><strong>Docker as a command execution mechanism</strong></p>
-<p>CloudARK uses combination of target cloud’s SDKs and CLIs as cloud interaction mechanisms.
+<p>CaaStle uses combination of target cloud’s SDKs and CLIs as cloud interaction mechanisms.
 SDKs have been our first choice as they allow us complete control over interaction steps.
 But for cases where SDK was not supporting a particular requirement, we have used corresponding native CLI calls.
 For this, we use Docker as the <em>mechanism for invoking these CLIs</em>.
@@ -109,7 +102,7 @@ In fact, we leverage this same mechanism to support <a class="reference external
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation Details</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending CloudARK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending CaaStle</a></li>
 </ul>
 </div>
 <p><strong>Known Issues</strong></p>
@@ -131,7 +124,7 @@ In fact, we leverage this same mechanism to support <a class="reference external
         <li class="right" >
           <a href="env_vars.html" title="Environment Variables"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
