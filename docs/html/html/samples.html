@@ -59,29 +59,29 @@
             
   <div class="section" id="sample-deployments">
 <h1>Sample Deployments</h1>
-<p>Check this <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples">repository</a> to see examples of deploying applications using CaaStle.</p>
+<p>Check <a class="reference external" href="https://github.com/cloud-ark/caastle/tree/master/examples">examples</a> directory of deploying applications using CaaStle.</p>
 <p>Some typical workflows using CaaStle are presented below:</p>
 <p><strong>1) Developer workflow when developing locally:</strong></p>
 <p>Suppose the application is a single container application and needs MySQL for backend.</p>
 <ol class="arabic simple">
 <li>Write application code</li>
 <li>Create application-specific artifacts:<ul>
-<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/Dockerfile">Dockerfile</a></li>
+<li><a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/greetings/Dockerfile">Dockerfile</a></li>
 </ul>
 </li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-local.yaml">env definition file (env.yaml)</a></li>
+<li><a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/greetings/environment-local.yaml">env definition file (env.yaml)</a></li>
 </ul>
 </div></blockquote>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/app-local.yaml">app definition file (app.yaml)</a></li>
+<li><a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/greetings/app-local.yaml">app definition file (app.yaml)</a></li>
 </ul>
 </div></blockquote>
 <blockquote>
-<div>Ensure that app.yaml includes <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/env_vars.html">interpolated variables</a> corresponding to the environment variables that should be bound to cloud resources in the environment</div></blockquote>
+<div>Ensure that app.yaml includes <a class="reference external" href="https://cloud-ark.github.io/caastle/docs/html/html/env_vars.html">interpolated variables</a> corresponding to the environment variables that should be bound to cloud resources in the environment</div></blockquote>
 <ol class="arabic simple" start="3">
 <li>Create local environment: cld env create localenv env.yaml</li>
 <li>Create container: cld container create cont1 local</li>
