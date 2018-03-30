@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: some-wordpress
+  labels:
+    name: some-wordpress
+spec:
+  containers:
+    - image: launcher.gcr.io/google/wordpress4-php5-apache
+      name: wordpress
+      env:
+        - name: "WORDPRESS_DB_HOST"
+          value: "127.0.0.1:3306"
+        - name: "WORDPRESS_DB_PASSWORD"
+          value: "example-password"
+    - image: launcher.gcr.io/google/mysql5
+      name: mysql
+      env:
+        - name: "MYSQL_ROOT_PASSWORD"
+          value: "example-password"

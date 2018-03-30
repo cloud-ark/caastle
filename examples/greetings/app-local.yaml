@@ -1,0 +1,9 @@
+app:
+  image: greetlocal:1510614146394
+  container_port: 5000
+  env:
+    PASSWORD: $CLOUDARK_MYSQL_Password
+    DB: $CLOUDARK_MYSQL_DBName
+    HOST: $CLOUDARK_MYSQL_DBHOST
+    USER: $CLOUDARK_MYSQL_Username
+    

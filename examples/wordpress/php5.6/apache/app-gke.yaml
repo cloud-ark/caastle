@@ -1,0 +1,9 @@
+app:
+  image: us.gcr.io/cloudark-test-gke/cont1:1513119994006
+  container_port: 80
+  env:
+    WORDPRESS_DB_PASSWORD: $CLOUDARK_CLOUDSQL_Password
+    WORDPRESS_DB_NAME: $CLOUDARK_CLOUDSQL_DBName
+    WORDPRESS_DB_HOST: $CLOUDARK_CLOUDSQL_Address
+    WORDPRESS_DB_USER: $CLOUDARK_CLOUDSQL_Username
+    

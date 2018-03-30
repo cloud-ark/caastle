@@ -1,0 +1,5 @@
+environment:
+  app_deployment:
+    target: local
+    type: local-docker
+ 

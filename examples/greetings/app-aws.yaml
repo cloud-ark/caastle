@@ -1,0 +1,9 @@
+app:
+  image: us.gcr.io/cloudark-test-gke/greetcont1:1513548972858
+  container_port: 5000
+  env:
+    PASSWORD: $CLOUDARK_RDS_MasterUserPassword
+    DB: $CLOUDARK_RDS_DBName
+    HOST: $CLOUDARK_RDS_Address
+    USER: $CLOUDARK_RDS_MasterUsername
+    

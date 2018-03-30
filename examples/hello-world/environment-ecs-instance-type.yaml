@@ -1,0 +1,7 @@
+environment:
+  app_deployment:
+    target: aws
+    type: ecs
+    instance_type: t2.medium
+ 
+

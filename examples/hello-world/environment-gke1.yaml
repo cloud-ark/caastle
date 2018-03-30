@@ -1,0 +1,6 @@
+environment:
+  app_deployment:
+    target: gcloud
+    type: gke
+    project: cloudark-test-gke 
+    zone: us-central1-b

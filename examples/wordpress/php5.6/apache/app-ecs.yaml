@@ -1,0 +1,9 @@
+app:
+  image: 007068346857.dkr.ecr.us-west-2.amazonaws.com/greetaws2:1510517823079
+  container_port: 80
+  env:
+    WORDPRESS_DB_PASSWORD: $CLOUDARK_RDS_MasterUserPassword
+    WORDPRESS_DB_NAME: $CLOUDARK_RDS_DBName
+    WORDPRESS_DB_HOST: $CLOUDARK_RDS_Address
+    WORDPRESS_DB_USER: $CLOUDARK_RDS_MasterUsername
+    

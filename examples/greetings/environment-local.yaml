@@ -1,0 +1,8 @@
+environment:
+  resources:
+    local:
+      - resource:
+          type: mysql
+  app_deployment:
+    target: local
+    type: local-docker
