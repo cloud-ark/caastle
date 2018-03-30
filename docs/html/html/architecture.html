@@ -79,7 +79,7 @@ a queue-based approach. But because our goal was to create a <em>non-hosted</em>
 only as the thread package is available only in Python 2.7. We have an <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/34">open</a> issue for making CaaStle
 use concurrency mechanisms available in the latest versions of Python.</p>
 <p>For making calls against cloud endpoints, appropriate authorization credentials are needed. CaaStle provides commands to do the credential setup.
-More information about CaaStle’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/cloud_auth.html">authorization details</a> section.</p>
+More information about CaaStle’s authorization needs is available in the <a class="reference external" href="https://cloud-ark.github.io/caastle/docs/html/html/cloud_auth.html">authorization details</a> section.</p>
 <p>We want CaaStle to be at least as reliable as the underlying Cloud. This led us to not use any timeouts
 for cloud resource creation actions. After CaaStle initiates a creation call to the cloud, it periodically
 reads the status of the resource and updates its internal state. CaaStle terminates this polling only if
@@ -98,7 +98,7 @@ We have built <a class="reference external" href="https://hub.docker.com/r/lmecl
 <p>We build custom Docker images corresponding to a CLI call. The corresponding Dockerfiles
 are stored in application-specific folder inside ~/.cld/data/deployments directory.
 This approach has the benefit that there is no need for the user to install cloud CLIs on his/her machine.
-In fact, we leverage this same mechanism to support <a class="reference external" href="https://cloud-ark.github.io/cloudark/docs/html/html/faq.html">environment-specific shell</a>.</p>
+In fact, we leverage this same mechanism to support <a class="reference external" href="https://cloud-ark.github.io/caastle/docs/html/html/faq.html">environment-specific shell</a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation Details</a></li>

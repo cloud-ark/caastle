@@ -105,7 +105,7 @@ managed cloud services and COE cluster from any hosting provider of their choice
 <div>The policy attribute is used to control accessibility of the DB instance. This attribute contains
 a sub-attribute <em>access</em> whose value controls this aspect. If <em>access</em> is set to <em>open</em>, the RDS instance
 will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
-accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>.</div></blockquote>
+accessible only from IP address in that CIDR subnet. An example of environment definition with these options can be seen <a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/greetings/environment-rds-local.yaml">here</a>.</div></blockquote>
 <blockquote>
 <div>The policy attribute is useful during development when you may want to connect to the RDS instance from your development machine.</div></blockquote>
 <ol class="arabic" start="2">
@@ -113,7 +113,7 @@ accessible only from IP address in that CIDR subnet. An example of environment d
 <p><em>Configuration attributes: cluster_size, instance_type</em></p>
 <p>Default value for cluster_size is 1. Default value for instance_type is t2.micro</p>
 <p>The configuration attributes for ecs are specified in the <em>app_deployment</em> section of the environment definition.</p>
-<p>Here are examples of environment definitions showing use of <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-size-2.yaml">cluster_size</a> and <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-instance-type.yaml">instance_type</a> attributes.</p>
+<p>Here are examples of environment definitions showing use of <a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/hello-world/environment-ecs-size-2.yaml">cluster_size</a> and <a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/hello-world/environment-ecs-instance-type.yaml">instance_type</a> attributes.</p>
 </li>
 </ol>
 <blockquote>
@@ -125,7 +125,7 @@ accessible only from IP address in that CIDR subnet. An example of environment d
 <p>The policy attribute is used to control accessibility of the DB instance. This attribute contains
 a sub-attribute <em>access</em> whose value controls this aspect. If <em>access</em> is set to <em>open</em>, the RDS instance
 will be accessible from anywhere. If it is set to particular CIDR address then the instance will be
-accessible only from IP address in that CIDR subnet. Note that this option is similar for cloudsql and rds as shown <a class="reference external" href="https://github.com/cloud-ark/cloudark-samples/blob/master/greetings/environment-rds-local.yaml">here</a>.</p>
+accessible only from IP address in that CIDR subnet. Note that this option is similar for cloudsql and rds as shown <a class="reference external" href="https://github.com/cloud-ark/caastle/blob/master/examples/greetings/environment-rds-local.yaml">here</a>.</p>
 <p>The db instance is created with db-n1-standard-1 tier type. We have an issue <a class="reference external" href="https://github.com/cloud-ark/cloudark/issues/123">open</a> to make this attribute settable.</p>
 </li>
 </ol>
