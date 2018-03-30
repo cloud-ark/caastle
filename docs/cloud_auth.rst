@@ -5,7 +5,7 @@ Cloud Authorization Explained
 CaaStle uses combination of target cloud's SDKs and CLIs as cloud deployment mechanisms.
 The reason for this two-pronged approach is explained in `architecture section`__.
 
-.. _arch: https://cloud-ark.github.io/cloudark/docs/html/html/architecture.html
+.. _arch: https://cloud-ark.github.io/caastle/docs/html/html/architecture.html
 
 __ arch_
 

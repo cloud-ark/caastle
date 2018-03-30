@@ -35,7 +35,7 @@ use concurrency mechanisms available in the latest versions of Python.
 For making calls against cloud endpoints, appropriate authorization credentials are needed. CaaStle provides commands to do the credential setup.
 More information about CaaStle's authorization needs is available in the `authorization details`__ section.
 
-.. _auth: https://cloud-ark.github.io/cloudark/docs/html/html/cloud_auth.html
+.. _auth: https://cloud-ark.github.io/caastle/docs/html/html/cloud_auth.html
 
 __ auth_
 
@@ -68,7 +68,7 @@ are stored in application-specific folder inside ~/.cld/data/deployments directo
 This approach has the benefit that there is no need for the user to install cloud CLIs on his/her machine.
 In fact, we leverage this same mechanism to support `environment-specific shell`__.
 
-.. _envshell: https://cloud-ark.github.io/cloudark/docs/html/html/faq.html
+.. _envshell: https://cloud-ark.github.io/caastle/docs/html/html/faq.html
 
 __ envshell_
 

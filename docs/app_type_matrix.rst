@@ -21,13 +21,13 @@ Following table shows currently supported application types, application definit
 
 Upcoming: Multi-container application on AWS (based on ECS Fargate or EKS)
 
-.. _hello-world: https://github.com/cloud-ark/cloudark-samples/tree/master/hello-world
+.. _hello-world: https://github.com/cloud-ark/caastle/tree/master/examples/hello-world
 
-.. _greetings: https://github.com/cloud-ark/cloudark-samples/tree/master/greetings
+.. _greetings: https://github.com/cloud-ark/caastle/tree/master/examples/greetings
 
-.. _wordpress: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress/php5.6/apache
+.. _wordpress: https://github.com/cloud-ark/caastle/tree/master/examples/wordpress/php5.6/apache
 
-.. _wordpress_kubernetes_pods: https://github.com/cloud-ark/cloudark-samples/tree/master/wordpress-kubernetes-pods
+.. _wordpress_kubernetes_pods: https://github.com/cloud-ark/caastle/tree/master/examples/wordpress-kubernetes-pods
 
 
 
