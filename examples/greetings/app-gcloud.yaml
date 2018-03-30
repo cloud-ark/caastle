@@ -1,0 +1,9 @@
+app:
+  image: us.gcr.io/cloudark-test-gke/greetcont1:1513548972858
+  container_port: 5000
+  env:
+    PASSWORD: $CLOUDARK_CLOUDSQL_Password
+    DB: $CLOUDARK_CLOUDSQL_DBName
+    HOST: $CLOUDARK_CLOUDSQL_Address
+    USER: $CLOUDARK_CLOUDSQL_Username
+    

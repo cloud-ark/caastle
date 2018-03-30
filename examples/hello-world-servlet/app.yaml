@@ -1,0 +1,3 @@
+app:
+  image: us.gcr.io/cloudark-test-gke/cont3:1513015842063
+  container_port: 8080

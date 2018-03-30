@@ -1,0 +1,5 @@
+environment:
+  app_deployment:
+    target: gcloud
+    type: gke
+    instance_type: n1-standard-2

@@ -1,0 +1,9 @@
+environment:
+  resources:
+    gcloud:
+      - resource:
+          type: cloudsql
+  app_deployment:
+    target: gcloud
+    type: gke
+

@@ -1,0 +1,15 @@
+environment:
+  resources:
+    gcloud:
+      - resource:
+          type: cloudsql
+          project: 'conf-registration-company-a'
+          policy:
+            access: open
+          username: testuser
+          password: testuser123
+          configuration:
+            dbname: testdb1
+  app_deployment:
+    target: aws
+    type: ecs

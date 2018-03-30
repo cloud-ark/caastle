@@ -1,0 +1,6 @@
+environment:
+  app_deployment:
+    target: gcloud
+    type: gke
+    project: conf-registration-company-a
+    zone: us-central1-b

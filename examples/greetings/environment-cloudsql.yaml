@@ -1,0 +1,6 @@
+environment:
+  resources:
+    gcloud:
+      - resource:
+          type: cloudsql
+
