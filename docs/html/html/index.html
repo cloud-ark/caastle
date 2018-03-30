@@ -4,34 +4,25 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to CloudARK’s documentation &#8212; CloudARK 0.0.1 documentation</title>
+    <title>Welcome to CaaStle’s documentation &#8212; CaaStle 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  false,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Environment" href="environment.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="environment.html" title="Environment"
              accesskey="N">next</a></li>
-        <li class="nav-item nav-item-0"><a href="#">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -41,12 +32,14 @@
                         title="next chapter">Environment</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -57,18 +50,16 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-cloudark-s-documentation">
-<h1>Welcome to CloudARK’s documentation</h1>
-<p>Platform of an application is defined as the run-time environment in which the application runs. It includes application code, application servers, and application’s external resource dependencies such as databases.</p>
-<p>In case of a containerized cloud application, platform elements generally include:</p>
-<ul class="simple">
-<li>Application container/s</li>
-<li>Container orchestration engine cluster</li>
-<li>Required managed cloud services like database-as-a-service, load balancers, etc.</li>
-</ul>
-<p>Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files. These platform definitions can be version controlled and follow software development life-cycle. Refer to our free <a class="reference external" href="https://cloudark.io/resources">whitepaper</a> for more about Platform-as-Code (PaC) paradigm.</p>
-<p>CloudARK is an implementation of Platform-as-Code (PaC) paradigm.</p>
-<p>There are two main abstractions in CloudARK - <em>Environment</em> and <em>Application</em>.</p>
+  <div class="section" id="welcome-to-caastle-s-documentation">
+<h1>Welcome to CaaStle’s documentation</h1>
+<p>CaaStle is a Full-stack microservices development and deployment tool for Google Kubernetes Engine and Amazon Elastic Container Service.</p>
+<p>CaaStle makes it easy to develop and deploy microservices that use managed services such as Google Cloud SQL and Amazon RDS.</p>
+<p>CaaStle is implemented following the principles of Platform-as-Code paradigm.</p>
+<p>Blog article about Platform-as-Code paradigm:</p>
+<p><a class="reference external" href="https://medium.com/&#64;cloudark/introducing-platform-as-code-b6677c699b4">https://medium.com/&#64;cloudark/introducing-platform-as-code-b6677c699b4</a></p>
+<p>Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
+Such declarative platform definitions can be version controlled, shared, analyzed. This simplifies the task of developing microservice based applications</p>
+<p>There are two main abstractions in CaaStle - <em>Environment</em> and <em>Application</em>.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -79,19 +70,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="env_vars.html">Environment Variables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="architecture.html">CloudARK Architecture</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">CaaStle Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="implementation.html">Implementation Details</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CloudARK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CaaStle</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="deployments.html">CloudARK Setup</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="deployments.html">CaaStle Setup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gke.html">Google Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ecs.html">Amazon Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cloud_auth.html">Cloud Authorization Explained</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">CloudARK CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CaaStle CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQ)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samples.html">Sample Deployments</a></li>
@@ -113,7 +104,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="environment.html" title="Environment"
              >next</a></li>
-        <li class="nav-item nav-item-0"><a href="#">CloudARK 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">CaaStle 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

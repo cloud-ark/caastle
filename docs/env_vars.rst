@@ -1,7 +1,7 @@
 Environment Variables
 ----------------------
 
-CloudARK application definition format: 
+CaaStle application definition format: 
 
 Environment variables are defined in application yaml file under *env* section for
 single container applications. 
@@ -60,7 +60,7 @@ following `12-factor design principles`__.
 __ Twelve_
 
 The value of the parameter that needs to be bound to an attribute of the cloud resource in an environment
-is set as an *interpolated variables*. CloudARK defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
+is set as an *interpolated variables*. CaaStle defines following format for this purpose: $CLOUDARK_<TYPE>_<Attribute>.
 The *TYPE* is one of the supported resource types (represented in uppercase).
 *Attribute* is the exact name of one of the output attributes of the provisioned resource.
 All the output attributes available for a resource can be obtained by querying the resource
@@ -68,7 +68,7 @@ using 'cld resource show <env-name>' command.
 
 In the above example, by defining the value of the PASSWORD environment variable as
 a interpolated value of $CLOUDARK_RDS_MasterUserPassword,
-CloudARK will set the value of the PASSWORD to the MasterUserPassword of
+CaaStle will set the value of the PASSWORD to the MasterUserPassword of
 the RDS instance provisioned in the environment in which the application is deployed.
 
 Mechanism of interpolated variables makes the application definition reusable across environments.

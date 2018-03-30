@@ -33,12 +33,12 @@ cluster should be created. The type attribute identifies the type of the COE.
 Using target and type attributes we are able to capture different combinations of
 clouds and COEs such as, <aws, ecs>, <aws, kubernetes>, <gcloud, gke>, etc.
 
-CloudARK environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
+CaaStle environment definition format is built to serve multi-cloud / cross-cloud scenarios so that developers can choose
 managed cloud services and COE cluster from any hosting provider of their choice. The framework is extensible to accommodate even third-party managed cloud services.
 
 An environment is created using 'cld environment create <env-name> <env yaml>' command.
 
-Here are the currently supported resources in an environment definition in CloudARK.
+Here are the currently supported resources in an environment definition in CaaStle.
 
 
 **AWS resource types**
@@ -80,7 +80,7 @@ Here are the currently supported resources in an environment definition in Cloud
 
 .. _instance_type: https://github.com/cloud-ark/cloudark-samples/blob/master/hello-world/environment-ecs-instance-type.yaml
 
-   For the machine image, CloudARK uses AWS machine image that has ECS agent baked in.
+   For the machine image, CaaStle uses AWS machine image that has ECS agent baked in.
 
 
 **Google Cloud resource types**

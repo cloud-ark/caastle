@@ -3,26 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to CloudARK's documentation
+Welcome to CaaStle's documentation
 ====================================
 
-Platform of an application is defined as the run-time environment in which the application runs. It includes application code, application servers, and application’s external resource dependencies such as databases.
+CaaStle is a Full-stack microservices development and deployment tool for Google Kubernetes Engine and Amazon Elastic Container Service.
 
-In case of a containerized cloud application, platform elements generally include:
+CaaStle makes it easy to develop and deploy microservices that use managed services such as Google Cloud SQL and Amazon RDS.
 
-- Application container/s
+CaaStle is implemented following the principles of Platform-as-Code paradigm. 
 
-- Container orchestration engine cluster
+Blog article about Platform-as-Code paradigm:
 
-- Required managed cloud services like database-as-a-service, load balancers, etc.
+https://medium.com/@cloudark/introducing-platform-as-code-b6677c699b4
 
-Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files. These platform definitions can be version controlled and follow software development life-cycle. Refer to our free whitepaper_ for more about Platform-as-Code (PaC) paradigm.
+Platform-as-Code paradigm offers ability to define all platform elements of a containerized cloud application using declarative configuration files.
+Such declarative platform definitions can be version controlled, shared, analyzed. This simplifies the task of developing microservice based applications
 
-.. _whitepaper:  https://cloudark.io/resources
-
-CloudARK is an implementation of Platform-as-Code (PaC) paradigm.
-
-There are two main abstractions in CloudARK - *Environment* and *Application*.
+There are two main abstractions in CaaStle - *Environment* and *Application*.
 
 
 .. toctree::

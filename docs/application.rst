@@ -1,9 +1,9 @@
 Application
 ------------
 
-An application is composed of a single or multiple Docker containers in CloudARK.
+An application is composed of a single or multiple Docker containers in CaaStle.
 
-CloudARK offers ‘cld container create’ command to build your application container/s from your Docker files and push them to your registry of choice.
+CaaStle offers ‘cld container create’ command to build your application container/s from your Docker files and push them to your registry of choice.
 The container is appropriately tagged for AWS ECR or Google GCR to make it ready to run on COE target of your choice.
 
 Note that for GCR currently all the images are stored in the us.gcr.io region_. We have an `issue open`__ to support different regions.
@@ -39,7 +39,7 @@ Application is deployed in an *environment*. The application deployment action t
 the name of the environment as input ('cld app deploy <app-name> <env-name> <app yaml>').
 app.yaml contains definition of the application container image, the container port
 and any environment variables.
-As part of the deployment steps CloudARK binds the application container(s) to cloud resources
+As part of the deployment steps CaaStle binds the application container(s) to cloud resources
 defined in the environment.
 
 For single container applications currently a single instance of the application container is deployed on the cluster in the environment.

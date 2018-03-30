@@ -1,7 +1,7 @@
-Extending CloudARK
+Extending CaaStle
 -------------------
 
-It is straightforward to extend CloudARK to add new functionality. If you want a new client-side
+It is straightforward to extend CaaStle to add new functionality. If you want a new client-side
 command, add it in the client folder and hook it up with the rest of the client-side
 system by making entry for it in the setup.py client module.
 
@@ -13,5 +13,5 @@ If you want to extend server-side functionality, the key places to look at are:
 
 - server/setup.py: This is the module where stevedore entrypoints are set.
 
-- server/dbmodule: This package includes CloudARK's state management functionality.
+- server/dbmodule: This package includes CaaStle's state management functionality.
 
