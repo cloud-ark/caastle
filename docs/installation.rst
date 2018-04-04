@@ -43,3 +43,12 @@ $ docker ps -a
 Docker for Mac: https://docs.docker.com/docker-for-mac/install/
 
 
+**Installation Steps**
+
+1) Run install.sh
+
+$ ./install.sh
+
+Then follow Google Setup or Amazon Setup as required.
+
+
