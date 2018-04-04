@@ -122,7 +122,7 @@ Once you have installed Docker follow these steps:
 
 4) Start CaaStle server
 
-   $ ./start-cloudark.sh
+   $ ./start-caastle.sh
 
 5) Choose a sample application from examples folder and follow the steps in the included README
 

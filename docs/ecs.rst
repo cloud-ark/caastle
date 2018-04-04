@@ -7,7 +7,7 @@ $ cld setup aws
 This will prompt you to enter AWS access_key_id, secret_access_key, region, output format.
 Follow the prompts and provide the required input.
 
-$ ./restart-cloudark.sh
+$ ./start-caastle.sh or ./restart-caastle.sh
 
 
 Your AWS user will need to have following managed policies in order to do deployments using CaaStle.
