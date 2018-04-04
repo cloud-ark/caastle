@@ -32,6 +32,8 @@ GCR = "us.gcr.io"
 
 GCLOUD_ACTION_TIMEOUT = 60
 
+DEFAULT_MACHINE_TYPE = 'g1-small'
+
 class GKEHandler(coe_base.COEBase):
     """GKE Handler."""
 
@@ -249,7 +251,7 @@ class GKEHandler(coe_base.COEBase):
         res_data['filtered_description'] = str(filtered_description)
         res_db.Resource().update(res_id, res_data)
 
-        instance_type = 'n1-standard-1'
+        instance_type = DEFAULT_MACHINE_TYPE
         if 'instance_type' in env_details['environment']['app_deployment']:
             instance_type = env_details['environment']['app_deployment']['instance_type']
 

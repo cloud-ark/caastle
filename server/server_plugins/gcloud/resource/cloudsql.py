@@ -14,6 +14,7 @@ from server.server_plugins.gcloud import gcloud_helper
 
 fmlogger = fm_logger.Logging()
 
+DEFAULT_TIER = 'db-f1-micro'
 
 class CloudSQLResourceHandler(resource_base.ResourceBase):
     """CloudSQL Resource handler."""
@@ -113,14 +114,14 @@ class CloudSQLResourceHandler(resource_base.ResourceBase):
         if authorizedNetworks:
             database_instance_body = {
                 'name': instance_id,
-                'settings': {'tier': 'db-n1-standard-1',
+                'settings': {'tier': DEFAULT_TIER,
                              'ipConfiguration': {
                                  'authorizedNetworks': [{'value': authorizedNetworks}]}},
             }
         else:
             database_instance_body = {
                 'name': instance_id,
-                'settings': {'tier': 'db-n1-standard-1'},
+                'settings': {'tier': DEFAULT_TIER},
             }
 
         create_request = CloudSQLResourceHandler.service.instances().insert(
