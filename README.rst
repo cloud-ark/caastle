@@ -7,7 +7,7 @@ and application’s external resource dependencies such as managed database serv
 Platform-as-Code_ paradigm offers ability to define all such platform elements of a containerized cloud application using declarative configuration files.
 These platform definitions can be version controlled and follow software development lifecycle.
 
-.. _Platform-as-Code: https://cloudark.io
+.. _Platform-as-Code: https://medium.com/@cloudark/evolution-of-paases-to-platform-as-code-in-kubernetes-world-74464b0013ca
 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 75%
@@ -15,7 +15,7 @@ These platform definitions can be version controlled and follow software develop
 
 Blog article about Platform-as-Code paradigm:
 
-https://medium.com/@cloudark/introducing-platform-as-code-b6677c699b4
+https://medium.com/@cloudark/evolution-of-paases-to-platform-as-code-in-kubernetes-world-74464b0013ca
 
 
 CaaStle is a **full-stack microservices development and deployment tool** that is implemented using Platform-as-Code principles.
@@ -23,7 +23,7 @@ Currently CaaStle supports Google Cloud and Amazon AWS.
 
 Key elements of CaaStle
 
-- **Intelligent abstractions**:
+- **Application-centric abstractions**:
 
   *Environment* is the top level abstraction. It defines container orchestration engine cluster and managed cloud services for the application.
   *Application* is composed of one or more application container/s and is deployed in the environment.
@@ -262,7 +262,12 @@ There is no private / public hosted central server like PaaSes. This approach he
 2) **How is Platform-as-Code different from Infrastructure-as-Code (IaC) ?**
 
 Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
-In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture.
+In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture. PaC focuses on provisioning Platform elements such as databases and their
+`binding with the application`__.
+
+.. _binding: https://medium.com/@cloudark/microservices-and-relational-data-stores-in-public-clouds-7c7949d29ae1
+
+__ binding_
 
 3) `Deploying on Google GKE`__
 
