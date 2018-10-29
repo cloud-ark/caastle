@@ -2,31 +2,21 @@
 CaaStle
 =========
 
-Platform of containerized applications/microservices includes application/web servers, container orchestration engine clusters,
-and application’s external resource dependencies such as managed database servers.
-Platform-as-Code_ paradigm offers ability to define all such platform elements of a containerized cloud application using declarative configuration files.
-These platform definitions can be version controlled and follow software development lifecycle.
+CaaStle is a **full-stack microservices deployment tool** for Google Kubernetes Engine (GKE) and Amazon ECS.
 
-.. _Platform-as-Code: https://medium.com/@cloudark/evolution-of-paases-to-platform-as-code-in-kubernetes-world-74464b0013ca
+Platform of containerized applications/microservices includes application/web servers, container orchestration engine clusters, and application’s external resource dependencies such as managed database servers.
 
 .. image:: ./docs/screenshots/Block-diagram-short.png
    :scale: 75%
    :align: center
 
-Blog article about Platform-as-Code paradigm:
-
-https://medium.com/@cloudark/evolution-of-paases-to-platform-as-code-in-kubernetes-world-74464b0013ca
-
-
-CaaStle is a **full-stack microservices development and deployment tool** that is implemented using Platform-as-Code principles.
-Currently CaaStle supports Google Cloud and Amazon AWS.
 
 Key elements of CaaStle
 
 - **Application-centric abstractions**:
 
-  *Environment* is the top level abstraction. It defines container orchestration engine cluster and managed cloud services for the application.
-  *Application* is composed of one or more application container/s and is deployed in the environment.
+  *Environment* is the top level abstraction. It defines container orchestration engine cluster and managed cloud services needed by the application.
+  *Application* is composed of one or more application containers and is deployed in the environment.
   You get a shell customized for the environment with ability to directly use cloud-native CLIs against the platform elements created in that environment.
 
 - **Declarative platform definition**:
@@ -50,20 +40,6 @@ Key elements of CaaStle
   CaaStle is a non-hosted implementation. There is no centralized server like PaaS implementations. CaaStle can be installed anywhere alongside Docker.
   This architecture enables effective local development with Docker environments setup on the individual workstations or laptops.
   The non-hosted nature also simplifies integration of CaaStle with any DevOps workflow.
-
-
-Use CaaStle to develop and deploy full-stack microservices on Google GKE and Amazon ECS:
-
-- Common language between developers and Ops to share the platform definition of a containerized cloud application. 
-
-- Full-stack application view for better control. 
-
-- Ultimate dev/prod parity_ between local Docker environment and production cloud environment.
-
-- Non-hosted implementation for simplicity and usability.
-
-.. _parity: https://github.com/cloud-ark/caastle/blob/master/examples/greetings/README.txt
-
 
 
 Read this_ for more details about CaaStle
@@ -174,6 +150,26 @@ Commands:
   setup gcloud
 
 
+
+Deployment Examples:
+--------------------
+
+1) `Deploying on Google GKE`__
+
+.. _GKE: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-gke
+
+__ GKE_
+
+
+2) `Deploying on Amazon ECS`__
+
+.. _ECS: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-amazon-ecs
+
+__ ECS_
+
+
+
+
 Demo Videos:
 ------------
 
@@ -251,39 +247,9 @@ Wordpress deployment on ECS
       :scale: 125%
 
 
-Details
---------
+Issues
+=======
 
-1) **How is Platform-as-Code different from Platform-as-a-Service (PaaS)?**
+Suggestions/Issues are welcome_.
 
-Platform-as-Code is a *non-hosted* implementation of platform functionality.
-There is no private / public hosted central server like PaaSes. This approach helps improve dev/prod parity and ability to recreate application environments anywhere.
-
-2) **How is Platform-as-Code different from Infrastructure-as-Code (IaC) ?**
-
-Infrastructure-as-Code implementation treats every platform element as infrastructure resource.
-In contrast, Platform-as-Code offers *application-centric abstractions* that simplify modeling a deployment as per the application architecture. PaC focuses on provisioning Platform elements such as databases and their
-`binding with the application`__.
-
-.. _binding: https://medium.com/@cloudark/microservices-and-relational-data-stores-in-public-clouds-7c7949d29ae1
-
-__ binding_
-
-3) `Deploying on Google GKE`__
-
-.. _GKE: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-gke
-
-__ GKE_
-
-
-4) `Deploying on Amazon ECS`__
-
-.. _ECS: https://cloud-ark.github.io/caastle/docs/html/html/deployments.html#deployment-to-amazon-ecs
-
-__ ECS_
-
-
-Contact:
---------
-
-Devdatta Kulkarni: devdatta at cloudark dot io
+.. _welcome: https://github.com/cloud-ark/caastle/issues
